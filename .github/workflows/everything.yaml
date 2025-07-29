@@ -42,9 +42,4 @@ jobs:
 
       - name: UPLOADING THE CODE
         run: |
-          # scp -r -o StrictHostKeyChecking=no -i "~/.ssh/id_rsa" ./ ${{env.EC2_USER_Y_HOST}}:~/
-          ssh -o StrictHostKeyChecking=no -i "~/.ssh/id_rsa" ${{env.EC2_USER_Y_HOST}} "export"
-
-
-          
-      
+          scp -r -o StrictHostKeyChecking=no -i "~/.ssh/id_rsa" ./ ${{env.EC2_USER_Y_HOST}}:~/
