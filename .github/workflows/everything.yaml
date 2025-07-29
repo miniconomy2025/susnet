@@ -1,0 +1,29 @@
+name: CDK-CICD
+
+on:
+  push:
+    branches: [infrastructure]
+  pull_request:
+    branches: [infrastructure]
+
+env:
+  AWS_REGION: af-south-1
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  CDK:
+    runs-on: [ubuntu-latest]
+    steps:
+      - name: Configure AWS Credentials Action for GitHub Actions
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::978251882572:role/GitHubActionsDeploymentRole #NEVER CHANGE THIS
+          role-session-name: GitHub_to_AWS_via_FederatedOIDC
+          aws-region: ${{env.AWS_REGION}}
+
+      - name: Running that thang
+        run: |
+        export
