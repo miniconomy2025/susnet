@@ -7,7 +7,7 @@ if command -v deno >/dev/null 2>&1; then
   echo "Deno is already installed: $(deno --version)"
 else
   echo "Deno not found, installing..."
-  curl -fsSL https://deno.land/install.sh | sh
+  sudo curl -fsSL https://deno.land/install.sh | sudo sh
 
   # Add Deno to PATH for this session
   export DENO_INSTALL="${HOME}/.deno"
