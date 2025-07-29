@@ -41,7 +41,7 @@ jobs:
 
       - name: UPLOADING THE CODE
         run: |
-          scp -r -o StrictHostKeyChecking=no -i "~/.ssh/id_rsa" ./ ec2-user@ec2-13-246-228-91.af-south-1.compute.amazonaws.com:~/
+          scp -r -o StrictHostKeyChecking=no -i "~/.ssh/id_rsa" ./ $EC2_USER_Y_HOST:~/
 
 
           
