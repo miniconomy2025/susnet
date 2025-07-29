@@ -26,4 +26,4 @@ jobs:
 
       - name: Running that thang
         run: |
-        export
+          export
