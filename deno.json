@@ -1,0 +1,36 @@
+{
+  "tasks": {
+    "dev": "deno run --allow-env --allow-net --watch server/main.ts",
+
+    "fe": "deno run -A --node-modules-dir npm:vite",
+    "build": "deno run -A --node-modules-dir npm:vite build",
+    "preview": "deno run -A --node-modules-dir npm:vite preview",
+    "serve": "deno run --allow-net --allow-read jsr:@std/http@1/file-server frontend/dist/"
+  },
+  "nodeModulesDir": "auto",
+  "imports": {
+    "@fedify/fedify": "jsr:@fedify/fedify@^1.7.7",
+
+    "effect": "npm:effect@^3.17.3",
+    "effect-mongodb": "npm:effect-mongodb@^0.3.1",
+    "effect/platform": "npm:@effect/platform",
+
+    "@deno/vite-plugin": "npm:@deno/vite-plugin@^1.0.5",
+    "@types/react": "npm:@types/react@^19.1.8",
+    "@types/react-dom": "npm:@types/react-dom@^19.1.6",
+    "@vitejs/plugin-react": "npm:@vitejs/plugin-react@^4.6.0",
+    "mongodb": "npm:mongodb@^6.18.0",
+    "react": "npm:react@^19.1.0",
+    "react-dom": "npm:react-dom@^19.1.0",
+    "vite": "npm:vite@^7.0.0"
+  },
+  "unstable": [ "kv", "temporal" ],
+  "compilerOptions": {
+    "strict": true,
+    "exactOptionalPropertyTypes": true,
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
+    "jsxImportSource": "react",
+    "jsxImportSourceTypes": "@types/react"
+  }
+}
