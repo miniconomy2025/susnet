@@ -32,17 +32,18 @@ jobs:
         with:
           secret-ids: |
             THE_KEY, the-key
+          parse-json-secrets: false
           
       - name: SETTING UP THE KEY
         run: |
           mkdir -p ~/.ssh
-          echo "$THE_KEY" > ~/.ssh/id_rsa
+          echo "${{env.THE_KEY}}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
       - name: UPLOADING THE CODE
         run: |
-          # scp -r -o StrictHostKeyChecking=no -i "~/.ssh/id_rsa" ./ $EC2_USER_Y_HOST:~/
-          ssh -o StrictHostKeyChecking=no -i "~/.ssh/id_rsa" ./ $EC2_USER_Y_HOST "export"
+          # scp -r -o StrictHostKeyChecking=no -i "~/.ssh/id_rsa" ./ ${{env.EC2_USER_Y_HOST}}:~/
+          ssh -o StrictHostKeyChecking=no -i "~/.ssh/id_rsa" ${{env.EC2_USER_Y_HOST}} "export"
 
 
           
