@@ -11,3 +11,21 @@
 
 ## About
 [Reddit](https://reddit.com) clone built for the [fediverse](https://en.wikipedia.org/wiki/Fediverse) using [ActivityPub](https://activitypub.rocks)
+
+
+## Usage
+
+### Frontend dev
+```bash
+deno run fe
+```
+
+### Backend dev
+```bash
+deno run dev
+```
+
+### Build frontend & serve with backend
+```bash
+deno run full
+```
