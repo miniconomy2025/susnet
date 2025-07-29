@@ -2,31 +2,28 @@
 set -e
 set -u
 
-# --- Install Deno Permanently ---
-echo "=== Checking for Deno ==="
+# --- Install Deno System-Wide ---
+echo "=== Checking for system-wide Deno ==="
 if command -v deno >/dev/null 2>&1; then
   echo "Deno is already installed: $(deno --version)"
 else
-  echo "Deno not found, installing..."
+  echo "Deno not found, installing system-wide..."
 
-  # Install Deno to the current user's home
-  curl -fsSL https://deno.land/install.sh | sh
+  export DENO_INSTALL=/usr/local/deno
+  sudo mkdir -p "$DENO_INSTALL"
+  sudo chown $USER:$USER "$DENO_INSTALL"
 
-  # Add Deno to PATH permanently by modifying ~/.bashrc (or ~/.profile if bashrc not sourced)
-  DENO_PROFILE_UPDATE='export DENO_INSTALL="$HOME/.deno"
-export PATH="$DENO_INSTALL/bin:$PATH"'
+  curl -fsSL https://deno.land/install.sh | DENO_INSTALL=$DENO_INSTALL sh
 
-  if ! grep -q "DENO_INSTALL" ~/.bashrc; then
-    echo "$DENO_PROFILE_UPDATE" >> ~/.bashrc
-    echo "Appended Deno PATH export to ~/.bashrc"
+  # Add to system-wide PATH if not already present
+  if [ ! -f /etc/profile.d/deno.sh ]; then
+    echo 'export DENO_INSTALL="/usr/local/deno"' | sudo tee /etc/profile.d/deno.sh > /dev/null
+    echo 'export PATH="$DENO_INSTALL/bin:$PATH"' | sudo tee -a /etc/profile.d/deno.sh > /dev/null
+    sudo chmod +x /etc/profile.d/deno.sh
+    echo "Added Deno to global PATH via /etc/profile.d/deno.sh"
   fi
 
-  if ! grep -q "DENO_INSTALL" ~/.profile; then
-    echo "$DENO_PROFILE_UPDATE" >> ~/.profile
-    echo "Appended Deno PATH export to ~/.profile"
-  fi
-
-  echo "Deno installed successfully"
+  echo "Deno installed successfully system-wide"
 fi
 
 # --- Install Git ---
