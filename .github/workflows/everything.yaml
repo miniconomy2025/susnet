@@ -17,13 +17,23 @@ jobs:
   CDK:
     runs-on: [ubuntu-latest]
     steps:
-      - name: Configure AWS Credentials Action for GitHub Actions
+      - name: AWS SETUP
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::978251882572:role/GitHubActionsDeploymentRole #NEVER CHANGE THIS
           role-session-name: GitHub_to_AWS_via_FederatedOIDC
           aws-region: ${{env.AWS_REGION}}
-
-      - name: Running that thang
+      - name: CHECKOUT
+        uses: actions/checkout@v4
+      
+      - name: GETTING THE KEY
+        uses: aws-actions/aws-secretsmanager-get-secrets@v2
+        with:
+          secret-ids: |
+            THE_KEY, the-key
+      - name: UPLOADING THAT THANG
         run: |
           export
+
+          
+      
