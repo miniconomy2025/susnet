@@ -8,6 +8,7 @@ on:
 
 env:
   AWS_REGION: af-south-1
+  EC2_USER_Y_HOST: ec2-user@ec2-13-247-250-53.af-south-1.compute.amazonaws.com
 
 permissions:
   id-token: write
@@ -31,9 +32,17 @@ jobs:
         with:
           secret-ids: |
             THE_KEY, the-key
-      - name: UPLOADING THAT THANG
+          
+      - name: SETTING UP THE KEY
         run: |
-          export
+          mkdir -p ~/.ssh
+          echo "$THE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+      - name: UPLOADING THE CODE
+        run: |
+          scp -o StrictHostKeyChecking=no -ir "~/.ssh/id_rsa" ./ ec2-user@ec2-13-246-228-91.af-south-1.compute.amazonaws.com:~/
+
 
           
       
