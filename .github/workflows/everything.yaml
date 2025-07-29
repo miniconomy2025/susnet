@@ -43,7 +43,7 @@ jobs:
       - name: UPLOADING THE CODE
         run: |
           scp -r -o StrictHostKeyChecking=no -i "~/.ssh/id_rsa" ./pre.sh ${{env.EC2_USER_Y_HOST}}:~/
-          ssh -o StrictHostKeyChecking=no -i "~/.ssh/id_rsa" ${{env.EC2_USER_Y_HOST}} "
-            chmod +X ./pre.sh
-            sudo ./pre.sh
-          "
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{ env.EC2_USER_Y_HOST }} << 'EOF'
+            chmod +x ~/pre.sh
+            sudo ~/pre.sh
+          EOF
