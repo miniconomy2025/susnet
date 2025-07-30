@@ -1,0 +1,49 @@
+name: CDK-CICD
+
+on:
+  push:
+    branches: [infrastructure]
+  pull_request:
+    branches: [infrastructure]
+
+env:
+  AWS_REGION: af-south-1
+  EC2_USER_Y_HOST: ec2-user@ec2-13-247-250-53.af-south-1.compute.amazonaws.com
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  CDK:
+    runs-on: [ubuntu-latest]
+    steps:
+      - name: AWS SETUP
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::978251882572:role/GitHubActionsDeploymentRole #NEVER CHANGE THIS
+          role-session-name: GitHub_to_AWS_via_FederatedOIDC
+          aws-region: ${{env.AWS_REGION}}
+      - name: CHECKOUT
+        uses: actions/checkout@v4
+      
+      - name: GETTING THE KEY
+        uses: aws-actions/aws-secretsmanager-get-secrets@v2
+        with:
+          secret-ids: |
+            THE_KEY, the-key
+          parse-json-secrets: false
+          
+      - name: SETTING UP THE KEY
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{env.THE_KEY}}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+      - name: UPLOADING THE CODE
+        run: |
+          scp -r -o StrictHostKeyChecking=no -i "~/.ssh/id_rsa" ./pre.sh ${{env.EC2_USER_Y_HOST}}:~/
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{ env.EC2_USER_Y_HOST }} << 'EOF'
+            chmod +x ~/pre.sh
+            sudo ~/pre.sh
+          EOF
