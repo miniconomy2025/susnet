@@ -40,8 +40,7 @@ jobs:
         run: |
           cd cdk-*
           npm i
-          npx cdk bootstrap
-          npx cdk deploy --require-approval never
+          npx cdk deploy --require-approval never || (npx cdk bootstrap && npx cdk deploy --require-approval never)
 
       
       - name: GETTING THE KEY
