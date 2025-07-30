@@ -29,7 +29,7 @@ jobs:
       - name: CHECKOUT
         uses: actions/checkout@v4
 
-      - name: DEPLOY CDK
+      - name: SETUP NODE
         uses: actions/setup-node@v4
         with: 
           node-version: 24
