@@ -28,7 +28,9 @@
     "vite": "npm:vite@^7.0.0",
 
     "mongodb": "npm:mongodb@^6.18.0",
-    "mongoose": "npm:mongoose@^8.17.0"
+    "mongoose": "npm:mongoose@^8.17.0",
+
+    "react-router-dom": "npm:react-router-dom@^7.7.1"
   },
   "unstable": [ "kv", "temporal" ],
   "compilerOptions": {
