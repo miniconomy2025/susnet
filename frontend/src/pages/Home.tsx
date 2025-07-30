@@ -1,5 +1,13 @@
+import FeedContainer from '../components/FeedContainer/FeedContainer';
+
 function Home() {
-  return <h1>Home Page</h1>
+	return (
+		<>
+			<div className="page">
+				<FeedContainer />
+			</div>
+		</>
+	);
 }
 
-export default Home
+export default Home;
