@@ -29,12 +29,13 @@ jobs:
       - name: CHECKOUT
         uses: actions/checkout@v4
 
-      - name: SETUP NODE
+      - name: DEPLOY CDK
         uses: actions/setup-node@v4
         with: 
           node-version: 24
           cache: 'npm'
-
+          cache-dependency-path: cdk-*/package-lock.json
+        
       - name: DEPLOY CDK
         run: |
           cd cdk-*
