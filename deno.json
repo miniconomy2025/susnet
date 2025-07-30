@@ -24,6 +24,7 @@
     "mongodb": "npm:mongodb@^6.18.0",
     "react": "npm:react@^19.1.0",
     "react-dom": "npm:react-dom@^19.1.0",
+    "react-router-dom": "npm:react-router-dom@^7.7.1",
     "vite": "npm:vite@^7.0.0"
   },
   "unstable": [ "kv", "temporal" ],
