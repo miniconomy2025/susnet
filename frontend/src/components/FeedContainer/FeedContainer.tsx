@@ -4,7 +4,7 @@ import FeedCard from '../FeedCard/FeedCard';
 function FeedContainer() {
 	const post = {
 		title: 'Check out this cool sunset!',
-		textBody: 'Captured this in Cape Town last weekend. Nature goes hard 🔥',
+		textBody: 'Captured this in Cape Town last weekend. Nature goes hard 🔥Captured this in Cape Town last weekend. Nature goes hard 🔥',
 		subreddit: 'southafrica',
 		isFollowing: false,
 		timestamp: 'Posted 2 hours ago',
