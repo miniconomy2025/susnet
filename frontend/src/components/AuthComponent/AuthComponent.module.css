@@ -1,0 +1,95 @@
+.authContainer {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.authCard {
+  background: var(--background-colour-light);
+  border-radius: 12px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  padding: 3rem;
+  width: 100%;
+  max-width: 30rem;
+}
+
+.authTitle {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-colour);
+  text-align: center;
+  margin: 0 0 8px 0;
+}
+
+.authSubtitle {
+  color: var(--text-colour);
+  text-align: center;
+  margin: 0 0 32px 0;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.oauthButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: none;
+  background: var(--primary-colour);
+  color: var(--text-colour);
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.oauthButton:hover {
+  border-color: var(--secondary-colour);
+  background: var(--primary-colour-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.oauthButton:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.oauthIcon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.googleButton:hover {
+  border-color: #4285f4;
+}
+
+.authFooter {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.authText {
+  font-size: 14px;
+  color: var(--text-colour);
+  text-align: center;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.authLink {
+  color: #667eea;
+  text-decoration: none;
+}
+
+.authLink:hover {
+  text-decoration: underline;
+}
