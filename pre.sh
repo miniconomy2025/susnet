@@ -9,7 +9,7 @@ if command -v deno >/dev/null 2>&1; then
 else
   echo "Deno not found, installing system-wide..."
 
-  export DENO_INSTALL=/usr/local/deno
+  export DENO_INSTALL=/usr
   sudo mkdir -p "$DENO_INSTALL"
   sudo chown $USER:$USER "$DENO_INSTALL"
 
