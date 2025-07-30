@@ -24,3 +24,5 @@ tmp/
 logs
 *.log
 *.local
+
+deno.lock
