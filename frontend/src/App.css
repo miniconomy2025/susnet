@@ -1,7 +1,21 @@
 #root {
-  height: 100%
+  height: 100%;
+}
+
+* { 
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  height: 100vh;
+  background-color: var(--background-colour);
 }
 
 .page {
+  display: flex;
+  flex-direction: column;
   height: 100%;
+  width: 100%;
 }

@@ -1,0 +1,11 @@
+.container {
+    max-width: var(--feed-card-max-width);
+    background-color: var(--background-colour-light);
+
+    padding: var(--gap-s);
+    border-radius: var(--border-radius);
+}
+
+.title {
+    font-weight: 700;
+}
