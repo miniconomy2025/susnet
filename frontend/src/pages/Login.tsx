@@ -1,5 +1,16 @@
+import AuthComponent from "../Components/AuthComponent/AuthComponent"
+
 function Login() {
-  return <h1>Login Page</h1>
+  const handleGoogleLogin = () => {
+    window.location.href = "/auth/google"
+  }
+
+  return (
+    <AuthComponent
+      onGoogleLogin={handleGoogleLogin}
+      isSignup={true}
+    />
+  )
 }
 
 export default Login

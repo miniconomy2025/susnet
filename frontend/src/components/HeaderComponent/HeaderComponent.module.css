@@ -1,0 +1,12 @@
+.headerContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background-color: var(--background-colour-dark);
+}
+
+.logo {
+  font-size: 2rem;
+  color: var(--text-colour);
+}
