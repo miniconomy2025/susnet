@@ -32,6 +32,7 @@ export class CdkSusnetStack extends cdk.Stack {
 
     // Step 3: Attach the desired policies
     githubActionsRole.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('SecretsManagerReadWrite'));
+    githubActionsRole.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AWSCloudFormationFullAccess'));
 
     //CERT STUFF
     const hostedZone = new HostedZone(this, 'hostedZone', {
