@@ -21,6 +21,14 @@ function FeedContainer() {
 				timestamp={post.timestamp}
 				attachments={post.attachments}
 			/>
+			<FeedCard
+				title={post.title}
+				textBody={post.textBody}
+				subreddit={post.subreddit}
+				isFollowing={post.isFollowing}
+				timestamp={post.timestamp}
+				attachments={post.attachments}
+			/>
 		</main>
 	);
 }

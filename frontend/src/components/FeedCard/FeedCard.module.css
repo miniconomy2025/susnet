@@ -3,7 +3,6 @@
   background-color: var(--background-colour-light);
   padding: var(--gap-s);
   border-radius: var(--border-radius);
-  margin-bottom: 30px;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -71,7 +70,6 @@
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background-color: rgba(40, 45, 54, 0.6);
   border: none;
   color: white;
   font-size: 1.2rem;
