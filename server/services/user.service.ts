@@ -1,5 +1,7 @@
 // TODO
 
+import { type Actor, ActorModel } from "../db/schema.ts";
+
 // import { Effect } from "effect";
 // import { none } from "effect/Option";
 
@@ -10,3 +12,7 @@
 // });
 
 // const x = function*() {};
+
+export async function getUsers(): Promise<Actor[]> {
+    return await ActorModel.find({ type: "user" });
+}
