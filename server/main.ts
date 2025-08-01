@@ -22,9 +22,10 @@ if (post == null) {
     //---------- Run migrations ----------//
     // NOTE: Uncomment & run this the first time you run this script
     await migrateDb();
-}
 
-console.log("META:", await getPostVoteAggregate(post._id));
+} else {
+    console.log("META:", await getPostVoteAggregate(post._id));
+}
 
 //---------- Cleanup ----------//
 mongoose.disconnect();
