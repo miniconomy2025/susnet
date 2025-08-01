@@ -13,7 +13,6 @@ const DB_URL = env("DB_URL");
 
 await mongoose.connect(DB_URL);
 
-
 //---------- Main ----------//
 const post = await PostModel.findOne({ title: "Check this out" });
 console.log("POST:", post);
