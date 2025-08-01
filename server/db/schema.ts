@@ -1,6 +1,5 @@
 import { prop, index, modelOptions, getModelForClass, type Ref } from '@typegoose/typegoose';
 import { Types } from "mongoose";
-import { userInfo } from "node:os";
 
 
 //---------- Actor (User or Sub) -----------//
