@@ -22,6 +22,7 @@
     "@types/react": "npm:@types/react@^19.1.8",
     "@types/react-dom": "npm:@types/react-dom@^19.1.6",
     "@vitejs/plugin-react": "npm:@vitejs/plugin-react@^4.6.0",
+    "fs": "npm:fs@^0.0.1-security",
     "jsonwebtoken": "npm:jsonwebtoken@^9.0.2",
     "react": "npm:react@^19.1.0",
     "react-dom": "npm:react-dom@^19.1.0",
