@@ -1,4 +1,4 @@
-import AuthComponent from "../Components/AuthComponent/AuthComponent"
+import AuthComponent from "../components/AuthComponent/AuthComponent"
 
 function Signup() {
   const handleGoogleLogin = () => {
