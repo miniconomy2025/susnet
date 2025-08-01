@@ -38,13 +38,6 @@ export class CdkSusnetStack extends cdk.Stack {
       zoneName: 'susnet.co.za',
     })
 
-    const certificate = new cdk.aws_certificatemanager.Certificate(this, 'domainCertificate', {
-      domainName: '*.susnet.co.za',
-      certificateName: 'susnet-cert',
-      keyAlgorithm: KeyAlgorithm.RSA_2048,
-      validation: CertificateValidation.fromDns(hostedZone)
-    })
-
     //SERVER STUFF
     const vpc = new ec2.Vpc(this, 'generalVPC', {
       maxAzs: 1,
