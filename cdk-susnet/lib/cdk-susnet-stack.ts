@@ -60,21 +60,21 @@ export class CdkSusnetStack extends cdk.Stack {
       ec2.Peer.anyIpv4(), ec2.Port.allTraffic(), 'let it in'
     )
     
-    // const server = new ec2.Instance(this, 'susnetServer', {
-    //   vpc,
-    //   securityGroup: securityGroup,
-    //   instanceType: ec2.InstanceType.of(ec2.InstanceClass.T3, ec2.InstanceSize.MICRO),
-    //   machineImage: ec2.MachineImage.latestAmazonLinux2023(),
-    //   keyPair: ec2.KeyPair.fromKeyPairName(this, 'KeyPair', 'the-key'),
-    //   vpcSubnets: {
-    //     subnetType: ec2.SubnetType.PUBLIC
-    //   },
-    // })
+    const server = new ec2.Instance(this, 'susnetServer', {
+      vpc,
+      securityGroup: securityGroup,
+      instanceType: ec2.InstanceType.of(ec2.InstanceClass.T3, ec2.InstanceSize.MICRO),
+      machineImage: ec2.MachineImage.latestAmazonLinux2023(),
+      keyPair: ec2.KeyPair.fromKeyPairName(this, 'KeyPair', 'the-key'),
+      vpcSubnets: {
+        subnetType: ec2.SubnetType.PUBLIC
+      },
+    })
 
-    // // A RECORD FOR SERVER
-    // const serverRecord = new ARecord(this, 'ARecordServer', {
-    //   target: RecordTarget.fromIpAddresses(server.instancePublicIp),
-    //   zone: hostedZone
-    // })
+    // A RECORD FOR SERVER
+    const serverRecord = new ARecord(this, 'ARecordServer', {
+      target: RecordTarget.fromIpAddresses(server.instancePublicIp),
+      zone: hostedZone
+    })
   }
 }
