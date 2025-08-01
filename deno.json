@@ -2,7 +2,7 @@
   "tasks": {
     "dev": "deno run --env-file --allow-env --allow-net --allow-sys --allow-read --watch server/main.ts",
 
-    "fe": "deno run -A --node-modules-dir npm:vite",
+    "fe": "deno run -A --node-modules-dir npm:vite dev",
     "build": "deno run -A --node-modules-dir npm:vite build",
     "preview": "deno run -A --node-modules-dir npm:vite preview",
     "serve": "deno run --allow-net --allow-read jsr:@std/http@1/file-server frontend/dist/",
