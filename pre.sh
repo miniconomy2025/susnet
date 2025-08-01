@@ -2,6 +2,9 @@
 set -e
 set -u
 
+REPO_URL="https://github.com/miniconomy2025/susnet.git"
+CLONE_DIR="~/susnet"
+
 # --- Install Deno System-Wide ---
 echo "=== Checking for system-wide Deno ==="
 if command -v deno >/dev/null 2>&1; then
@@ -15,14 +18,6 @@ else
 
   curl -fsSL https://deno.land/install.sh | sudo DENO_INSTALL=$DENO_INSTALL sh
 
-  # Add to system-wide PATH if not already present
-  # if [ ! -f /etc/profile.d/deno.sh ]; then
-  #   echo 'export DENO_INSTALL="/usr/local/deno"' | sudo tee /etc/profile.d/deno.sh > /dev/null
-  #   echo 'export PATH="$DENO_INSTALL/bin:$PATH"' | sudo tee -a /etc/profile.d/deno.sh > /dev/null
-  #   sudo chmod +x /etc/profile.d/deno.sh
-  #   echo "Added Deno to global PATH via /etc/profile.d/deno.sh"
-  # fi
-
   echo "Deno installed successfully system-wide"
 fi
 
@@ -35,3 +30,13 @@ else
   sudo yum install -y git || sudo apt-get install -y git
   echo "Git installed successfully"
 fi
+
+# --- Clone/Pull Repo ---
+if [ ! -d "$CLONE_DIR/.git"]; then
+  git clone "$REPO_URL"
+fi
+
+cd $CLONE_DIR
+git fetch origin
+git checkout stable
+git pull origin stable
