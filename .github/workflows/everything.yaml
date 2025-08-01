@@ -26,10 +26,23 @@ jobs:
           role-to-assume: arn:aws:iam::978251882572:role/GitHubActionsDeploymentRole #NEVER CHANGE THIS
           role-session-name: GitHub_to_AWS_via_FederatedOIDC
           aws-region: ${{env.AWS_REGION}}
+
       - name: CHECKOUT
         uses: actions/checkout@v4
 
+      - name: CHECK FOR CDK CHANGES
+        id: cdk_changes
+        run: |
+          if git diff --quiet ${{ github.event.before }} ${{ github.sha }} -- cdk-*; then
+            echo "No CDK changes detected."
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "CDK changes detected."
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
       - name: SETUP NODE
+        if: steps.cdk_changes.outputs.changed == 'true'
         uses: actions/setup-node@v4
         with: 
           node-version: 24
@@ -37,6 +50,7 @@ jobs:
           cache-dependency-path: cdk-*/package-lock.json
         
       - name: DEPLOY CDK
+        if: steps.cdk_changes.outputs.changed == 'true'
         run: |
           cd cdk-*
           npm i
