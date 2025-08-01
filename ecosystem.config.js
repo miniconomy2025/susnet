@@ -2,14 +2,12 @@ module.exports = {
   apps: [
     {
       name: 'deno-backend',
-      script: 'deno task dev',
-      interpreter: 'deno',
+      script: './start-backend.sh',
       watch: true
     },
     {
       name: 'vite-frontend',
-      script: 'deno task fe',
-      interpreter: 'deno',
+      script: './start-frontend.sh',
       watch: true
     }
   ]
