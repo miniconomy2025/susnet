@@ -12,8 +12,8 @@ export default defineConfig({
     allowedHosts: true,
     port: 5173,
     https: {
-      cert: fs.readFileSync('/etc/letsencrypt/live/susnet.co.za/fullchain.pem')
-      key: fs.readFileSync('/etc/letsencrypt/live/susnet.co.za/privkey.pem'),
+      cert: fs.readFileSync('/etc/letsencrypt/live/susnet.co.za/fullchain.pem'),
+      key: fs.readFileSync('/etc/letsencrypt/live/susnet.co.za/privkey.pem')
     }
   }
 })
