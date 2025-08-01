@@ -1,7 +1,6 @@
 import { defineConfig } from 'vite'
 import deno from '@deno/vite-plugin'
 import react from '@vitejs/plugin-react'
-import * as fs from 'node:fs'
 
 // See [https://vite.dev/config]
 export default defineConfig({
@@ -10,10 +9,6 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     allowedHosts: true,
-    port: 5173,
-    https: {
-      cert: fs.readFileSync('/etc/letsencrypt/live/susnet.co.za/fullchain.pem'),
-      key: fs.readFileSync('/etc/letsencrypt/live/susnet.co.za/privkey.pem')
-    }
+    port: 8000,
   }
 })
