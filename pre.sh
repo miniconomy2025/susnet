@@ -35,6 +35,7 @@ fi
 if [ -d "$CLONE_DIR/.git" ]; then
   echo "Repo already cloned, pulling latest changes..."
   cd "$CLONE_DIR"
+  git restore .
   git fetch origin
   git checkout stable
   git pull origin stable
