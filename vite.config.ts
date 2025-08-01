@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [deno(), react()],
   root: "./frontend",
   server: {
-    host: '0.0.0.',
+    host: '0.0.0.0',
     allowedHosts: true,
     port: 5173
   }
