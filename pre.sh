@@ -3,7 +3,7 @@ set -e
 set -u
 
 REPO_URL="https://github.com/miniconomy2025/susnet.git"
-CLONE_DIR="~/susnet"
+CLONE_DIR="$HOME/susnet"
 
 # --- Install Deno System-Wide ---
 echo "=== Checking for system-wide Deno ==="
