@@ -2,9 +2,9 @@ name: CDK-CICD
 
 on:
   push:
-    branches: [infrastructure]
+    branches: [stable]
   pull_request:
-    branches: [infrastructure]
+    branches: [stable]
 
 env:
   AWS_REGION: af-south-1
