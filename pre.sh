@@ -27,7 +27,7 @@ if command -v git >/dev/null 2>&1; then
   echo "Git is already installed: $(git --version)"
 else
   echo "Git not found, installing..."
-  sudo yum install -y git || sudo apt-get install -y git
+  sudo yum install -y git
   echo "Git installed successfully"
 fi
 
