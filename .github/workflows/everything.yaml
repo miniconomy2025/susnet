@@ -2,13 +2,15 @@ name: CDK-CICD
 
 on:
   push:
-    branches: [infrastructure]
+    branches: [stable]
   pull_request:
-    branches: [infrastructure]
+    branches: [stable]
 
 env:
   AWS_REGION: af-south-1
-  EC2_USER_Y_HOST: ec2-user@ec2-13-247-250-53.af-south-1.compute.amazonaws.com
+  AWS_DEFAULT_REGION: af-south-1
+  EC2_USER_Y_HOST: ec2-user@susnet.co.za
+  NODE_VERSION: 24
 
 permissions:
   id-token: write
@@ -26,6 +28,20 @@ jobs:
           aws-region: ${{env.AWS_REGION}}
       - name: CHECKOUT
         uses: actions/checkout@v4
+
+      - name: SETUP NODE
+        uses: actions/setup-node@v4
+        with: 
+          node-version: 24
+          cache: 'npm'
+          cache-dependency-path: cdk-*/package-lock.json
+        
+      - name: DEPLOY CDK
+        run: |
+          cd cdk-*
+          npm i
+          npx cdk deploy --require-approval never || (npx cdk bootstrap && npx cdk deploy --require-approval never)
+
       
       - name: GETTING THE KEY
         uses: aws-actions/aws-secretsmanager-get-secrets@v2
