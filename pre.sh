@@ -44,4 +44,6 @@ else
   git clone --branch stable "$REPO_URL" "$CLONE_DIR"
   git config --global --add safe.directory "$CLONE_DIR"
 fi
+cd "$CLONE_DIR"
 sudo env "PATH=$PATH" pm2 start
+sudo env "PATH=$PATH" pm2 restart
