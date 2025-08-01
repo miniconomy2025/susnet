@@ -7,7 +7,8 @@ export default defineConfig({
   plugins: [deno(), react()],
   root: "./frontend",
   server: {
-    host: 'susnet.co.za',
+    host: '0.0.0.',
+    allowedHosts: true,
     port: 5173
   }
 })
