@@ -32,7 +32,7 @@ else
 fi
 
 # --- Clone/Pull Repo ---
-if [ ! -d "$CLONE_DIR/.git"]; then
+if [ ! -d "$CLONE_DIR/.git" ]; then
   git clone "$REPO_URL"
 fi
 
