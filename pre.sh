@@ -32,11 +32,14 @@ else
 fi
 
 # --- Clone/Pull Repo ---
-if [ ! -d "$CLONE_DIR/.git" ]; then
-  git clone "$REPO_URL"
+if [ -d "$CLONE_DIR/.git" ]; then
+  echo "Repo already cloned, pulling latest changes..."
+  cd "$CLONE_DIR"
+  git fetch origin
+  git checkout stable
+  git pull origin stable
+else
+  echo "Cloning repo..."
+  git clone --branch stable "$REPO_URL" "$CLONE_DIR"
+  git config --global --add safe.directory $HOME/susnet
 fi
-
-cd $CLONE_DIR
-git fetch origin
-git checkout stable
-git pull origin stable
