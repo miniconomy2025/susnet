@@ -1,7 +1,6 @@
 {
   "tasks": {
     "dev": "deno run --env-file --allow-env --allow-net --allow-sys --allow-read --watch server/main.ts",
-    "pm2": "deno run --env-file --allow-env --allow-net --allow-sys --allow-read --allow-write npm:pm2",
 
     "fe": "deno run -A --node-modules-dir npm:vite dev",
     "build": "deno run -A --node-modules-dir npm:vite build",
