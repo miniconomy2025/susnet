@@ -1334,6 +1334,11 @@
       "npm:react-router-dom@^7.7.1",
       "npm:react@^19.1.0",
       "npm:vite@7"
-    ]
+    ],
+    "packageJson": {
+      "dependencies": [
+        "npm:@types/react@^19.1.8"
+      ]
+    }
   }
 }
