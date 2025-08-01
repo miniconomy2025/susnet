@@ -1,4 +1,4 @@
-name: CDK-CICD
+name: CICD
 
 on:
   push:
@@ -10,7 +10,6 @@ env:
   AWS_REGION: af-south-1
   AWS_DEFAULT_REGION: af-south-1
   EC2_USER_Y_HOST: ec2-user@susnet.co.za
-  NODE_VERSION: 24
 
 permissions:
   id-token: write
@@ -26,36 +25,6 @@ jobs:
           role-to-assume: arn:aws:iam::978251882572:role/GitHubActionsDeploymentRole #NEVER CHANGE THIS
           role-session-name: GitHub_to_AWS_via_FederatedOIDC
           aws-region: ${{env.AWS_REGION}}
-
-      - name: CHECKOUT
-        uses: actions/checkout@v4
-
-      - name: CHECK FOR CDK CHANGES
-        id: cdk_changes
-        run: |
-          if git diff --quiet ${{ github.event.before }} ${{ github.sha }} -- cdk-*; then
-            echo "No CDK changes detected."
-            echo "changed=false" >> $GITHUB_OUTPUT
-          else
-            echo "CDK changes detected."
-            echo "changed=true" >> $GITHUB_OUTPUT
-          fi
-
-      - name: SETUP NODE
-        if: steps.cdk_changes.outputs.changed == 'true'
-        uses: actions/setup-node@v4
-        with: 
-          node-version: 24
-          cache: 'npm'
-          cache-dependency-path: cdk-*/package-lock.json
-        
-      - name: DEPLOY CDK
-        if: steps.cdk_changes.outputs.changed == 'true'
-        run: |
-          cd cdk-*
-          npm i
-          npx cdk deploy --require-approval never || (npx cdk bootstrap && npx cdk deploy --require-approval never)
-
       
       - name: GETTING THE KEY
         uses: aws-actions/aws-secretsmanager-get-secrets@v2
@@ -70,10 +39,6 @@ jobs:
           echo "${{env.THE_KEY}}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
-      - name: UPLOADING THE CODE
+      - name: RUN PRE.SH SCRIPT ON EC2
         run: |
-          scp -r -o StrictHostKeyChecking=no -i "~/.ssh/id_rsa" ./pre.sh ${{env.EC2_USER_Y_HOST}}:~/
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{ env.EC2_USER_Y_HOST }} << 'EOF'
-            chmod +x ~/pre.sh
-            sudo ~/pre.sh
-          EOF
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{ env.EC2_USER_Y_HOST }} "curl -o- https://raw.githubusercontent.com/miniconomy2025/susnet/refs/heads/stable/pre.sh | sudo bash"
