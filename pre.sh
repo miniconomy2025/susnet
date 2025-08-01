@@ -3,7 +3,7 @@ set -e
 set -u
 
 REPO_URL="https://github.com/miniconomy2025/susnet.git"
-CLONE_DIR="$HOME/susnet"
+CLONE_DIR="/home/ec2-user/susnet"
 
 # --- Install Deno System-Wide ---
 echo "=== Checking for system-wide Deno ==="
@@ -41,5 +41,5 @@ if [ -d "$CLONE_DIR/.git" ]; then
 else
   echo "Cloning repo..."
   git clone --branch stable "$REPO_URL" "$CLONE_DIR"
-  git config --global --add safe.directory $HOME/susnet
+  git config --global --add safe.directory "$CLONE_DIR"
 fi
