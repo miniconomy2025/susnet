@@ -45,5 +45,5 @@ else
   git config --global --add safe.directory "$CLONE_DIR"
 fi
 cd "$CLONE_DIR"
-sudo pm2 start all
+sudo pm2 start
 sudo pm2 restart all
