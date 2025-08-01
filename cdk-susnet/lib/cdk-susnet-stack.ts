@@ -60,6 +60,7 @@ export class CdkSusnetStack extends cdk.Stack {
       ec2.Peer.anyIpv4(), ec2.Port.allTraffic(), 'let it in'
     )
 
+    
     const server = new ec2.Instance(this, 'susnetServer', {
       vpc,
       securityGroup: securityGroup,
