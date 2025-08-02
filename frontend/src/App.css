@@ -13,9 +13,16 @@ body {
   background-color: var(--background-colour);
 }
 
-.page {
+.mainContainer {
   display: flex;
   flex-direction: column;
   height: 100%;
   width: 100%;
+}
+
+.page {
+  flex: 1;
+  padding-top: 1rem;
+  display: flex;
+  flex-direction: row;
 }
