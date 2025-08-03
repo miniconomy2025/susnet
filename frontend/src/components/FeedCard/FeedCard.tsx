@@ -2,6 +2,7 @@ import { useState } from 'react';
 import styles from './FeedCard.module.css';
 
 function FeedCard({
+	profileImage,
 	title,
 	textBody,
 	subreddit,
@@ -21,16 +22,19 @@ function FeedCard({
 	};
 
 	return (
-		<div className={`${styles.container}`}>
-			<div className={styles.header}>
+		<div className={`${styles.cardContainer}`}>
+			<div className={styles.headerGrid}>
+				{profileImage && <img className={styles.profileImage} src={profileImage} alt="" />}
 				<span className={styles.subreddit}>r/{subreddit}</span>
-				{!isFollowing && (
-					<button onClick={onFollowClick} className={styles.joinButton}>
+				{isFollowing ? (
+					<button className={`${styles.button}`}>Following</button>
+					) : (
+					<button onClick={onFollowClick} className={`${styles.button} ${styles.joinButton}`}>
 						Join
 					</button>
 				)}
+				<span className={styles.timestamp}>{timestamp}</span>
 			</div>
-			<span className={styles.timestamp}>{timestamp}</span>
 			<h1 className={styles.title}>{title}</h1>
 			<p className={styles.textBody}>{textBody}</p>
 

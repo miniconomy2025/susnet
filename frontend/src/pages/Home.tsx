@@ -3,6 +3,7 @@ import FeedCard from '../components/FeedCard/FeedCard';
 function Home() {
 	const posts = [
 		{
+			profileImage: '/images/profile.jpg',
 			title: 'Check out this cool sunset!',
 			textBody: 'Captured this in Cape Town last weekend. Nature goes hard 🔥',
 			subreddit: 'southafrica',
@@ -45,6 +46,7 @@ function Home() {
 			{posts.map((post, index) => (
 				<FeedCard
 					key={index}
+					profileImage={post.profileImage}
 					title={post.title}
 					textBody={post.textBody}
 					subreddit={post.subreddit}

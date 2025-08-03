@@ -1,4 +1,4 @@
-.container {
+.cardContainer {
   width: 100%;
   max-width: 600px;
   max-height: 500px;
@@ -10,19 +10,34 @@
   gap: 10px;
 }
 
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.headerGrid {
+  display: grid;
+  grid-template-columns: min-content auto min-content;
+  grid-template-rows: repeat(3, auto);
+}
+
+.profileImage {
+  grid-column: 1 / 2;
+  grid-row: 1 / 4;
+  border-radius: 50%;
+  height: 3rem;
+  margin-right: 10px;
+  aspect-ratio: 1;
+  object-fit: cover;
+  align-self: center;
 }
 
 .subreddit {
+  grid-column: 2 / 3;
+  grid-row: 1 / 2;
   font-weight: 600;
   color: var(--secondary-colour);
 }
 
-.joinButton {
-  background-color: var(--primary-colour);
+.button {
+  grid-column: 3 / 4;
+  grid-row: 1 / 3;
+  background-color: var(--secondary-colour);
   color: var(--text-colour);
   border: none;
   border-radius: 10px;
@@ -32,14 +47,19 @@
   transition: background-color 0.2s;
 }
 
+.joinButton {
+  background-color: var(--primary-colour);
+}
+
 .joinButton:hover {
   background-color: #a63030;
 }
 
 .timestamp {
+  grid-column: 2 / 3;
+  grid-row: 2 / 3;
   font-size: 12px;
   opacity: 0.6;
-  margin-top: -10px;
 }
 
 .title {
