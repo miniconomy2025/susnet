@@ -1,5 +1,12 @@
+import AccountCardComponent from '../components/AccountCard/AccountCardComponent';
+import FeedContainer from '../components/FeedContainer/FeedContainer';
+
 function Account() {
-  return <h1>Account Page</h1>
+	return (
+		<>
+			<AccountCardComponent />
+		</>
+	);
 }
 
-export default Account
+export default Account;
