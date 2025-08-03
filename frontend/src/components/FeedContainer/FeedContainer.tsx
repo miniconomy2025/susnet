@@ -42,7 +42,7 @@ function FeedContainer() {
 	];
 
 	return (
-		<main className={classes.container}>
+		<div className={classes.container}>
 			{posts.map((post, index) => (
 				<FeedCard
 					key={index}
@@ -54,7 +54,7 @@ function FeedContainer() {
 					attachments={post.attachments}
 				/>
 			))}
-		</main>
+		</div>
 	);
 }
 

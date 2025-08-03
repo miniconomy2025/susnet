@@ -21,7 +21,7 @@ function FeedCard({
 	};
 
 	return (
-		<div className={`${styles.container} ${styles.card}`}>
+		<div className={`${styles.container}`}>
 			<div className={styles.header}>
 				<span className={styles.subreddit}>r/{subreddit}</span>
 				{!isFollowing && (
