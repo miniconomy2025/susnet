@@ -1,10 +1,11 @@
 // Utilities for generation of dummy data
 
+import mongoose from "mongoose";
 import { ActorModel, PostModel, VoteModel, FollowModel, Actor, ActorType, Follow, VoteType } from './schema.ts';
 import type { Ref } from '@typegoose/typegoose';
 
 //---------- Setup ----------//
-const HOST = 'https://example.com';
+const HOST = 'https://susnet.co.za';
 const ADJECTIVES = [
   'cool', 'weird', 'awesome', 'happy', 'noisy', 'silent', 'brave', 'curious', 'eager', 'fuzzy', 'gloomy', 'shiny', 'breezy', 'dusty', 'quirky', 'vibrant',
   'zany', 'mysterious', 'odd', 'jolly', 'grumpy', 'cheerful', 'fierce', 'chill', 'nervous', 'bright', 'dim', 'gentle', 'bold', 'funky', 'strange',
@@ -44,20 +45,21 @@ const title = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
 
 //---------- Generation ----------//
 const generateName = (type: ActorType): string => {
-  const suffix = Math.floor(Math.random() * 1000);
-
-  if (type === ActorType.sub) return `s/${randItem(ADJECTIVES)}${randItem(NOUNS)}${suffix}`;
-  else return `${randItem(ADJECTIVES)}_${randItem(NOUNS)}_${suffix}`;
+  switch(type) {
+    case ActorType.user: return `${randItem(ADJECTIVES)}_${randItem(NOUNS)}_${Math.floor(Math.random() * 1000)}`;
+    case ActorType.sub:  return `${randItem(ADJECTIVES)}${randItem(NOUNS)}`;
+  }
 };
 
-const generateActor = (type: ActorType): Actor => {
-  const name = generateName(type);
-  const actorId = `${HOST}/${type === ActorType.user ? 'users' : 's'}/${name}`;
+const generateActor = (type: ActorType, existing: Set<string>): Actor => {
+  let name;
+  while (existing.has(name = generateName(type)));
+  existing.add(name);
 
   return {
-    actorId, type, name,
+    name, type,
     thumbnailUrl: `https://placehold.co/100x100?font=roboto&text=${encodeURIComponent(name)}`,
-    description: `${title(type.toString())} description for ${name}`
+    description: `${title(type.toString())} ${type === ActorType.user ? "bio" : "description"} for ${name}`
   };
 };
 
@@ -94,8 +96,9 @@ export const migrateDb = async (
 
   //--- Create dummy users and subs ---//
   console.log('🤖 - Creating users & subs');
-  const users = Array.from({ length: numUsers }, () => generateActor(ActorType.user));
-  const subs = Array.from({ length: numSubs }, () => generateActor(ActorType.sub));
+  const names = new Set<string>();
+  const users = Array.from({ length: numUsers }, () => generateActor(ActorType.user, names));
+  const subs = Array.from({ length: numSubs }, () => generateActor(ActorType.sub, names));
 
   const userDocs = await ActorModel.insertMany(users);
   const subDocs = await ActorModel.insertMany(subs);
