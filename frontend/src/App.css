@@ -8,16 +8,35 @@ body {
   background-color: var(--background-colour);
 }
 
-.mainContainer {
+.appContainer {
   display: flex;
   flex-direction: column;
   height: 100vh;
   width: 100%;
 }
 
-.page {
+.mainContainer {
   display: flex;
   flex-direction: row;
   flex: 1;
   min-height: 0;
+}
+
+.contentContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  gap: var(--gap-s);
+  width: 100%;
+  height: 100%;
+  padding: var(--gap-s);
+  overflow-y: scroll;
+
+  scrollbar-width: none;          
+  -ms-overflow-style: none;        
+}
+
+.contentContainer::-webkit-scrollbar {
+  display: none;                   
 }
