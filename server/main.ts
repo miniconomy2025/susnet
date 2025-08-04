@@ -1,5 +1,7 @@
 /// <reference lib="deno.ns" />
 import { Effect, Context, Console, Schema, Layer, pipe, Data } from "effect";
+import { migrateDb } from "./db/migrate.ts";
+
 
 import mongoose from "mongoose";
 import { PostModel } from "./db/schema.ts";
@@ -13,11 +15,6 @@ const DB_URL = env("DB_URL");
 const PORT = env("PORT", 3000);
 
 await mongoose.connect(DB_URL);
-
-//---------- Run migrations ----------//
-// NOTE: Uncomment & run this the first time you run this script
-// import { migrateDb } from "./db/migrate.ts";
-// await migrateDb();
 
 
 //---------- Main ----------//

@@ -1,21 +1,22 @@
-name: CDK-CICD
+name: CICD
 
 on:
   push:
-    branches: [infrastructure]
+    branches: [stable]
   pull_request:
-    branches: [infrastructure]
+    branches: [stable] 
 
 env:
   AWS_REGION: af-south-1
-  EC2_USER_Y_HOST: ec2-user@ec2-13-247-250-53.af-south-1.compute.amazonaws.com
+  AWS_DEFAULT_REGION: af-south-1
+  EC2_USER_Y_HOST: ec2-user@susnet.co.za
 
 permissions:
   id-token: write
   contents: read
 
 jobs:
-  CDK:
+  CICD:
     runs-on: [ubuntu-latest]
     steps:
       - name: AWS SETUP
@@ -24,8 +25,6 @@ jobs:
           role-to-assume: arn:aws:iam::978251882572:role/GitHubActionsDeploymentRole #NEVER CHANGE THIS
           role-session-name: GitHub_to_AWS_via_FederatedOIDC
           aws-region: ${{env.AWS_REGION}}
-      - name: CHECKOUT
-        uses: actions/checkout@v4
       
       - name: GETTING THE KEY
         uses: aws-actions/aws-secretsmanager-get-secrets@v2
@@ -40,10 +39,6 @@ jobs:
           echo "${{env.THE_KEY}}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
-      - name: UPLOADING THE CODE
+      - name: RUN PRE.SH SCRIPT ON EC2
         run: |
-          scp -r -o StrictHostKeyChecking=no -i "~/.ssh/id_rsa" ./pre.sh ${{env.EC2_USER_Y_HOST}}:~/
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{ env.EC2_USER_Y_HOST }} << 'EOF'
-            chmod +x ~/pre.sh
-            sudo ~/pre.sh
-          EOF
+          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{ env.EC2_USER_Y_HOST }} "curl -o- https://raw.githubusercontent.com/miniconomy2025/susnet/refs/heads/stable/pre.sh | sudo bash"

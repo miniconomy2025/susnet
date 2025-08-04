@@ -3,7 +3,7 @@
     "dev": "deno run --env-file --allow-env --allow-net --allow-sys --allow-read --watch server/main.ts",
     "live": "deno run dev & fedify tunnel 8000",
 
-    "fe": "deno run -A --node-modules-dir npm:vite",
+    "fe": "deno run -A --node-modules-dir npm:vite dev",
     "build": "deno run -A --node-modules-dir npm:vite build",
     "preview": "deno run -A --node-modules-dir npm:vite preview",
     "serve": "deno run --allow-net --allow-read jsr:@std/http@1/file-server frontend/dist/",
@@ -25,6 +25,7 @@
     "@types/react-dom": "npm:@types/react-dom@^19.1.6",
     "@vitejs/plugin-react": "npm:@vitejs/plugin-react@^4.6.0",
     "express": "npm:express@^5.1.0",
+    "fs": "npm:fs@^0.0.1-security",
     "jsonwebtoken": "npm:jsonwebtoken@^9.0.2",
     "react": "npm:react@^19.1.0",
     "react-dom": "npm:react-dom@^19.1.0",

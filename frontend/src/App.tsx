@@ -5,7 +5,7 @@ import Home from './pages/Home'
 import Account from './pages/Account'
 import Signup from './pages/Signup'
 import Login from './pages/Login'
-import HeaderComponent from './Components/HeaderComponent/HeaderComponent'
+import HeaderComponent from './components/HeaderComponent/HeaderComponent'
 
 function App() {
   const [count, setCount] = useState(0)
