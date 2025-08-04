@@ -1,0 +1,73 @@
+.bannerWrapper {
+	position: relative;
+	width: 100%;
+	margin-bottom: 3.5rem;
+}
+
+.banner {
+	background: linear-gradient(to top, var(--secondary-colour), var(--background-colour));
+	padding: var(--gap-s);
+	border-radius: 0 0 var(--border-radius) var(--border-radius);
+	text-align: center;
+	height: 120px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.bannerTitle {
+	font-size: 3rem;
+	font-weight: 200;
+	color: var(--text-colour);
+}
+
+.bannerOverlay {
+	position: absolute;
+	bottom: -50%;
+	left: 0;
+	width: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0 var(--gap-s);
+}
+
+.bannerProfileImage {
+	height: 120px; /* same as banner height */
+	width: 120px;
+	border-radius: 50%;
+	object-fit: cover;
+	border: 4px solid var(--background-colour);
+	background: var(--background-colour-light);
+}
+
+.bannerActions {
+	display: flex;
+	gap: 10px;
+}
+
+.bannerButton {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background-color: var(--background-colour-light);
+	color: var(--text-colour);
+	border: none;
+	border-radius: 10px;
+	padding: 6px 12px;
+	font-weight: 600;
+	cursor: pointer;
+	transition: background-color 0.2s;
+}
+
+.bannerButton:hover {
+	background-color: rgba(255, 255, 255, 0.2);
+}
+
+.joinButton {
+	background-color: var(--primary-colour);
+}
+
+.joinButton:hover {
+	background-color: #a63030;
+}

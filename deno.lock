@@ -21,9 +21,9 @@
     "npm:asn1js@^3.0.5": "3.0.6",
     "npm:byte-encodings@^1.0.11": "1.0.11",
     "npm:cors@^2.8.5": "2.8.5",
-    "npm:express@^5.1.0": "5.1.0",
     "npm:effect-mongodb@~0.3.1": "0.3.1_effect@3.17.4_mongodb@6.18.0",
     "npm:effect@^3.17.3": "3.17.4",
+    "npm:express@^5.1.0": "5.1.0",
     "npm:fs@^0.0.1-security": "0.0.1-security",
     "npm:json-canon@^1.0.1": "1.0.1",
     "npm:jsonld@^8.3.2": "8.3.3",
@@ -34,6 +34,7 @@
     "npm:pkijs@^3.2.4": "3.2.5",
     "npm:react-dom@^19.1.0": "19.1.1_react@19.1.1",
     "npm:react-router-dom@^7.7.1": "7.7.1_react@19.1.1_react-dom@19.1.1__react@19.1.1",
+    "npm:react-swipeable@^7.0.2": "7.0.2_react@19.1.1",
     "npm:react@^19.1.0": "19.1.1",
     "npm:structured-field-values@^2.0.4": "2.0.4",
     "npm:uri-template-router@^0.0.17": "0.0.17",
@@ -1394,6 +1395,12 @@
         "react-dom"
       ]
     },
+    "react-swipeable@7.0.2_react@19.1.1": {
+      "integrity": "sha512-v1Qx1l+aC2fdxKa9aKJiaU/ZxmJ5o98RMoFwUqAAzVWUcxgfHFXDDruCKXhw6zIYXm6V64JiHgP9f6mlME5l8w==",
+      "dependencies": [
+        "react"
+      ]
+    },
     "react@19.1.1": {
       "integrity": "sha512-w8nqGImo45dmMIfljjMwOGtbmC/mk4CMYhWIicdSflH91J9TyCyczcPFXJzrZ/ZXcgGRFeP6BU0BEJTw6tZdfQ=="
     },
@@ -1690,6 +1697,7 @@
       "npm:mongoose@^8.17.0",
       "npm:react-dom@^19.1.0",
       "npm:react-router-dom@^7.7.1",
+      "npm:react-swipeable@^7.0.2",
       "npm:react@^19.1.0",
       "npm:vite@7"
     ]
