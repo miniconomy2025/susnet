@@ -15,7 +15,11 @@
 
 
 .link {
-  display: inline-block;
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* optional, or use gap if needed */
+  gap: 0.5rem;
+  width: 100%;
   text-decoration: none;
   color: var(--text-colour);
   padding: 0.5rem 1rem 0.5rem 2rem; /* left padding for indentation */
@@ -34,6 +38,75 @@
   padding-right: 2rem;
   border-top-right-radius: 16px;
   border-bottom-right-radius: 16px;
+}
+
+/* 1. Hide the checkbox */
+.listCheckbox {
+  display: none;
+}
+
+/* 2. Collapsible container styling (optional if not already styled) */
+.collapsibleSection {
+  width: 100%;
+  border-top: 1px solid var(--background-colour-dark);
+  border-bottom: 1px solid var(--background-colour-dark);
+}
+
+/* 3. Sub-links container - initially hidden */
+.subLinks {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+}
+
+.subLinks .link {
+  font-size: 1.3rem;
+  font-weight: 400;
+  color: var(--text-colour);
+  padding-left: 2.5rem; /* More indentation for sublinks */
+}
+
+.subLinks .activeLink {
+  background-color: transparent;
+  background: none;
+  font-size: 1.3rem;
+  color: var(--primary-colour);
+  padding-left: 2.5rem;
+  font-weight: 400;
+}
+
+/* 4. Show when checkbox is checked */
+.listCheckbox:checked + .link + .subLinks {
+  max-height: 20rem; /* Adjust to fit your content */
+  overflow-y: auto;
+  opacity: 1;
+}
+
+.subLinks::-webkit-scrollbar {
+  width: 6px;
+}
+
+.subLinks::-webkit-scrollbar-thumb {
+  background-color: var(--background-colour-dark);
+  border-radius: 4px;
+}
+
+.dropdownWrapper {
+  width: 100%;
+}
+
+.dropdownLabel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  width: 100%;
+}
+
+/* Rotate when open */
+.listCheckbox:checked + .dropdownLabel .dropdownIcon {
+  transform: rotate(90deg);
 }
 
 .closeButton {
