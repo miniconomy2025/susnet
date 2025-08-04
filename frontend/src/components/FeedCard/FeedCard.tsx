@@ -21,7 +21,7 @@ function FeedCard({
 	};
 
 	return (
-		<div className={styles.container}>
+		<div className={`${styles.container}`}>
 			<div className={styles.header}>
 				<span className={styles.subreddit}>r/{subreddit}</span>
 				{!isFollowing && (
@@ -36,17 +36,17 @@ function FeedCard({
 
 			{attachments.length > 0 && (
 				<div className={styles.imageCarousel}>
-					<button onClick={handlePrevImage} className={styles.imageNavLeft}>
-						◀
-					</button>
+					<span className={`material-symbols-outlined ${styles.imageNavLeft}`} onClick={handlePrevImage}>
+						chevron_left
+					</span>
 					<img
 						src={attachments[currentImageIndex]}
 						className={styles.image}
 						alt={`attachment-${currentImageIndex}`}
 					/>
-					<button onClick={handleNextImage} className={styles.imageNavRight}>
-						▶
-					</button>
+					<span className={`material-symbols-outlined ${styles.imageNavRight}`} onClick={handleNextImage}>
+						chevron_right
+					</span>
 				</div>
 			)}
 		</div>
