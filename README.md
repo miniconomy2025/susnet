@@ -1,5 +1,5 @@
 # susnet
-> Because <b>Red</b>dit is sus
+> Because Red<small>(dit)</small> is sus
 
 <p align="center">
 <img

@@ -1,11 +1,17 @@
-import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as cdk from 'aws-cdk-lib';
-import { Construct } from 'constructs';
+import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import { ARecord, HostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53';
+
 import * as iam from 'aws-cdk-lib/aws-iam';
+import { Construct } from 'constructs';
+
+import { CertificateValidation, KeyAlgorithm } from 'aws-cdk-lib/aws-certificatemanager';
 
 export class CdkSusnetStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
+
+    //CHATGPT GENERATED SO DON'T @ ME
     //IAM STUFF
     // Step 1: Reference GitHub's OIDC provider (or create it if not already added)
     const provider = new iam.OpenIdConnectProvider(this, 'GitHubOIDCProvider', {
@@ -25,10 +31,14 @@ export class CdkSusnetStack extends cdk.Stack {
     });
 
     // Step 3: Attach the desired policies
-    githubActionsRole.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('SecretsManagerReadWrite'));
+    githubActionsRole.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AdministratorAccess'));
 
-    const sshKeySecret = new 
+    //CERT STUFF
+    const hostedZone = new HostedZone(this, 'hostedZone', {
+      zoneName: 'susnet.co.za',
+    })
 
+    //SERVER STUFF
     const vpc = new ec2.Vpc(this, 'generalVPC', {
       maxAzs: 1,
       natGateways: 0
@@ -42,7 +52,7 @@ export class CdkSusnetStack extends cdk.Stack {
     securityGroup.addIngressRule(
       ec2.Peer.anyIpv4(), ec2.Port.allTraffic(), 'let it in'
     )
-
+    
     const server = new ec2.Instance(this, 'susnetServer', {
       vpc,
       securityGroup: securityGroup,
@@ -52,6 +62,12 @@ export class CdkSusnetStack extends cdk.Stack {
       vpcSubnets: {
         subnetType: ec2.SubnetType.PUBLIC
       },
+    })
+
+    // A RECORD FOR SERVER
+    const serverRecord = new ARecord(this, 'ARecordServer', {
+      target: RecordTarget.fromIpAddresses(server.instancePublicIp),
+      zone: hostedZone
     })
   }
 }

@@ -14,6 +14,10 @@
           corepack
           deno
         ];
+
+        shellHook = ''
+          export PATH="$HOME/.deno/bin:$PATH"
+        '';
       };
     });
   };
