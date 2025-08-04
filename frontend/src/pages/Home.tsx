@@ -1,8 +1,10 @@
 import FeedCard from '../components/FeedCard/FeedCard';
+import FeedContainer from '../components/FeedContainer/FeedContainer';
 
 function Home() {
 	const posts = [
 		{
+			profileImage: '/images/profile.jpg',
 			title: 'Check out this cool sunset!',
 			textBody: 'Captured this in Cape Town last weekend. Nature goes hard 🔥',
 			subreddit: 'southafrica',
@@ -41,19 +43,7 @@ function Home() {
 	];
 
 	return (
-		<>
-			{posts.map((post, index) => (
-				<FeedCard
-					key={index}
-					title={post.title}
-					textBody={post.textBody}
-					subreddit={post.subreddit}
-					isFollowing={post.isFollowing}
-					timestamp={post.timestamp}
-					attachments={post.attachments}
-				/>
-			))}
-		</>
+		<FeedContainer initialPosts={posts} />
 	);
 }
 
