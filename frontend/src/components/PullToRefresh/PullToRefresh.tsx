@@ -18,7 +18,6 @@ export default function PullToRefresh({
 	const [refreshing, setRefreshing] = useState(false);
 	const [willRefresh, setWillRefresh] = useState(false);
 
-	// fixed visual spinner height (must match CSS .spinnerInner height)
 	const SPINNER_HEIGHT = 60;
 
 	useEffect(() => {
@@ -97,7 +96,6 @@ export default function PullToRefresh({
 		position: 'relative',
 	};
 
-	// spinner moves slightly differently so it comes up from under the content
 	const spinnerTranslate = Math.max(
 		0.5 * (maxPull - pullDistance - SPINNER_HEIGHT),
 		0.5 * (threshold - SPINNER_HEIGHT)
@@ -110,11 +108,9 @@ export default function PullToRefresh({
 
 	return (
 		<div className={styles.ptrWrapper} ref={containerRef}>
-			{/* absolutely positioned spinner slot (under the content) */}
 			<div
 				className={styles.spinnerSlot}
 				style={{
-					// keep the slot's container height equal to spinner height; actual reveal is via transform
 					height: SPINNER_HEIGHT,
 					zIndex: 1,
 				}}
@@ -131,7 +127,6 @@ export default function PullToRefresh({
 				</div>
 			</div>
 
-			{/* the feed content — sits above the spinner and translates down */}
 			<div
 				ref={contentRef}
 				style={contentStyle}

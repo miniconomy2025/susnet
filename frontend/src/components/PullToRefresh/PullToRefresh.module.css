@@ -1,12 +1,10 @@
 .ptrWrapper {
-	/* make wrapper the scrolling container */
 	overflow: hidden;
 	height: 100%;
 	-webkit-overflow-scrolling: touch;
 	position: relative;
 }
 
-/* spinnerSlot sits at the top of container, but below content (lower z-index) */
 .spinnerSlot {
 	position: absolute;
 	top: 0;
@@ -16,13 +14,12 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	overflow: visible; /* allow spinner to move */
+	overflow: visible;
 	box-sizing: border-box;
 }
 
-/* the inner spinner area (visual height) */
 .spinnerInner {
-	height: 60px; /* must match SPINNER_HEIGHT in component */
+	height: 60px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -30,10 +27,8 @@
 	pointer-events: none;
 }
 
-/* content sits on top and is translated down */
 .ptrContent {
 	will-change: transform;
 	background: inherit;
-	/* ensure content sits above spinner */
 	position: relative;
 }

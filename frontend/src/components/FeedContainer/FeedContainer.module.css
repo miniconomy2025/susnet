@@ -10,7 +10,6 @@
 	--stagger: 200ms;
 }
 
-/* animation */
 @keyframes cardEnter {
 	0% {
 		opacity: 0;
