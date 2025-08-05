@@ -2,9 +2,10 @@ import { useEffect, useRef, useState } from 'react';
 import FeedCard from '../FeedCard/FeedCard';
 import Banner from '../Banner/Banner';
 import LoadingSpinner from '../LoadingSpinner/LoadingSpinner';
+import PullToRefresh from '../PullToRefresh/PullToRefresh';
 import styles from './FeedContainer.module.css';
 
-function FeedContainer({ initialPosts }) {
+function FeedContainer({ initialPosts, refreshFeed }) {
 	const [posts, setPosts] = useState(initialPosts);
 	const [loading, setLoading] = useState(false);
 	const sentinelRef = useRef(null);
@@ -50,11 +51,16 @@ function FeedContainer({ initialPosts }) {
 				onSettingsClick={() => console.log('Settings clicked')}
 			/>
 
-			{posts.map((post, idx) => (
-				<FeedCard key={idx} {...post} />
-			))}
-			<div ref={sentinelRef} style={{ height: '0px' }} />
-			{loading && <LoadingSpinner />}
+			<PullToRefresh onRefresh={refreshFeed} containerStyling={styles.feedContainer}>
+				{posts.map((post, idx) => (
+					<div key={idx} className={styles.cardWrap}>
+						<FeedCard {...post} />
+					</div>
+				))}
+
+				<div ref={sentinelRef} style={{ height: '0px' }} />
+				{loading && <LoadingSpinner />}
+			</PullToRefresh>
 		</div>
 	);
 }

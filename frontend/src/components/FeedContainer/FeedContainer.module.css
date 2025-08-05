@@ -5,3 +5,34 @@
 	gap: var(--gap-s);
 	width: 100%;
 }
+
+:root {
+	--stagger: 200ms;
+}
+
+@keyframes cardEnter {
+	0% {
+		opacity: 0;
+		transform: translateY(50%) scale(0.9);
+	}
+	60% {
+		opacity: 0.9;
+		transform: translateY(0) scale(1.01);
+	}
+	100% {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+		filter: none;
+	}
+}
+
+.cardWrap {
+	opacity: 0;
+	transform-origin: top center;
+	width: 100%;
+	will-change: transform, opacity;
+	animation-name: cardEnter;
+	animation-duration: 1000ms;
+	animation-timing-function: cubic-bezier(0.2, 0.9, 0.3, 1);
+	animation-fill-mode: both;
+}
