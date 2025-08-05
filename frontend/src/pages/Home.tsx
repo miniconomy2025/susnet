@@ -1,35 +1,41 @@
-import FeedCard from '../components/FeedCard/FeedCard';
+import { availableMemory } from 'process';
 import FeedContainer from '../components/FeedContainer/FeedContainer';
+import { BannerProps, FeedContainerProps, MembershipStatus, Post } from '../models/Feed';
 
 function Home() {
-	const posts = [
+	const bannerProps: BannerProps = {
+		title: 'homepage',
+	};
+
+	const availablePosts: Post[] = [
 		{
 			profileImage: '/images/profile.jpg',
 			title: 'Check out this cool sunset!',
 			textBody: 'Captured this in Cape Town last weekend. Nature goes hard 🔥',
 			subreddit: 'southafrica',
-			isFollowing: false,
+			membershipStatus: MembershipStatus.JOINED,
 			timestamp: 'Posted 2 hours ago',
 			attachments: ['/images/sunset1.jpg', '/images/sunset2.jpg', '/images/sunset3.jpg'],
 		},
 		{
 			title: 'Just some vibes',
 			subreddit: 'aestheticshots',
-			isFollowing: true,
+			membershipStatus: MembershipStatus.JOINED,
 			timestamp: 'Posted 1 hour ago',
 			attachments: ['/images/sunset1.jpg'],
 		},
 		{
 			title: 'Funny thing happened today...',
-			textBody: 'So I’m walking through Menlyn and I hear someone yell “FREE BOEREWORS!” — I ran, no shame.',
+			textBody:
+				'So I’m walking through Menlyn and I hear someone yell “FREE BOEREWORS!” — I ran, no shame.',
 			subreddit: 'pretoria',
-			isFollowing: false,
+			membershipStatus: MembershipStatus.NOT_JOINED,
 			timestamp: 'Posted 3 hours ago',
 		},
 		{
 			title: 'Minimalist inspo',
 			subreddit: 'design',
-			isFollowing: true,
+			membershipStatus: MembershipStatus.JOINED,
 			timestamp: 'Posted yesterday',
 			attachments: ['/images/sunset1.jpg', '/images/sunset2.jpg'],
 		},
@@ -37,14 +43,19 @@ function Home() {
 			title: 'Exam week blues',
 			textBody: 'Everything hurts and nothing is real. Engineering students know.',
 			subreddit: 'studentlife',
-			isFollowing: false,
+			membershipStatus: MembershipStatus.NOT_JOINED,
 			timestamp: 'Posted 5 hours ago',
 		},
 	];
 
-	return (
-		<FeedContainer initialPosts={posts} />
-	);
+	const feedContainerProps: FeedContainerProps = {
+		bannerProps,
+		availablePosts,
+		onLoadPosts: async () => {},
+		onRefresh: async () => {},
+	};
+
+	return <FeedContainer {...feedContainerProps} />;
 }
 
 export default Home;
