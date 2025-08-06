@@ -120,7 +120,7 @@ GET {{baseUrl}}/actors/{{targetName}}/following-status
 Authorization: Bearer {{token}}
 
 ### Get paginated post feed
-GET {{baseUrl}}/posts?limit=24&sort=hot&subName=New Sub
+POST {{baseUrl}}/posts/feed
 Authorization: Bearer {{token}}
 
 ### Get feed filtered by actor

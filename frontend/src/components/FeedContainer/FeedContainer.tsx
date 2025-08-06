@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
-import FeedCard from '../FeedCard/FeedCard';
-import Banner from '../Banner/Banner';
-import LoadingSpinner from '../LoadingSpinner/LoadingSpinner';
-import PullToRefresh from '../PullToRefresh/PullToRefresh';
+import FeedCard from '../FeedCard/FeedCard.tsx';
+import Banner from '../Banner/Banner.tsx';
+import LoadingSpinner from '../LoadingSpinner/LoadingSpinner.tsx';
+import PullToRefresh from '../PullToRefresh/PullToRefresh.tsx';
 import styles from './FeedContainer.module.css';
+import { PostData } from "../../../../types/api.ts";
+import { fetchApi } from "../../utils/fetchApi.ts";
 
-function FeedContainer({ initialPosts, refreshFeed }) {
+function FeedContainer({ initialPosts, refreshFeed }: any) {
 	const [posts, setPosts] = useState(initialPosts);
 	const [loading, setLoading] = useState(false);
 	const sentinelRef = useRef(null);
@@ -29,15 +31,21 @@ function FeedContainer({ initialPosts, refreshFeed }) {
 
 	const loadMorePosts = async () => {
 		setLoading(true);
-		await new Promise((r) => setTimeout(r, 2000));
+		// await new Promise((r) => setTimeout(r, 2000));
 
-		const newPosts = posts.slice(0, 2).map((post) => ({
+		// TODO: Integrate
+		const res = await fetchApi("getFeed", { cursor: "" });
+		if(res.success) {
+			console.log("POSTS:", res.posts);
+		}
+
+		const newPosts = posts.slice(0, 2).map((post: PostData) => ({
 			...post,
 			timestamp: 'Just now',
 			isFollowing: Math.random() > 0.5,
 		}));
 
-		setPosts((prev) => [...prev, ...newPosts]);
+		setPosts((prev: PostData[]) => [...prev, ...newPosts]);
 		setLoading(false);
 	};
 
@@ -52,7 +60,7 @@ function FeedContainer({ initialPosts, refreshFeed }) {
 			/>
 
 			<PullToRefresh onRefresh={refreshFeed} containerStyling={styles.feedContainer}>
-				{posts.map((post, idx) => (
+				{posts.map((post: PostData, idx: number) => (
 					<div key={idx} className={styles.cardWrap}>
 						<FeedCard {...post} />
 					</div>

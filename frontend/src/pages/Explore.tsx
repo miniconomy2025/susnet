@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import CreatePostModal from '../components/CreatePost/CreatePostModal'
+import CreatePostModal from '../components/CreatePost/CreatePostModal.tsx'
 
 function Explore() {
   const [isModalOpen, setIsModalOpen] = useState(false);

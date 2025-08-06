@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import ImageCarousel from '../ImageCarousel/ImageCarousel';
+import ImageCarousel from '../ImageCarousel/ImageCarousel.tsx';
 import styles from './FeedCard.module.css';
+import { PostData } from "../../../../types/api.ts";
 
 function FeedCard({
 	profileImage,
@@ -11,7 +12,7 @@ function FeedCard({
 	onFollowClick,
 	timestamp,
 	attachments = [],
-}) {
+}: PostData) {
 	const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
 	const handleNextImage = () => {
@@ -28,9 +29,10 @@ function FeedCard({
 				{profileImage && <img className={styles.profileImage} src={profileImage} alt="" />}
 				<span className={styles.subreddit}>r/{subreddit}</span>
 				{isFollowing ? (
-					<button className={`${styles.button}`}>Following</button>
+					<button type="button" className={`${styles.button}`}>Following</button>
 				) : (
 					<button
+						type="button"
 						onClick={onFollowClick}
 						className={`${styles.button} ${styles.joinButton}`}
 					>

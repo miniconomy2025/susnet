@@ -1,13 +1,12 @@
 import './App.css'
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
 import { useState } from 'react'
-import Home from './pages/Home'
-import Account from './pages/Account'
-import Signup from './pages/Signup'
-import Login from './pages/Login'
-import HeaderComponent from './Components/HeaderComponent/HeaderComponent'
-import NavComponent from './components/NavComponent/NavComponent'
-import Explore from './pages/Explore'
+import Home from './pages/Home.tsx'
+import Account from './pages/Account.tsx'
+import Signup from './pages/Signup.tsx'
+import Login from './pages/Login.tsx'
+import HeaderComponent from './components/HeaderComponent/HeaderComponent.tsx'
+import Explore from './pages/Explore.tsx'
 
 function App() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -17,7 +16,7 @@ function App() {
       <div className="appContainer">
         <HeaderComponent menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
         <div className='mainContainer'>
-          <NavComponent menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
+          {/* <NavComponent menuOpen={menuOpen} setMenuOpen={setMenuOpen} /> */}
           <main className='contentContainer'>
             <Routes>
               <Route path="/" element={<Signup />} />

@@ -1,8 +1,9 @@
-import FeedCard from '../components/FeedCard/FeedCard';
-import FeedContainer from '../components/FeedContainer/FeedContainer';
+import { PostData } from "../../../types/api.ts";
+import FeedCard from '../components/FeedCard/FeedCard.tsx';
+import FeedContainer from '../components/FeedContainer/FeedContainer.tsx';
 
 function Home() {
-	const posts = [
+	const posts: PostData[] = [
 		{
 			profileImage: '/images/profile.jpg',
 			title: 'Check out this cool sunset!',
@@ -21,8 +22,8 @@ function Home() {
 		},
 		{
 			title: 'Funny thing happened today...',
-			textBody: 'So I’m walking through Menlyn and I hear someone yell “FREE BOEREWORS!” — I ran, no shame.',
-			subreddit: 'pretoria',
+			content: 'So I’m walking through Menlyn and I hear someone yell “FREE BOEREWORS!” — I ran, no shame.',
+			subName: 'pretoria',
 			isFollowing: false,
 			timestamp: 'Posted 3 hours ago',
 		},
@@ -35,7 +36,7 @@ function Home() {
 		},
 		{
 			title: 'Exam week blues',
-			textBody: 'Everything hurts and nothing is real. Engineering students know.',
+			content: 'Everything hurts and nothing is real. Engineering students know.',
 			subreddit: 'studentlife',
 			isFollowing: false,
 			timestamp: 'Posted 5 hours ago',

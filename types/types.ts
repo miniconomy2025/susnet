@@ -1,5 +1,7 @@
 // Generic utility types
 
+export type HTTPMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+
 export type Unit = { [K in never]: never };
 
 export type Result<S extends object, E extends { [key: string]: object } = Unit, Es extends string = keyof E extends string ? keyof E : never> =

@@ -1,4 +1,4 @@
-import AuthComponent from "../components/AuthComponent/AuthComponent"
+import AuthComponent from "../components/AuthComponent/AuthComponent.tsx"
 
 function Login() {
   const handleGoogleLogin = () => {

@@ -2,7 +2,6 @@ import { Activity, ActorDispatcher, CollectionDispatcher, createFederation, Fede
 import { DenoKvStore } from "@fedify/fedify/x/denokv";
 import { Router } from "effect/platform/HttpApiBuilder";
 import { ActorModel, ActorType, PostModel } from "../db/schema.ts";
-import { getActorsFollowedBy } from "../db/utils.ts";
 
 // See [https://fedify.dev/manual/federation#tcontextdata]
 export function getServeHandlers(fed: Federation<void>) {
