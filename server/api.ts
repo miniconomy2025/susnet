@@ -97,7 +97,7 @@ const endpoints: Endpoints = {
     return { success: true, token };
   },
 
-  'me': async (_: Unit, user: AuthUser): Promise<Res_me> => {
+  'me': async (_1, _2, user: AuthUser): Promise<Res_me> => {
     const doc = await ActorModel.findById(user.id).lean().exec();
     if (doc == null) return { success: false, error: 'invalidAuth' };
     return { success: true, actor: toActorDataFull(doc) };
@@ -170,7 +170,7 @@ const endpoints: Endpoints = {
   },
 
   // Update your user data
-  'updateMe': async (req: Req_updateActor, user: AuthUser): Promise<Res_updateActor> => {
+  'updateMe': async (req: Req_updateActor, _, user: AuthUser): Promise<Res_updateActor> => {
     const doc = await ActorModel.findByIdAndUpdate(user.id, req, { new: true }).lean().exec(); // TODO: Filter fields
     return { success: true, actor: toActorDataSimple(doc) };
   },
@@ -181,13 +181,13 @@ const endpoints: Endpoints = {
     return { success: true, post: toPostDataFull(doc) };
   },
 
-  'createPost': async (req: Req_createPost, user: AuthUser): Promise<Res_createPost> => {
+  'createPost': async (req: Req_createPost, _, user: AuthUser): Promise<Res_createPost> => {
     console.log("USER:", user);
     const postDoc = await PostModel.create({ ...req, actorId: user.id, actorName: user.name });
     return { success: true, post: toPostDataSimple(postDoc) };
   },
 
-  'voteOnPost': async (_, { postId, vote }: { postId: string; vote: VoteType | null }, user: AuthUser): Promise<Res_vote> => {
+  'voteOnPost': async ({ vote }: Req_vote, { postId }: { postId: string; }, user: AuthUser): Promise<Res_vote> => {
     const record = await VoteModel.findOneAndUpdate(
       { postId, actorId: user.id },
       { vote, actorId: user.id, postId },
@@ -213,7 +213,7 @@ const endpoints: Endpoints = {
     return { success: true, following: Boolean(exists) };
   },
 
-  'getFeed': async (req: Req_Feed, user: AuthUser): Promise<Res_Feed> => {
+  'getFeed': async (req: Req_Feed, _, user: AuthUser): Promise<Res_Feed> => {
     const { limit = 20, cursor, actorName, sort = 'new' } = req;
     const match: any = {};
 

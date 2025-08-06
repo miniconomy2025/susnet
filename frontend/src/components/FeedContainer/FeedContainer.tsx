@@ -40,9 +40,10 @@ function FeedContainer({
 		// await new Promise((r) => setTimeout(r, 2000));
 
 		// TODO: Integrate
-		const res = await fetchApi("getFeed", { cursor: "" });
+		const res = await fetchApi("getActor", { name: "tidy_panda_912" });
 		if(res.success) {
-			console.log("POSTS:", res.posts);
+			console.log("ACTOR:", res.actor);
+			// console.log("POSTS:", res.posts);
 		}
 
 		const newPosts = posts.slice(0, 2).map((post) => ({

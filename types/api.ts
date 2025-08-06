@@ -42,6 +42,7 @@ export type EditablePostData = 'title' | 'content' | 'tags';
 
 import { VoteType, ActorType } from "../server/db/schema.ts";
 import { AuthenticatedRequest } from "../server/auth.ts";
+import { Endpoints } from "@fedify/fedify";
 
 //--- Request types ----//
 export type Req_createSub    = { name: string; thumbnailUrl: string; description?: string };
@@ -102,33 +103,36 @@ export type AuthUser = AuthenticatedRequest["user"];
 //----------- Endpoint Schema -----------//
 
 export type EndpointIO = {
-  "health":             [Unit,             Res_health       ],
-  "login":              [Req_login,        Res_login        ],
-  "me":                 [Unit,             Res_me           ],
-  "getActor":           [Unit,             Res_getActor     ],
-  "getActorPosts":      [Unit,             Res_getActorPosts],
-  "getActorFollowers":  [Unit,             Res_followers    ],
-  "getActorFollowing":  [Unit,             Res_following    ],
-  "createSub":          [Req_createSub,    Res_createSub    ],
-  "updateMe":           [Req_updateActor,  Res_updateActor  ],
-  "getPost":            [Unit,             Res_getPost      ],
-  "createPost":         [Req_createPost,   Res_createPost   ],
-  "voteOnPost":         [Req_vote,         Res_vote         ],
-  "followActor":        [Unit,             Res_follow       ],
-  "unfollowActor":      [Unit,             Res_unfollow     ],
-  "getFollowingStatus": [Unit,             Res_followStatus ],
-  "getFeed":            [Req_Feed,         Res_Feed         ],
-  "searchActors":       [Req_SearchActors, Res_SearchActors ],
-  "searchTags":         [Req_SearchTags,   Res_SearchTags   ],
-  "updatePost":         [Req_EditPost,     Res_EditPost     ],
-  "updateActor":        [Req_EditActor,    Res_EditActor    ],
+  "health":             [Unit,             null,         Res_health       ],
+  "login":              [Req_login,        null,         Res_login        ],
+  "me":                 [Unit,             null,         Res_me           ],
+  "getActor":           [Unit,             "name",       Res_getActor     ],
+  "getActorPosts":      [Unit,             "name",       Res_getActorPosts],
+  "getActorFollowers":  [Unit,             "name",       Res_followers    ],
+  "getActorFollowing":  [Unit,             "name",       Res_following    ],
+  "createSub":          [Req_createSub,    null,         Res_createSub    ],
+  "updateMe":           [Req_updateActor,  null,         Res_updateActor  ],
+  "getPost":            [Unit,             "postId",     Res_getPost      ],
+  "createPost":         [Req_createPost,   null,         Res_createPost   ],
+  "voteOnPost":         [Req_vote,         "postId",     Res_vote         ],
+  "followActor":        [Unit,             "targetName", Res_follow       ],
+  "unfollowActor":      [Unit,             "targetName", Res_unfollow     ],
+  "getFollowingStatus": [Unit,             "targetName", Res_followStatus ],
+  "getFeed":            [Req_Feed,         null,         Res_Feed         ],
+  "searchActors":       [Req_SearchActors, null,         Res_SearchActors ],
+  "searchTags":         [Req_SearchTags,   null,         Res_SearchTags   ],
+  "updatePost":         [Req_EditPost,     "postId",     Res_EditPost     ],
+  "updateActor":        [Req_EditActor,    "actorName",  Res_EditActor    ],
 };
 
 export type EndpointRequest<E extends keyof EndpointIO> = EndpointIO[E][0];
-export type EndpointResponse<E extends keyof EndpointIO> = EndpointIO[E][1];
+export type EndpointParams<E extends keyof EndpointIO> = EndpointIO[E][1] extends string ? { [K in EndpointIO[E][1]]: string } : Unit;
+export type EndpointResponse<E extends keyof EndpointIO> = EndpointIO[E][2];
+
+type X = EndpointParams<"getPost">;
 
 type Primitive = string | number | boolean | null;
-export type Endpoints = { [E in keyof EndpointIO]: (req: EndpointRequest<E>, params: any, user: AuthUser) => Promise<EndpointResponse<E>> };
+export type Endpoints = { [E in keyof EndpointIO]: (req: EndpointRequest<E>, params: EndpointParams<E>, user: AuthUser) => Promise<EndpointResponse<E>> };
 
 export const endpointSignatures: { [K in keyof EndpointIO]: [HTTPMethod, `/${string}`] } = {
   "health":             ['GET',    '/health'                             ],

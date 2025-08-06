@@ -1,8 +1,11 @@
-import { EndpointIO, EndpointRequest, EndpointResponse, endpointSignatures } from "../../../types/api.ts";
+import { EndpointIO, EndpointParams, EndpointRequest, EndpointResponse, endpointSignatures } from "../../../types/api.ts";
 
-export const fetchApi = async <const T extends keyof EndpointIO>(endpoint: T, data: EndpointRequest<T>): Promise<EndpointResponse<T>> => (
-    (await fetch(`http://localhost:3000/api${endpointSignatures[endpoint][1]}`, {
+export async function fetchApi<const E extends keyof EndpointIO>(endpoint: E, params: EndpointParams<E>, data: EndpointRequest<E> = {}): Promise<EndpointResponse<E>> {
+    let endpt: string = endpointSignatures[endpoint][1];
+    for (const [key, val] of Object.entries(params)) { endpt = endpt.replace(`:${key}`, val as string); }
+
+    return (await fetch(`http://localhost:3000/api${endpt}`, {
         method: endpointSignatures[endpoint][0],
         headers: { "Content-Type": "application/json" }
-    })).json()
-);
+    })).json();
+};

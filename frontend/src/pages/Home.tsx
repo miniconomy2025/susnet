@@ -1,4 +1,3 @@
-import { availableMemory } from 'process';
 import FeedContainer from '../components/FeedContainer/FeedContainer.tsx';
 import { BannerProps, FeedContainerProps, MembershipStatus, Post } from '../models/Feed.ts';
 
