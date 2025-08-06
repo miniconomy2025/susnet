@@ -1,26 +1,33 @@
 // AccountModal.tsx
 import styles from "./AccountModal.module.css";
 import { useNavigate } from "react-router-dom";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useActorInfo } from "../../hooks/UseActorInfo";
 
 interface AccountModalProps {
   isOpen: boolean;
   onClose: () => void;
+  actorName?: string;
 }
 
-function AccountModal({ isOpen, onClose }: AccountModalProps) {
+function AccountModal({ isOpen, onClose, actorName }: AccountModalProps) {
+  const { actor, loading, updating, updateActor } = useActorInfo(actorName);
   const navigate = useNavigate();
   const [editMode, setEditMode] = useState(false);
-  const [userData, setUserData] = useState({
-    name: "Jane Doe",
-    role: "Admin",
-    username: "janedoe99",
-    email: "jane.doe@example.com",
-    memberSince: "February 2022",
-    status: "Active",
-    profilePic: "/images/cat.jpg",
+  const [tempData, setTempData] = useState({
+    description: '',
+    thumbnailUrl: '/images/cat.jpg',
   });
-  const [tempData, setTempData] = useState(userData);
+
+  // Update tempData when actor loads
+  useEffect(() => {
+    if (actor) {
+      setTempData({
+        description: actor.description || '',
+        thumbnailUrl: actor.thumbnailUrl,
+      });
+    }
+  }, [actor]);
 
   if (!isOpen) return null;
 
@@ -31,13 +38,23 @@ function AccountModal({ isOpen, onClose }: AccountModalProps) {
 
   const handleEditProfile = () => setEditMode(true);
   const handleCancel = () => {
-    setTempData(userData);
+    if (actor) {
+      setTempData({
+        description: actor.description || '',
+        thumbnailUrl: actor.thumbnailUrl || '/images/cat.jpg',
+      });
+    }
     setEditMode(false);
   };
 
-  const handleSave = () => {
-    console.log("Saving profile data:", { username: tempData.username, profilePic: tempData.profilePic });
-    setEditMode(false);
+  const handleSave = async () => {
+    const success = await updateActor({
+      description: tempData.description,
+      thumbnailUrl: tempData.thumbnailUrl
+    });
+    if (success) {
+      setEditMode(false);
+    }
   };
 
   const handleChange = (e) => {
@@ -45,82 +62,63 @@ function AccountModal({ isOpen, onClose }: AccountModalProps) {
     setTempData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setTempData((prev) => ({ ...prev, profilePic: url }));
-    }
-  };
-
   return (
     <div className={styles.modalOverlay} onClick={onClose}>
       <div className={styles.accountCard} onClick={(e) => e.stopPropagation()}>
         <button className={styles.closeButton} onClick={onClose}>×</button>
         
-        <div className={styles.profileSection}>
-          <div className={styles.profilePicWrapper}>
-            <img
-              src={editMode ? tempData.profilePic : userData.profilePic}
-              alt="Profile"
-              className={styles.profilePic}
-            />
-            {editMode && (
-              <>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className={styles.fileInput}
-                  id="profilePicInput"
+        {loading ? (
+          <div>Loading...</div>
+        ) : (
+          <>
+            <div className={styles.profileSection}>
+              <div className={styles.profilePicWrapper}>
+                <img
+                  src={tempData.thumbnailUrl}
+                  alt="Profile"
+                  className={styles.profilePic}
                 />
-                <label htmlFor="profilePicInput" className={styles.overlay}>
-                  <span className={styles.plusIcon}>＋</span>
-                </label>
-              </>
-            )}
-          </div>
-          <div className={styles.profileInfo}>
-            <h2 className={styles.accountTitle}>{userData.name}</h2>
-            <p className={styles.userRole}>{userData.role}</p>
-          </div>
-        </div>
+              </div>
+              <div className={styles.profileInfo}>
+                <h2 className={styles.accountTitle}>{actor?.name || 'User'}</h2>
+                <p className={styles.userRole}>{actor?.type || 'User'}</p>
+              </div>
+            </div>
 
-        <div className={styles.detailsSection}>
-          <h3 className={styles.sectionTitle}>Account Details</h3>
-          <div className={styles.infoRow}>
-            <span className={styles.label}>Username:</span>
-            {editMode ? (
-              <input
-                type="text"
-                name="username"
-                value={tempData.username}
-                onChange={handleChange}
-                className={styles.input}
-              />
-            ) : (
-              <span className={styles.value}>{userData.username}</span>
-            )}
-          </div>
-          <div className={styles.infoRow}>
-            <span className={styles.label}>Email:</span>
-            <span className={styles.value}>{userData.email}</span>
-          </div>
-        </div>
+            <div className={styles.detailsSection}>
+              <div className={styles.info}>
+                <span className={styles.label}>Description:</span>
+                {editMode ? (
+                  <textarea
+                    name="description"
+                    value={tempData.description}
+                    onChange={handleChange}
+                    className={styles.input}
+                    rows={3}
+                  />
+                ) : (
+                  <span className={styles.value}>{actor?.description || 'No description'}</span>
+                )}
+              </div>
+            </div>
 
-        <div className={styles.actionsSection}>
-          {editMode ? (
-            <>
-              <button className={styles.primaryButton} onClick={handleSave}>Save</button>
-              <button className={styles.secondaryButton} onClick={handleCancel}>Cancel</button>
-            </>
-          ) : (
-            <>
-              <button className={styles.primaryButton} onClick={handleEditProfile}>Edit Profile</button>
-              <button className={styles.secondaryButton} onClick={handleLogout}>Logout</button>
-            </>
-          )}
-        </div>
+            <div className={styles.actionsSection}>
+              {editMode ? (
+                <>
+                  <button className={styles.primaryButton} onClick={handleSave} disabled={updating}>
+                    {updating ? 'Saving...' : 'Save'}
+                  </button>
+                  <button className={styles.secondaryButton} onClick={handleCancel}>Cancel</button>
+                </>
+              ) : (
+                <>
+                  <button className={styles.primaryButton} onClick={handleEditProfile}>Edit Profile</button>
+                  <button className={styles.secondaryButton} onClick={handleLogout}>Logout</button>
+                </>
+              )}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
