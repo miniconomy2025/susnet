@@ -4,11 +4,17 @@ import Banner from '../Banner/Banner.tsx';
 import LoadingSpinner from '../LoadingSpinner/LoadingSpinner.tsx';
 import PullToRefresh from '../PullToRefresh/PullToRefresh.tsx';
 import styles from './FeedContainer.module.css';
+import { FeedContainerProps } from '../../models/Feed.ts';
 import { PostData } from "../../../../types/api.ts";
 import { fetchApi } from "../../utils/fetchApi.ts";
 
-function FeedContainer({ initialPosts, refreshFeed }: any) {
-	const [posts, setPosts] = useState(initialPosts);
+function FeedContainer({
+	bannerProps,
+	availablePosts,
+	onLoadPosts,
+	onRefresh,
+}: FeedContainerProps) {
+	const [posts, setPosts] = useState(availablePosts);
 	const [loading, setLoading] = useState(false);
 	const sentinelRef = useRef(null);
 
@@ -39,28 +45,22 @@ function FeedContainer({ initialPosts, refreshFeed }: any) {
 			console.log("POSTS:", res.posts);
 		}
 
-		const newPosts = posts.slice(0, 2).map((post: PostData) => ({
+		const newPosts = posts.slice(0, 2).map((post) => ({
 			...post,
 			timestamp: 'Just now',
 			isFollowing: Math.random() > 0.5,
 		}));
 
-		setPosts((prev: PostData[]) => [...prev, ...newPosts]);
+		setPosts((prev) => [...prev, ...newPosts]);
 		setLoading(false);
 	};
 
 	return (
 		<div className={styles.feedContainer}>
-			<Banner
-				profileImage="/images/profile.jpg"
-				title="r/southafrica"
-				onCreatePost={() => console.log('Create Post clicked')}
-				onJoin={() => console.log('Join clicked')}
-				onSettingsClick={() => console.log('Settings clicked')}
-			/>
+			<Banner {...bannerProps} />
 
-			<PullToRefresh onRefresh={refreshFeed} containerStyling={styles.feedContainer}>
-				{posts.map((post: PostData, idx: number) => (
+			<PullToRefresh onRefresh={onRefresh} containerStyling={styles.feedContainer}>
+				{posts.map((post, idx) => (
 					<div key={idx} className={styles.cardWrap}>
 						<FeedCard {...post} />
 					</div>
