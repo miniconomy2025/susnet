@@ -1,56 +1,43 @@
+import { PostData } from '../../../types/api.ts';
 import FeedContainer from '../components/FeedContainer/FeedContainer.tsx';
-import { BannerProps, FeedContainerProps, MembershipStatus, Post } from '../models/Feed.ts';
+import { BannerProps, FeedContainerProps } from '../models/Feed.ts';
+import { fetchApi } from '../utils/fetchApi.ts';
 
 function Home() {
 	const bannerProps: BannerProps = {
 		title: 'homepage',
 	};
 
-	const availablePosts: Post[] = [
+	const availablePosts: PostData<'full'>[] = [
 		{
-			profileImage: '/images/profile.jpg',
+			postId: '1',
+			actorName: 'greg',
+			subThumbnailUrl: '/images/profile.jpg',
 			title: 'Check out this cool sunset!',
 			content: 'Captured this in Cape Town last weekend. Nature goes hard 🔥',
-			subreddit: 'southafrica',
-			membershipStatus: MembershipStatus.JOINED,
-			timestamp: 'Posted 2 hours ago',
-			attachments: ['/images/sunset1.jpg', '/images/sunset2.jpg', '/images/sunset3.jpg'],
-		},
-		{
-			title: 'Just some vibes',
-			subreddit: 'aestheticshots',
-			membershipStatus: MembershipStatus.JOINED,
-			timestamp: 'Posted 1 hour ago',
-			attachments: ['/images/sunset1.jpg'],
-		},
-		{
-			title: 'Funny thing happened today...',
-			content:
-				'So I’m walking through Menlyn and I hear someone yell “FREE BOEREWORS!” — I ran, no shame.',
-			subreddit: 'pretoria',
-			membershipStatus: MembershipStatus.NOT_JOINED,
-			timestamp: 'Posted 3 hours ago',
-		},
-		{
-			title: 'Minimalist inspo',
-			subreddit: 'design',
-			membershipStatus: MembershipStatus.JOINED,
-			timestamp: 'Posted yesterday',
-			attachments: ['/images/sunset1.jpg', '/images/sunset2.jpg'],
-		},
-		{
-			title: 'Exam week blues',
-			content: 'Everything hurts and nothing is real. Engineering students know.',
-			subreddit: 'studentlife',
-			membershipStatus: MembershipStatus.NOT_JOINED,
-			timestamp: 'Posted 5 hours ago',
+			subName: 'southafrica',
+			isFollowingSub: true,
+			timestamp: 5,
+			attachments: [
+				{ url: '/images/sunset1.jpg', mimeType: 'jpg', altText: 'sunset' },
+				{ url: '/images/sunset2.jpg', mimeType: 'jpg', altText: 'sunset' },
+				{ url: '/images/sunset3.jpg', mimeType: 'jpg', altText: 'sunset' },
+			],
+			tags: ['cool'],
+			upvotes: 5,
+			downvotes: 5,
+			score: 4
 		},
 	];
+
+	const onLoadPosts = async () => {
+		return await fetchApi('getFeed', {}); // TODO: DINO DINO!
+	};
 
 	const feedContainerProps: FeedContainerProps = {
 		bannerProps,
 		availablePosts,
-		onLoadPosts: async () => {},
+		onLoadPosts,
 		onRefresh: async () => {},
 	};
 

@@ -2,31 +2,37 @@ import { useNavigate } from 'react-router-dom';
 import ImageCarousel from '../ImageCarousel/ImageCarousel.tsx';
 import styles from './FeedCard.module.css';
 import { MembershipStatus } from '../../models/Feed.ts';
+import { PostData } from '../../../../types/api.ts';
 
 function FeedCard({
-	profileImage,
+	postId,
+	actorName,
+	subName,
+	subThumbnailUrl,
 	title,
-	textBody,
-	subreddit,
-	membershipStatus,
-	onFollowClick,
+	content,
+	attachments,
+	tags,
+	upvotes,
+	downvotes,
+	score,
+	isFollowingSub,
 	timestamp,
-	attachments = [],
-}) {
+}: PostData<'full'>) {
 	const navigate = useNavigate();
 
 	const onSubredditClick = () => {
-		navigate(`/subreddit/${encodeURIComponent(subreddit)}`);
+		navigate(`/subreddit/${encodeURIComponent(subName)}`);
 	};
 
 	return (
 		<div className={`${styles.cardContainer}`}>
 			<div className={styles.headerGrid}>
-				{profileImage && <img className={styles.profileImage} src={profileImage} alt="" />}
+				{subThumbnailUrl && <img className={styles.profileImage} src={subThumbnailUrl} alt="" />}
 				<span className={styles.subreddit} onClick={onSubredditClick}>
-					r/{subreddit}
+					r/{subName}
 				</span>
-				{membershipStatus == MembershipStatus.JOINED ? (
+				{isFollowingSub ? (
 					<button className={`${styles.button}`}>Following</button>
 				) : (
 					<button
@@ -40,9 +46,9 @@ function FeedCard({
 				<span className={styles.timestamp}>{timestamp}</span>
 			</div>
 			<h1 className={styles.title}>{title}</h1>
-			<p className={styles.textBody}>{textBody}</p>
+			<p className={styles.textBody}>{content}</p>
 
-			{attachments.length > 0 && <ImageCarousel images={attachments} />}
+			{attachments.length > 0 && <ImageCarousel attachments={attachments} />}
 		</div>
 	);
 }
