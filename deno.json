@@ -12,6 +12,7 @@
   },
   "nodeModulesDir": "auto",
   "imports": {
+    "@fedify/express": "npm:@fedify/express@^0.2.1",
     "@fedify/fedify": "jsr:@fedify/fedify@^1.7.7",
     "@typegoose/typegoose": "npm:@typegoose/typegoose@^12.17.0",
     "cors": "npm:cors@^2.8.5",
