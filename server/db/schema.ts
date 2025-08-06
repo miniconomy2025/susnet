@@ -98,12 +98,15 @@ export const VoteModel = getModelForClass(Vote);
 
 //---------- Follow (user -> sub || user -> user) -----------//
 
+export enum FollowRole { pleb = "pleb", mod = "mod" };
+
 @index({ followerRef: 1, targetRef: 1 }, { unique: true })
 @index({ targetRef: 1 })
 @modelOptions({ schemaOptions: { timestamps: { createdAt: true, updatedAt: false } } })
 export class Follow {
   @prop({ ref: () => Actor, required: true })                     followerRef!: Ref<Actor>;
   @prop({ ref: () => Actor, required: true })                     targetRef!:   Ref<Actor>;
+  @prop({ required: true, enum: FollowRole })                     role!:        FollowRole;
 
   _id?: Types.ObjectId;
   createdAt?: Date;

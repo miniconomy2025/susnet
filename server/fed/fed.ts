@@ -5,8 +5,7 @@ import { ActorModel, ActorType, PostModel } from "../db/schema.ts";
 import { getActorsFollowedBy } from "../db/utils.ts";
 
 // See [https://fedify.dev/manual/federation#tcontextdata]
-export function getServeHandler() {
-    const fed = createFederation<void>({ kv: new MemoryKvStore() }); // TODO: Replace with DenoKvStore
+export function getServeHandlers(fed: Federation<void>) {
 
     //---------- Endpoints ----------//
 

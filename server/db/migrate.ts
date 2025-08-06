@@ -1,7 +1,7 @@
 // Utilities for generation of dummy data
 
 import mongoose from "mongoose";
-import { ActorModel, PostModel, VoteModel, FollowModel, Actor, ActorType, Follow, VoteType } from './schema.ts';
+import { ActorModel, PostModel, VoteModel, FollowModel, Actor, ActorType, Follow, VoteType, FollowRole } from './schema.ts';
 import type { Ref } from '@typegoose/typegoose';
 
 //---------- Setup ----------//
@@ -81,6 +81,7 @@ export const migrateDb = async (
   numSubs: number = 64,
   numPosts: number = 1024,
   followRatio: number = 0.1,
+  modCount: number = 3,
   subRatio: number = 0.1,
   voteRatio: number = 0.1
 ) => {
@@ -120,26 +121,28 @@ export const migrateDb = async (
   const follows: Follow[] = [];
   const followSet = new Set<string>();
 
+  // user -> user
   for (const follower of userDocs) {
     for (const followee of userDocs) {
       if (!follower._id.equals(followee._id) && Math.random() < followRatio) {
         const key = `${follower._id}_${followee._id}`;
 
         if (!followSet.has(key)) {
-
           followSet.add(key);
-          follows.push({ followerRef: follower._id, targetRef: followee._id });
-
+          follows.push({ followerRef: follower._id, targetRef: followee._id, role: FollowRole.pleb });
         }
       }
     }
 
+    // user -> sub
+    let numMods = 0;
     for (const sub of subDocs) {
       if (Math.random() < subRatio) {
         const key = `${follower._id}_${sub._id}`;
         if (!followSet.has(key)) {
           followSet.add(key);
-          follows.push({ followerRef: follower._id, targetRef: sub._id });
+          const role = ++numMods < modCount ? FollowRole.mod : FollowRole.pleb;
+          follows.push({ followerRef: follower._id, targetRef: sub._id, role });
         }
       }
     }
