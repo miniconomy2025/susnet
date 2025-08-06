@@ -26,6 +26,7 @@
     "@vitejs/plugin-react": "npm:@vitejs/plugin-react@^4.6.0",
     "express": "npm:express@^5.1.0",
     "fs": "npm:fs@^0.0.1-security",
+    "jose": "npm:jose@^6.0.12",
     "jsonwebtoken": "npm:jsonwebtoken@^9.0.2",
     "react": "npm:react@^19.1.0",
     "react-dom": "npm:react-dom@^19.1.0",

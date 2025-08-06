@@ -25,6 +25,7 @@
     "npm:effect@^3.17.3": "3.17.4",
     "npm:express@^5.1.0": "5.1.0",
     "npm:fs@^0.0.1-security": "0.0.1-security",
+    "npm:jose@^6.0.12": "6.0.12",
     "npm:json-canon@^1.0.1": "1.0.1",
     "npm:jsonld@^8.3.2": "8.3.3",
     "npm:jsonwebtoken@^9.0.2": "9.0.2",
@@ -1039,6 +1040,9 @@
     "is-promise@4.0.0": {
       "integrity": "sha512-hvpoI6korhJMnej285dSg6nu1+e6uxs7zG3BYAm5byqDsgJNWwxzM6z6iZiAgQR4TJ30JmBTOwqZUw3WlyH3AQ=="
     },
+    "jose@6.0.12": {
+      "integrity": "sha512-T8xypXs8CpmiIi78k0E+Lk7T2zlK4zDyg+o1CZ4AkOHgDg98ogdP2BeZ61lTFKFyoEwJ9RgAgN+SdM3iPgNonQ=="
+    },
     "js-tokens@4.0.0": {
       "integrity": "sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ=="
     },
@@ -1692,6 +1696,7 @@
       "npm:effect@^3.17.3",
       "npm:express@^5.1.0",
       "npm:fs@^0.0.1-security",
+      "npm:jose@^6.0.12",
       "npm:jsonwebtoken@^9.0.2",
       "npm:mongodb@^6.18.0",
       "npm:mongoose@^8.17.0",

@@ -14,7 +14,14 @@ import { getServeHandler } from "./fed/fed.ts";
 const DB_URL = env("DB_URL");
 const PORT = env("PORT", 3000);
 
-await mongoose.connect(DB_URL);
+// mongoose.connect(MONGO_URI)
+//   .then(() => {
+//     console.log('✅ Connected to MongoDB');
+//   })
+//   .catch((err) => {
+//     console.error('❌ Failed to connect to MongoDB:', err);
+//     process.exit(1);
+//   });
 
 
 //---------- Main ----------//
@@ -31,7 +38,6 @@ import cors from 'cors';
 import router from './api.ts';
 
 const app = express();
-// const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/susnet';
 
 app.use(cors());
 app.use(express.json());
@@ -39,20 +45,12 @@ app.use('/api', router);
 
 app.listen(PORT, () => { console.log(`🚀 Server is running at http://localhost:${PORT}`); });
 
-// mongoose.connect(MONGO_URI)
-//   .then(() => {
-//     console.log('✅ Connected to MongoDB');
-//   })
-//   .catch((err) => {
-//     console.error('❌ Failed to connect to MongoDB:', err);
-//     process.exit(1);
-//   });
 
 
 
 //---------- Fedify setup ----------//
-const { fed, handlers } = getServeHandler();
-Deno.serve(req => fed.fetch(req, handlers));
+// const { fed, handlers } = getServeHandler();
+// Deno.serve(req => fed.fetch(req, handlers));
 
 // const Person = Schema.Struct({
 //     name: Schema.optionalWith(Schema.NonEmptyString, { exact: true }),

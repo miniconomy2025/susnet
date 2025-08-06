@@ -8,6 +8,7 @@ import {
   createPost, createSub, createUserAccount, createJWT, followActor, getActorsFollowedBy,
   getPostVoteAggregate, getSubAggregate, voteOnPost, getUserVote, getPostsForActor
 } from './db/utils.ts';
+import { decodeGoogleToken } from "./utils/authUtils.ts";
 
 //----------- Request/Response Types -----------//
 
@@ -58,20 +59,26 @@ router.get('/health', async (_: Request, res: Response<Res_health>) => {
 
 //---------- Auth ----------//
 
-router.post('/auth/login', async (req: Request<{}, {}, Req_login>, res: Response<Res_login>) => {
-  const { googleId, email, accessToken, refreshToken } = req.body;
-  // TEMP: Add name and thumbnailUrl from body until OAuth2 flow is implemented
-  const { name, thumbnailUrl, description = '' } = req.body as any;
+router.post('/auth/login', async (req: any, res: any) => {
+  const {token} = req.body;
+  let a = decodeGoogleToken(token);
+  res.json({success: true})
+})
 
-  const { actor } = await createUserAccount({ googleId, email, accessToken, refreshToken, name, thumbnailUrl, description });
-  const token = createJWT(actor);
-  res.json({ success: true, token });
-});
+// router.post('/auth/login', async (req: Request<{}, {}, Req_login>, res: Response<Res_login>) => {
+//   const { googleId, email, accessToken, refreshToken } = req.body;
+//   // TEMP: Add name and thumbnailUrl from body until OAuth2 flow is implemented
+//   const { name, thumbnailUrl, description = '' } = req.body as any;
 
-router.get('/auth/me', authenticate, async (req: Request, res: Response<Res_me>) => {
-  const actor = await ActorModel.findOne({ name: req.user.name });
-  res.json({ success: true, actor: actor! });
-});
+//   const { actor } = await createUserAccount({ googleId, email, accessToken, refreshToken, name, thumbnailUrl, description });
+//   const token = createJWT(actor);
+//   res.json({ success: true, token });
+// });
+
+// router.get('/auth/me', authenticate, async (req: Request, res: Response<Res_me>) => {
+//   const actor = await ActorModel.findOne({ name: req.user.name });
+//   res.json({ success: true, actor: actor! });
+// });
 
 //---------- Actors ----------//
 
