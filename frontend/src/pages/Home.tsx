@@ -3,7 +3,7 @@ import { BannerProps, FeedContainerProps, MembershipStatus, Post } from '../mode
 
 function Home() {
 	const bannerProps: BannerProps = {
-		title: 'homepage',
+		title: 'Homepage',
 	};
 
 	const availablePosts: Post[] = [
