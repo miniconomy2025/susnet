@@ -5,7 +5,7 @@ import { fetchApi } from '../utils/fetchApi.ts';
 
 function Home() {
 	const bannerProps: BannerProps = {
-		title: 'homepage',
+		title: 'Homepage',
 	};
 
 	const availablePosts: PostData<'full'>[] = [

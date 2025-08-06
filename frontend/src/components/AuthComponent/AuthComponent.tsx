@@ -3,15 +3,11 @@ import styles from "./AuthComponent.module.css";
 
 interface AuthComponentProps {
   onGoogleLogin?: () => void;
-  onGitHubLogin?: () => void;
-  onDiscordLogin?: () => void;
   isSignup?: boolean;
 }
 
 export default function AuthComponent({
   onGoogleLogin,
-  onGitHubLogin,
-  onDiscordLogin,
   isSignup = false,
 }: AuthComponentProps) {
   return (

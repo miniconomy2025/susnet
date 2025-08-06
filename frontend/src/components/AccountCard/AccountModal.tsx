@@ -1,10 +1,15 @@
-import styles from "./AccountCardComponent.module.css";
+// AccountModal.tsx
+import styles from "./AccountModal.module.css";
 import { useNavigate } from "react-router-dom";
 import React, { useState } from "react";
 
-function AccountCardComponent() {
-  const navigate = useNavigate();
+interface AccountModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
 
+function AccountModal({ isOpen, onClose }: AccountModalProps) {
+  const navigate = useNavigate();
   const [editMode, setEditMode] = useState(false);
   const [userData, setUserData] = useState({
     name: "Jane Doe",
@@ -15,32 +20,23 @@ function AccountCardComponent() {
     status: "Active",
     profilePic: "/images/cat.jpg",
   });
-
   const [tempData, setTempData] = useState(userData);
 
+  if (!isOpen) return null;
+
   function handleLogout() {
-    // Clear auth tokens, localStorage, etc.
-    // Then redirect:
     navigate("/login");
+    onClose();
   }
 
-  const handleEditProfile = () => {
-    setEditMode(true);
-  };
-
+  const handleEditProfile = () => setEditMode(true);
   const handleCancel = () => {
     setTempData(userData);
     setEditMode(false);
   };
 
   const handleSave = () => {
-    const payload = {
-      username: tempData.username,
-      profilePic: tempData.profilePic
-    };
-
-    console.log("Saving profile data:", payload);
-
+    console.log("Saving profile data:", { username: tempData.username, profilePic: tempData.profilePic });
     setEditMode(false);
   };
 
@@ -58,8 +54,10 @@ function AccountCardComponent() {
   };
 
   return (
-    <div className={styles.accountContainer}>
-      <div className={styles.accountCard}>
+    <div className={styles.modalOverlay} onClick={onClose}>
+      <div className={styles.accountCard} onClick={(e) => e.stopPropagation()}>
+        <button className={styles.closeButton} onClick={onClose}>×</button>
+        
         <div className={styles.profileSection}>
           <div className={styles.profilePicWrapper}>
             <img
@@ -85,7 +83,6 @@ function AccountCardComponent() {
           <div className={styles.profileInfo}>
             <h2 className={styles.accountTitle}>{userData.name}</h2>
             <p className={styles.userRole}>{userData.role}</p>
-            {/* this role could be used for showing what platform the user came from. (instagram, twitter, etc) */}
           </div>
         </div>
 
@@ -114,24 +111,13 @@ function AccountCardComponent() {
         <div className={styles.actionsSection}>
           {editMode ? (
             <>
-              <button className={styles.primaryButton} onClick={handleSave}>
-                Save
-              </button>
-              <button className={styles.secondaryButton} onClick={handleCancel}>
-                Cancel
-              </button>
+              <button className={styles.primaryButton} onClick={handleSave}>Save</button>
+              <button className={styles.secondaryButton} onClick={handleCancel}>Cancel</button>
             </>
           ) : (
             <>
-              <button
-                className={styles.primaryButton}
-                onClick={handleEditProfile}
-              >
-                Edit Profile
-              </button>
-              <button className={styles.secondaryButton} onClick={handleLogout}>
-                Logout
-              </button>
+              <button className={styles.primaryButton} onClick={handleEditProfile}>Edit Profile</button>
+              <button className={styles.secondaryButton} onClick={handleLogout}>Logout</button>
             </>
           )}
         </div>
@@ -140,4 +126,4 @@ function AccountCardComponent() {
   );
 }
 
-export default AccountCardComponent;
+export default AccountModal;

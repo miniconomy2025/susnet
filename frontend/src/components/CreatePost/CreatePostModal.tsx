@@ -1,14 +1,10 @@
 import { useEffect, useState } from 'react';
 import styles from './CreatePostModal.module.css';
 
-function CreatePostModal({ buttonLabel = "Create Post", onSubmit }) {
-  const [isOpen, setIsOpen] = useState(false);
+function CreatePostModal({ isOpen, onClose, onSubmit }) {
   const [title, setTitle] = useState('');
   const [textBody, setTextBody] = useState('');
   const [attachments, setAttachments] = useState([]);
-
-  const handleOpen = () => setIsOpen(true);
-  const handleClose = () => setIsOpen(false);
 
   const handleImageUpload = (event) => {
     const files = Array.from(event.target.files);
@@ -18,7 +14,7 @@ function CreatePostModal({ buttonLabel = "Create Post", onSubmit }) {
 
   const handleSubmit = () => {
     onSubmit?.({ title, textBody, attachments });
-    handleClose(); // Closes modal after submission
+    onClose(); // Closes modal after submission
   };
 
   useEffect(() => {
@@ -30,15 +26,10 @@ function CreatePostModal({ buttonLabel = "Create Post", onSubmit }) {
   }, [isOpen]);
 
   return (
-    <>
-      <button onClick={handleOpen} className={styles.launchButton}>
-        {buttonLabel}
-      </button>
-
-      {isOpen && (
+    isOpen && (
         <div className={styles.modalBackdrop}>
           <div className={styles.modalContainer}>
-            <button className={styles.closeButton} onClick={handleClose}>
+            <button className={styles.closeButton} onClick={onClose}>
               ×
             </button>
 
@@ -97,8 +88,7 @@ function CreatePostModal({ buttonLabel = "Create Post", onSubmit }) {
             </button>
           </div>
         </div>
-      )}
-    </>
+      )
   );
 }
 
