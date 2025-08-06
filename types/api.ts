@@ -24,17 +24,20 @@ export type AttachmentData = {
 
 
 export type PostData<Meta extends 'simple' | 'full' = 'simple'> = {
-  postId:       string;
-  actorName:    string;
-  subName:      string;
-  title:        string;
-  content:      string;
-  attachments:  AttachmentData[];
-  tags:         string[];
+  postId:           string;
+  actorName:        string;
+  subName:          string;
+  subThumbnailUrl:  string;
+  title:            string;
+  content:          string;
+  attachments:      AttachmentData[];
+  tags:             string[];
 } & (Meta extends 'simple' ? Unit : {
-  upvotes: number;
-  downvotes: number;
-  score: number
+  upvotes:        number;
+  downvotes:      number;
+  score:          number;
+  isFollowingSub: boolean;
+  timestamp:      number; 
 });
 export type EditablePostData = 'title' | 'content' | 'tags';
 

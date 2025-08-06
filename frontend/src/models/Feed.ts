@@ -1,3 +1,5 @@
+import { PostData, Res_Feed, Res_getActor } from '../../../types/api';
+
 export interface BannerProps {
 	title: string;
 	displayImage?: string;
@@ -7,20 +9,10 @@ export interface BannerProps {
 	onSettingsClick?: () => void;
 }
 
-export interface Post {
-	profileImage?: string;
-	title: string;
-	content?: string;
-	subreddit: string;
-	membershipStatus: MembershipStatus;
-	timestamp: string;
-	attachments?: string[];
-}
-
 export interface FeedContainerProps {
 	bannerProps: BannerProps;
-	availablePosts: Post[];
-	onLoadPosts: () => Promise<void>;
+	availablePosts: PostData<'full'>[];
+	onLoadPosts: () => Promise<Res_Feed | Res_getActor>;
 	onRefresh: () => Promise<void>;
 }
 

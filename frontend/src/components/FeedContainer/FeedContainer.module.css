@@ -27,6 +27,9 @@
 }
 
 .cardWrap {
+	display: flex;
+	justify-content: center;
+	align-items: center;
 	opacity: 0;
 	transform-origin: top center;
 	width: 100%;

@@ -5,8 +5,6 @@ import LoadingSpinner from '../LoadingSpinner/LoadingSpinner.tsx';
 import PullToRefresh from '../PullToRefresh/PullToRefresh.tsx';
 import styles from './FeedContainer.module.css';
 import { FeedContainerProps } from '../../models/Feed.ts';
-import { PostData } from "../../../../types/api.ts";
-import { fetchApi } from "../../utils/fetchApi.ts";
 
 function FeedContainer({
 	bannerProps,
@@ -37,18 +35,19 @@ function FeedContainer({
 
 	const loadMorePosts = async () => {
 		setLoading(true);
-		// await new Promise((r) => setTimeout(r, 2000));
 
-		// TODO: Integrate
-		const res = await fetchApi("getActor", { name: "tidy_panda_912" });
-		if(res.success) {
-			console.log("ACTOR:", res.actor);
-			// console.log("POSTS:", res.posts);
+		await new Promise((resolve) => setTimeout(resolve, 1000));
+
+		const res = onLoadPosts();
+
+		if (res.success) {
+			console.log('ACTOR:', res.actor);
+			console.log('POSTS:', res.posts);
 		}
 
 		const newPosts = posts.slice(0, 2).map((post) => ({
 			...post,
-			timestamp: 'Just now',
+			timestamp: 1754513708642,
 			isFollowing: Math.random() > 0.5,
 		}));
 

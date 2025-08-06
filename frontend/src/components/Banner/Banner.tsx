@@ -43,16 +43,17 @@ function Banner({
 				<h1 className={styles.bannerTitle}>{title}</h1>
 			</div>
 			<div className={styles.bannerOverlay}>
-				{displayImage && (
-					<img className={styles.bannerProfileImage} src={displayImage} alt="Profile" />
-				)}
+				<div className={styles.bannerLeft}>
+					{displayImage && (
+						<img className={styles.bannerProfileImage} src={displayImage} alt="Profile" />
+					)}
+				</div>
 				<div className={styles.bannerActions}>
 					{onCreatePost && (
 						<button className={styles.bannerButton} onClick={onCreatePost}>
 							Create Post
 						</button>
 					)}
-
 					{onSetMembershipClick && (
 						<button
 							className={`${styles.bannerButton} ${styles.joinButton}`}
@@ -62,7 +63,6 @@ function Banner({
 							{pending ? 'Saving...' : buttonText}
 						</button>
 					)}
-
 					{onSettingsClick && (
 						<button
 							className={styles.bannerButton}
