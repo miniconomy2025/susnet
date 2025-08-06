@@ -113,7 +113,8 @@ function Account() {
 			<FeedContainer {...feedContainerProps} />
 			<AccountModal 
 				isOpen={isAccountModalOpen} 
-				onClose={() => setIsAccountModalOpen(false)} 
+				onClose={() => setIsAccountModalOpen(false)}
+				actorName={'shiny_symbol_316'}
 			/>
 			<CreatePostModal isOpen={isCreatePostModalOpen} onClose={() => setIsCreatePostModalOpen(false)} onSubmit={undefined}/>
 		</>
