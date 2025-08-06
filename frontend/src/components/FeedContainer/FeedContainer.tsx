@@ -36,6 +36,8 @@ function FeedContainer({
 	const loadMorePosts = async () => {
 		setLoading(true);
 
+		await new Promise((resolve) => setTimeout(resolve, 1000));
+
 		const res = onLoadPosts();
 
 		if (res.success) {
