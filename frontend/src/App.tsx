@@ -5,21 +5,29 @@ import Home from './pages/Home'
 import Account from './pages/Account'
 import Signup from './pages/Signup'
 import Login from './pages/Login'
-import HeaderComponent from './components/HeaderComponent/HeaderComponent'
+import HeaderComponent from './Components/HeaderComponent/HeaderComponent'
+import NavComponent from './components/NavComponent/NavComponent'
+import Explore from './pages/Explore'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <Router>
-      <div className="page">
-        <HeaderComponent />
-        <Routes>
-          <Route path="/" element={<Signup />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/home" element={<Home />} />
-          <Route path="/account" element={<Account />} />
-        </Routes>
+      <div className="appContainer">
+        <HeaderComponent menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
+        <div className='mainContainer'>
+          <NavComponent menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
+          <main className='contentContainer'>
+            <Routes>
+              <Route path="/" element={<Signup />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/home" element={<Home />} />
+              <Route path="/account" element={<Account />} />
+              <Route path="/explore" element={<Explore />} />
+            </Routes>
+          </main>
+        </div>
       </div>
     </Router>
   )

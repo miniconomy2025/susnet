@@ -1,0 +1,153 @@
+.sideBar {
+  width: 16rem;
+  border-top-right-radius: 16px;
+  background-color: var(--background-colour-light);
+  margin-top: var(--gap-s);
+}
+
+.navLinks {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* Ensures left-alignment */
+  padding-top: 1.5rem;
+  gap: 1rem;
+}
+
+
+.link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* optional, or use gap if needed */
+  gap: 0.5rem;
+  width: 100%;
+  text-decoration: none;
+  color: var(--text-colour);
+  padding: 0.5rem 1rem 0.5rem 2rem; /* left padding for indentation */
+  font-size: 1.4rem;
+  border-radius: 4px;
+}
+
+
+.activeLink {
+  display: inline-block;
+  text-decoration: none;
+  color: var(--primary-colour);
+  background-color: var(--background-colour-dark);
+  padding: 0.5rem 1rem 0.5rem 2rem;
+  font-size: 1.4rem;
+  padding-right: 2rem;
+  border-top-right-radius: 16px;
+  border-bottom-right-radius: 16px;
+}
+
+/* 1. Hide the checkbox */
+.listCheckbox {
+  display: none;
+}
+
+/* 2. Collapsible container styling (optional if not already styled) */
+.collapsibleSection {
+  width: 100%;
+  border-top: 1px solid var(--background-colour-dark);
+  border-bottom: 1px solid var(--background-colour-dark);
+}
+
+/* 3. Sub-links container - initially hidden */
+.subLinks {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+}
+
+.subLinks .link {
+  font-size: 1.3rem;
+  font-weight: 400;
+  color: var(--text-colour);
+  padding-left: 2.5rem; /* More indentation for sublinks */
+}
+
+.subLinks .activeLink {
+  background-color: transparent;
+  background: none;
+  font-size: 1.3rem;
+  color: var(--primary-colour);
+  padding-left: 2.5rem;
+  font-weight: 400;
+}
+
+/* 4. Show when checkbox is checked */
+.listCheckbox:checked + .link + .subLinks {
+  max-height: 20rem; /* Adjust to fit your content */
+  overflow-y: auto;
+  opacity: 1;
+}
+
+.subLinks::-webkit-scrollbar {
+  width: 6px;
+}
+
+.subLinks::-webkit-scrollbar-thumb {
+  background-color: var(--background-colour-dark);
+  border-radius: 4px;
+}
+
+.dropdownWrapper {
+  width: 100%;
+}
+
+.dropdownLabel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  width: 100%;
+}
+
+/* Rotate when open */
+.listCheckbox:checked + .dropdownLabel .dropdownIcon {
+  transform: rotate(90deg);
+}
+
+.closeButton {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    font-size: 2rem;
+    background: none;
+    border: none;
+    display: none;
+    cursor: pointer;
+    color: var(--text-colour);
+    z-index: 1100;
+}
+
+@media (max-width: 768px) {
+
+  .closeButton {
+    display: block;
+    }
+
+  .sideBar {
+    position: fixed;
+    top: 0;
+    right: 0;                /* Align sidebar to right */
+    height: 100vh;
+    width: 16rem;
+    margin-top: 0;;
+    transform: translateX(100%); /* Offscreen to the right */
+    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.2); /* shadow on left side */
+    z-index: 1000;
+    padding-top: 4rem;
+    background-color: var(--background-colour-light);
+    border-top-left-radius: 16px; /* rounded corner on top-left */
+    border-bottom-left-radius: 16px; /* rounded corner on bottom-left */
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    transition: transform 0.3s ease;
+  }
+
+  .sideBar.open {
+    transform: translateX(0);  /* Slide in */
+  }
+}

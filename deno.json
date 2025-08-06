@@ -30,6 +30,7 @@
     "jsonwebtoken": "npm:jsonwebtoken@^9.0.2",
     "react": "npm:react@^19.1.0",
     "react-dom": "npm:react-dom@^19.1.0",
+    "react-swipeable": "npm:react-swipeable@^7.0.2",
     "vite": "npm:vite@^7.0.0",
 
     "mongodb": "npm:mongodb@^6.18.0",
