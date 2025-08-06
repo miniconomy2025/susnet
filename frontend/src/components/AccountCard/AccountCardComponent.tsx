@@ -1,6 +1,7 @@
 import styles from "./AccountCardComponent.module.css";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import React, { useState } from "react";
+import { get } from "../../utils/requests.ts";
 
 function AccountCardComponent() {
   const navigate = useNavigate();
@@ -36,7 +37,7 @@ function AccountCardComponent() {
   const handleSave = () => {
     const payload = {
       username: tempData.username,
-      profilePic: tempData.profilePic
+      profilePic: tempData.profilePic,
     };
 
     console.log("Saving profile data:", payload);
@@ -56,7 +57,6 @@ function AccountCardComponent() {
       setTempData((prev) => ({ ...prev, profilePic: url }));
     }
   };
-
   return (
     <div className={styles.accountContainer}>
       <div className={styles.accountCard}>
@@ -93,17 +93,17 @@ function AccountCardComponent() {
           <h3 className={styles.sectionTitle}>Account Details</h3>
           <div className={styles.infoRow}>
             <span className={styles.label}>Username:</span>
-            {editMode ? (
-              <input
-                type="text"
-                name="username"
-                value={tempData.username}
-                onChange={handleChange}
-                className={styles.input}
-              />
-            ) : (
-              <span className={styles.value}>{userData.username}</span>
-            )}
+            {editMode
+              ? (
+                <input
+                  type="text"
+                  name="username"
+                  value={tempData.username}
+                  onChange={handleChange}
+                  className={styles.input}
+                />
+              )
+              : <span className={styles.value}>{userData.username}</span>}
           </div>
           <div className={styles.infoRow}>
             <span className={styles.label}>Email:</span>
@@ -112,28 +112,36 @@ function AccountCardComponent() {
         </div>
 
         <div className={styles.actionsSection}>
-          {editMode ? (
-            <>
-              <button className={styles.primaryButton} onClick={handleSave}>
-                Save
-              </button>
-              <button className={styles.secondaryButton} onClick={handleCancel}>
-                Cancel
-              </button>
-            </>
-          ) : (
-            <>
-              <button
-                className={styles.primaryButton}
-                onClick={handleEditProfile}
-              >
-                Edit Profile
-              </button>
-              <button className={styles.secondaryButton} onClick={handleLogout}>
-                Logout
-              </button>
-            </>
-          )}
+          {editMode
+            ? (
+              <>
+                <button className={styles.primaryButton} onClick={handleSave}>
+                  Save
+                </button>
+                <button
+                  className={styles.secondaryButton}
+                  onClick={handleCancel}
+                >
+                  Cancel
+                </button>
+              </>
+            )
+            : (
+              <>
+                <button
+                  className={styles.primaryButton}
+                  onClick={handleEditProfile}
+                >
+                  Edit Profile
+                </button>
+                <button
+                  className={styles.secondaryButton}
+                  onClick={handleLogout}
+                >
+                  Logout
+                </button>
+              </>
+            )}
         </div>
       </div>
     </div>

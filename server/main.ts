@@ -1,28 +1,29 @@
 /// <reference lib="deno.ns" />
-import { Effect, Context, Console, Schema, Layer, pipe, Data } from "effect";
+import { Console, Context, Data, Effect, Layer, pipe, Schema } from "effect";
 import { migrateDb } from "./db/migrate.ts";
-
+import cookieParser from "cookie-parser";
 
 import mongoose from "mongoose";
 import { PostModel } from "./db/schema.ts";
 import { getPostVoteAggregate } from "./db/utils.ts";
 import { env } from "./utils/env.ts";
 import { getServeHandler } from "./fed/fed.ts";
-
+import process from "node:process";
 
 //---------- Setup ----------//
 const DB_URL = env("DB_URL");
 const PORT = env("PORT", 3000);
 
-// mongoose.connect(MONGO_URI)
-//   .then(() => {
-//     console.log('✅ Connected to MongoDB');
-//   })
-//   .catch((err) => {
-//     console.error('❌ Failed to connect to MongoDB:', err);
-//     process.exit(1);
-//   });
+mongoose.connect(DB_URL)
+  .then(() => {
+    console.log("✅ Connected to MongoDB");
+  })
+  .catch((err) => {
+    console.error("❌ Failed to connect to MongoDB:", err);
+    process.exit(1);
+  });
 
+// await migrateDb()
 
 //---------- Main ----------//
 // const post = await PostModel.findOne({ title: "Check this out" });
@@ -31,22 +32,24 @@ const PORT = env("PORT", 3000);
 
 // console.log("META:", await getPostVoteAggregate(post._id));
 
-
 // main.ts
-import express from 'express';
-import cors from 'cors';
-import router from './api.ts';
+import express from "express";
+import cors from "cors";
+import router from "./api.ts";
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: ["http://localhost:8000", "https://susnet.co.za"],
+  credentials: true,
+}));
+app.use(cookieParser());
 app.use(express.json());
-app.use('/api', router);
+app.use("/api", router);
 
-app.listen(PORT, () => { console.log(`🚀 Server is running at http://localhost:${PORT}`); });
-
-
-
+app.listen(PORT, () => {
+  console.log(`🚀 Server is running at http://localhost:${PORT}`);
+});
 
 //---------- Fedify setup ----------//
 // const { fed, handlers } = getServeHandler();
@@ -66,10 +69,9 @@ app.listen(PORT, () => { console.log(`🚀 Server is running at http://localhost
 //     })
 // ).pipe(Layer.provide(UserRoutes))
 
-
 //---------- Cleanup ----------//
 Deno.addSignalListener("SIGINT", () => {
-    console.log("\n\x1b[91m💀 Terminating\x1b[0m")
-    mongoose.disconnect();
-    Deno.exit(0);
+  console.log("\n\x1b[91m💀 Terminating\x1b[0m");
+  mongoose.disconnect();
+  Deno.exit(0);
 });

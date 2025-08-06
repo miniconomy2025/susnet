@@ -1,12 +1,25 @@
-import { useEffect, useRef } from 'react';
-
-const handleLogin = (credential: string) => {
-    console.log("Google JWT:", credential);
-}
+import { useEffect, useRef } from "react";
+import { post } from "../../utils/requests.ts";
+import { useNavigate } from "react-router-dom";
 
 const GoogleLoginButton: React.FC = () => {
+  const navigate = useNavigate();
   const buttonRef = useRef<HTMLDivElement>(null);
-  const CLIENT_ID = '144675851144-dqjsn3ff0urka9mogbss98irppd81sns.apps.googleusercontent.com';
+  const CLIENT_ID =
+    "144675851144-dqjsn3ff0urka9mogbss98irppd81sns.apps.googleusercontent.com";
+
+  const handleLogin = async (credential: string) => {
+    console.log("Google JWT:", credential);
+
+    const res = await post("/auth/login", { token: credential });
+
+    const { success } = await res.json();
+    if (success) {
+      navigate("/account");
+    } else {
+      //TODO TOKEN INCORRECT
+    }
+  };
 
   useEffect(() => {
     if (globalThis.google && buttonRef.current) {
@@ -18,9 +31,9 @@ const GoogleLoginButton: React.FC = () => {
       });
 
       globalThis.google.accounts.id.renderButton(buttonRef.current, {
-        type: 'standard',
-        theme: 'outline',
-        size: 'large',
+        type: "standard",
+        theme: "outline",
+        size: "large",
       });
     }
   }, []);

@@ -1,12 +1,11 @@
-import AccountCardComponent from '../components/AccountCard/AccountCardComponent';
-import FeedContainer from '../components/FeedContainer/FeedContainer';
+import AccountCardComponent from "../components/AccountCard/AccountCardComponent.tsx";
 
 function Account() {
-	return (
-		<>
-			<AccountCardComponent />
-		</>
-	);
+  return (
+    <>
+      <AccountCardComponent />
+    </>
+  );
 }
 
 export default Account;

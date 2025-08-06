@@ -1,4 +1,4 @@
-import GoogleLoginButton from "../components/AuthComponent/AuthComponent";
+import GoogleLoginButton from "../components/AuthComponent/AuthComponent.tsx";
 
 function Login() {
 

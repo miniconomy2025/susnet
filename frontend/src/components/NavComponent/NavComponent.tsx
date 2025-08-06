@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import styles from "./NavComponent.module.css";
 import { Link, NavLink, useLocation } from "react-router-dom";
+import { get } from "../../utils/requests.ts";
 
 function NavComponent({ menuOpen, setMenuOpen }) {
   const location = useLocation();
@@ -11,6 +12,7 @@ function NavComponent({ menuOpen, setMenuOpen }) {
   if (hideOnPaths.includes(location.pathname)) {
     return null;
   }
+
   return (
     <div className={`${styles.sideBar} ${menuOpen ? styles.open : ""}`}>
       <button className={styles.closeButton} onClick={() => setMenuOpen(false)}>
@@ -20,8 +22,7 @@ function NavComponent({ menuOpen, setMenuOpen }) {
         <NavLink
           to="/home"
           className={({ isActive }) =>
-            isActive ? styles.activeLink : styles.link
-          }
+            isActive ? styles.activeLink : styles.link}
           onClick={() => setMenuOpen(false)}
         >
           Home
@@ -29,8 +30,7 @@ function NavComponent({ menuOpen, setMenuOpen }) {
         <NavLink
           to="/explore"
           className={({ isActive }) =>
-            isActive ? styles.activeLink : styles.link
-          }
+            isActive ? styles.activeLink : styles.link}
           onClick={() => setMenuOpen(false)}
         >
           Explore
@@ -38,8 +38,7 @@ function NavComponent({ menuOpen, setMenuOpen }) {
         <NavLink
           to="/account"
           className={({ isActive }) =>
-            isActive ? styles.activeLink : styles.link
-          }
+            isActive ? styles.activeLink : styles.link}
           onClick={() => setMenuOpen(false)}
         >
           User
@@ -55,8 +54,22 @@ function NavComponent({ menuOpen, setMenuOpen }) {
             <span className="material-icons dropdownIcon">chevron_right</span>
           </label>
           <div className={styles.subLinks}>
-            <NavLink to="/settings" className={({ isActive }) => isActive ? styles.activeLink : styles.link} onClick={() => setMenuOpen(false)}>Settings</NavLink>
-            <NavLink to="/help" className={({ isActive }) => isActive ? styles.activeLink : styles.link} onClick={() => setMenuOpen(false)}>Help</NavLink>
+            <NavLink
+              to="/settings"
+              className={({ isActive }) =>
+                isActive ? styles.activeLink : styles.link}
+              onClick={() => setMenuOpen(false)}
+            >
+              Settings
+            </NavLink>
+            <NavLink
+              to="/help"
+              className={({ isActive }) =>
+                isActive ? styles.activeLink : styles.link}
+              onClick={() => setMenuOpen(false)}
+            >
+              Help
+            </NavLink>
             {/* Add more sub-links as needed */}
           </div>
         </div>

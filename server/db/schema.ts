@@ -33,8 +33,6 @@ export const ActorModel = getModelForClass(Actor);
 export class Auth {
   @prop({ ref: () => Actor, required: true, unique: true })       actorRef!:     Ref<Actor>;
   @prop({ required: true })                                       googleId!:     string;
-  @prop({ required: true })                                       accessToken!:  string;
-  @prop({ default: "" })                                          refreshToken?: string;
   @prop({ required: true })                                       email!:        string;
 
   _id?: Types.ObjectId;
