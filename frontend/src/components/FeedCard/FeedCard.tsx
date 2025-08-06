@@ -1,33 +1,32 @@
-import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import ImageCarousel from '../ImageCarousel/ImageCarousel';
 import styles from './FeedCard.module.css';
+import { MembershipStatus } from '../../models/Feed';
 
 function FeedCard({
 	profileImage,
 	title,
 	textBody,
 	subreddit,
-	isFollowing,
+	membershipStatus,
 	onFollowClick,
 	timestamp,
 	attachments = [],
 }) {
-	const [currentImageIndex, setCurrentImageIndex] = useState(0);
+	const navigate = useNavigate();
 
-	const handleNextImage = () => {
-		setCurrentImageIndex((currentImageIndex + 1) % attachments.length);
-	};
-
-	const handlePrevImage = () => {
-		setCurrentImageIndex((currentImageIndex - 1 + attachments.length) % attachments.length);
+	const onSubredditClick = () => {
+		navigate(`/subreddit/${encodeURIComponent(subreddit)}`);
 	};
 
 	return (
 		<div className={`${styles.cardContainer}`}>
 			<div className={styles.headerGrid}>
 				{profileImage && <img className={styles.profileImage} src={profileImage} alt="" />}
-				<span className={styles.subreddit}>r/{subreddit}</span>
-				{isFollowing ? (
+				<span className={styles.subreddit} onClick={onSubredditClick}>
+					r/{subreddit}
+				</span>
+				{membershipStatus == MembershipStatus.JOINED ? (
 					<button className={`${styles.button}`}>Following</button>
 				) : (
 					<button

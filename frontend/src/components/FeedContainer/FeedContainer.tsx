@@ -4,9 +4,15 @@ import Banner from '../Banner/Banner';
 import LoadingSpinner from '../LoadingSpinner/LoadingSpinner';
 import PullToRefresh from '../PullToRefresh/PullToRefresh';
 import styles from './FeedContainer.module.css';
+import { FeedContainerProps } from '../../models/Feed';
 
-function FeedContainer({ initialPosts, refreshFeed }) {
-	const [posts, setPosts] = useState(initialPosts);
+function FeedContainer({
+	bannerProps,
+	availablePosts,
+	onLoadPosts,
+	onRefresh,
+}: FeedContainerProps) {
+	const [posts, setPosts] = useState(availablePosts);
 	const [loading, setLoading] = useState(false);
 	const sentinelRef = useRef(null);
 
@@ -43,15 +49,9 @@ function FeedContainer({ initialPosts, refreshFeed }) {
 
 	return (
 		<div className={styles.feedContainer}>
-			<Banner
-				profileImage="/images/profile.jpg"
-				title="r/southafrica"
-				onCreatePost={() => console.log('Create Post clicked')}
-				onJoin={() => console.log('Join clicked')}
-				onSettingsClick={() => console.log('Settings clicked')}
-			/>
+			<Banner {...bannerProps} />
 
-			<PullToRefresh onRefresh={refreshFeed} containerStyling={styles.feedContainer}>
+			<PullToRefresh onRefresh={onRefresh} containerStyling={styles.feedContainer}>
 				{posts.map((post, idx) => (
 					<div key={idx} className={styles.cardWrap}>
 						<FeedCard {...post} />

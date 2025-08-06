@@ -1,24 +1,67 @@
+import React, { useEffect, useState } from 'react';
+import { BannerProps, MembershipStatus } from '../../models/Feed';
 import styles from './Banner.module.css';
 
-function Banner({ profileImage, title, onCreatePost, onJoin, onSettingsClick }) {
+function Banner({
+	displayImage,
+	title,
+	membershipStatus = MembershipStatus.NOT_JOINED,
+	onCreatePost,
+	onSetMembershipClick,
+	onSettingsClick,
+}: BannerProps) {
+	const [localStatus, setLocalStatus] = useState<MembershipStatus>(membershipStatus);
+	const [pending, setPending] = useState(false);
+
+	useEffect(() => {
+		setLocalStatus(membershipStatus ?? MembershipStatus.NOT_JOINED);
+	}, [membershipStatus]);
+
+	const buttonText = localStatus === MembershipStatus.JOINED ? 'Leave' : 'Join';
+
+	const handleMembershipClick = async () => {
+		if (!onSetMembershipClick || pending) return;
+		const newStatus =
+			localStatus === MembershipStatus.JOINED
+				? MembershipStatus.NOT_JOINED
+				: MembershipStatus.JOINED;
+		setLocalStatus(newStatus);
+		setPending(true);
+		try {
+			await onSetMembershipClick(newStatus);
+		} catch (err) {
+			setLocalStatus(localStatus);
+			console.error('Failed to update membership:', err);
+		} finally {
+			setPending(false);
+		}
+	};
+
 	return (
 		<div className={styles.bannerWrapper}>
 			<div className={styles.banner}>
 				<h1 className={styles.bannerTitle}>{title}</h1>
 			</div>
 			<div className={styles.bannerOverlay}>
-				<img className={styles.bannerProfileImage} src={profileImage} alt="Profile" />
+				{displayImage && (
+					<img className={styles.bannerProfileImage} src={displayImage} alt="Profile" />
+				)}
 				<div className={styles.bannerActions}>
-					<button className={styles.bannerButton} onClick={onCreatePost}>
-						Create Post
-					</button>
+					{onCreatePost && (
+						<button className={styles.bannerButton} onClick={onCreatePost}>
+							Create Post
+						</button>
+					)}
 
-					<button
-						className={`${styles.bannerButton} ${styles.joinButton}`}
-						onClick={onJoin}
-					>
-						Join
-					</button>
+					{onSetMembershipClick && (
+						<button
+							className={`${styles.bannerButton} ${styles.joinButton}`}
+							onClick={handleMembershipClick}
+							disabled={pending}
+						>
+							{pending ? 'Saving...' : buttonText}
+						</button>
+					)}
 
 					{onSettingsClick && (
 						<button
