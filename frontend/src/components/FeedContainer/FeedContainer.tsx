@@ -45,7 +45,7 @@ function FeedContainer({
 
 		const newPosts = posts.slice(0, 2).map((post) => ({
 			...post,
-			timestamp: 'Just now',
+			timestamp: 1754513708642,
 			isFollowing: Math.random() > 0.5,
 		}));
 

@@ -1,53 +1,98 @@
-import React, { useState } from 'react'
-import CreatePostModal from '../components/CreatePost/CreatePostModal'
 import FeedContainer from '../components/FeedContainer/FeedContainer';
-import { MembershipStatus } from '../models/Feed';
+import { BannerProps, FeedContainerProps } from '../models/Feed';
+import { PostData } from '../../../types/api';
 
 function Explore() {
 	const bannerProps: BannerProps = {
 		title: 'Explore',
 	};
 
-	const availablePosts: Post[] = [
-		{
-			profileImage: '/images/profile.jpg',
-			title: 'Check out this cool sunset!',
-			textBody: 'Captured this in Cape Town last weekend. Nature goes hard 🔥',
-			subreddit: 'southafrica',
-			membershipStatus: MembershipStatus.JOINED,
-			timestamp: 'Posted 2 hours ago',
-			attachments: ['/images/sunset1.jpg', '/images/sunset2.jpg', '/images/sunset3.jpg'],
-		},
-		{
-			title: 'Just some vibes',
-			subreddit: 'aestheticshots',
-			membershipStatus: MembershipStatus.JOINED,
-			timestamp: 'Posted 1 hour ago',
-			attachments: ['/images/sunset1.jpg'],
-		},
-		{
-			title: 'Funny thing happened today...',
-			textBody:
-				'So I’m walking through Menlyn and I hear someone yell “FREE BOEREWORS!” — I ran, no shame.',
-			subreddit: 'pretoria',
-			membershipStatus: MembershipStatus.NOT_JOINED,
-			timestamp: 'Posted 3 hours ago',
-		},
-		{
-			title: 'Minimalist inspo',
-			subreddit: 'design',
-			membershipStatus: MembershipStatus.JOINED,
-			timestamp: 'Posted yesterday',
-			attachments: ['/images/sunset1.jpg', '/images/sunset2.jpg'],
-		},
-		{
-			title: 'Exam week blues',
-			textBody: 'Everything hurts and nothing is real. Engineering students know.',
-			subreddit: 'studentlife',
-			membershipStatus: MembershipStatus.NOT_JOINED,
-			timestamp: 'Posted 5 hours ago',
-		},
-	];
+	const availablePosts: PostData<'full'>[] = [
+	{
+		postId: '1',
+		actorName: 'anonymous',
+		subThumbnailUrl: '/images/profile.jpg',
+		title: 'Check out this cool sunset!',
+		content: 'Captured this in Cape Town last weekend. Nature goes hard 🔥',
+		subName: 'southafrica',
+		isFollowingSub: true,
+		timestamp: 2,
+		attachments: [
+			{ url: '/images/sunset1.jpg', mimeType: 'jpg', altText: 'sunset' },
+			{ url: '/images/sunset2.jpg', mimeType: 'jpg', altText: 'sunset' },
+			{ url: '/images/sunset3.jpg', mimeType: 'jpg', altText: 'sunset' },
+		],
+		tags: [],
+		upvotes: 0,
+		downvotes: 0,
+		score: 0,
+	},
+	{
+		postId: '2',
+		actorName: 'anonymous',
+		subThumbnailUrl: '',
+		title: 'Just some vibes',
+		content: '',
+		subName: 'aestheticshots',
+		isFollowingSub: true,
+		timestamp: 1,
+		attachments: [
+			{ url: '/images/sunset1.jpg', mimeType: 'jpg', altText: 'image' },
+		],
+		tags: [],
+		upvotes: 0,
+		downvotes: 0,
+		score: 0,
+	},
+	{
+		postId: '3',
+		actorName: 'anonymous',
+		subThumbnailUrl: '',
+		title: 'Funny thing happened today...',
+		content: 'So I’m walking through Menlyn and I hear someone yell “FREE BOEREWORS!” — I ran, no shame.',
+		subName: 'pretoria',
+		isFollowingSub: false,
+		timestamp: 3,
+		attachments: [],
+		tags: [],
+		upvotes: 0,
+		downvotes: 0,
+		score: 0,
+	},
+	{
+		postId: '4',
+		actorName: 'anonymous',
+		subThumbnailUrl: '',
+		title: 'Minimalist inspo',
+		content: '',
+		subName: 'design',
+		isFollowingSub: true,
+		timestamp: 24, // yesterday = 24 hours ago
+		attachments: [
+			{ url: '/images/sunset1.jpg', mimeType: 'jpg', altText: 'image' },
+			{ url: '/images/sunset2.jpg', mimeType: 'jpg', altText: 'image' },
+		],
+		tags: [],
+		upvotes: 0,
+		downvotes: 0,
+		score: 0,
+	},
+	{
+		postId: '5',
+		actorName: 'anonymous',
+		subThumbnailUrl: '',
+		title: 'Exam week blues',
+		content: 'Everything hurts and nothing is real. Engineering students know.',
+		subName: 'studentlife',
+		isFollowingSub: false,
+		timestamp: 5,
+		attachments: [],
+		tags: [],
+		upvotes: 0,
+		downvotes: 0,
+		score: 0,
+	},
+];
 
 	const feedContainerProps: FeedContainerProps = {
 		bannerProps,

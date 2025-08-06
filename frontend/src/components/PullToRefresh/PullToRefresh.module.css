@@ -1,8 +1,13 @@
 .ptrWrapper {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
 	overflow: hidden;
 	height: 100%;
 	-webkit-overflow-scrolling: touch;
 	position: relative;
+	width: 100%;
 }
 
 .spinnerSlot {
@@ -31,4 +36,5 @@
 	will-change: transform;
 	background: inherit;
 	position: relative;
+	width: 100%;
 }

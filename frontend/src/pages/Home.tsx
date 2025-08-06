@@ -17,7 +17,7 @@ function Home() {
 			content: 'Captured this in Cape Town last weekend. Nature goes hard 🔥',
 			subName: 'southafrica',
 			isFollowingSub: true,
-			timestamp: 5,
+			timestamp: 1754514708642,
 			attachments: [
 				{ url: '/images/sunset1.jpg', mimeType: 'jpg', altText: 'sunset' },
 				{ url: '/images/sunset2.jpg', mimeType: 'jpg', altText: 'sunset' },
