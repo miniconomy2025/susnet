@@ -12,6 +12,7 @@
   },
   "nodeModulesDir": "auto",
   "imports": {
+    "@aws-sdk/client-s3": "npm:@aws-sdk/client-s3@^3.863.0",
     "@fedify/express": "jsr:@fedify/express@^1.8.3",
     "@fedify/fedify": "jsr:@fedify/fedify@^1.7.7",
     "@typegoose/typegoose": "npm:@typegoose/typegoose@^12.17.0",

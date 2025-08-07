@@ -51,8 +51,8 @@ app.use(integrateFederation(fed, () => undefined))
 // });
 
 // Parse body
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+app.use(express.urlencoded({ extended: true , limit: '1gb'}));
+app.use(express.json({limit: '1gb'}));
 
 // app.use('', injectFedContext, otherRoutes);
 
