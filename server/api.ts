@@ -225,14 +225,14 @@ const endpoints: Endpoints = {
     return await createPost(user.id, user.name, req);
   },
 
-    'voteOnPost': async ({ vote }: Req_vote, { postId }: { postId: string; }, user: AuthUser): Promise<Res_vote> => {
-        const record = await VoteModel.findOneAndUpdate(
-            { postId, actorId: user.id },
-            { vote, actorId: user.id, postId },
-            { upsert: true, new: true }
-        ).lean().exec();
-        return { success: true, vote: record.vote };
-    },
+  'voteOnPost': async ({ vote }: Req_vote, { postId }: { postId: string; }, user: AuthUser): Promise<Res_vote> => {
+      const record = await VoteModel.findOneAndUpdate(
+          { postId, actorId: user.id },
+          { vote, actorId: user.id, postId },
+          { upsert: true, new: true }
+      ).lean().exec();
+      return { success: true, vote: record.vote };
+  },
 
   'followActor': async (_, { targetName }: { targetName: string }, user: AuthUser): Promise<Res_follow> => {
     if (targetName === user.name) return { success: false, error: 'invalidRequest' };
@@ -315,6 +315,7 @@ const authenticated: Set<keyof Endpoints> = new Set([
     'getFollowingStatus',
     'createSub',
     'createPost',
+    'voteOnPost',
 ]);
 
 const router = express.Router();

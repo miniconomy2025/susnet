@@ -3,7 +3,7 @@ import { useState } from 'react';
 import ImageCarousel from '../ImageCarousel/ImageCarousel.tsx';
 import styles from './FeedCard.module.css';
 import { fetchApi } from '../../utils/fetchApi.ts';
-import { VoteType } from '../../../../server/db/schema.ts';
+import { VoteType } from '../../models/Feed.ts';
 
 function getTimeAgo(epochMs: number): string {
 	const now = Date.now();
@@ -124,7 +124,7 @@ function FeedCard({
 				<div className={styles.voteContainer}>
 					{upvotes != null && (
 						<span
-							className={`${styles.voteItem} ${vote === 'upvote' ? styles.selectedVote : ''}`}
+							className={`${styles.voteItem} ${vote === VoteType.up ? styles.selectedVote : ''}`}
 							onClick={() => handleVoteClick(VoteType.up)}
 						>
 							<span className="material-symbols-outlined">thumb_up</span>
@@ -133,7 +133,7 @@ function FeedCard({
 					)}
 					{downvotes != null && (
 						<span
-							className={`${styles.voteItem} ${vote === 'downvote' ? styles.selectedVote : ''}`}
+							className={`${styles.voteItem} ${vote === VoteType.down ? styles.selectedVote : ''}`}
 							onClick={() => handleVoteClick(VoteType.down)}
 						>
 							<span className="material-symbols-outlined">thumb_down</span>
