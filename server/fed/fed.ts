@@ -11,6 +11,15 @@ function getServeHandlers(fed: Federation<void>) {
 
     //--- Generic actors (uniform for users & groups) ---//
     fed.setActorDispatcher("/users/{identifier}", async (ctx, id) => {
+        if (id == "me") {
+            return new Person({
+                id: ctx.getActorUri(id),
+                name: "Me",  // Display name
+                summary: "This is me!",  // Bio
+                preferredUsername: id,  // Bare handle
+                url: new URL("/", ctx.url),
+            });
+        }
         console.log("LOOKING FOR ACTOR:", id);
         const actor = await ActorModel.findOne({ name: id });
         console.log("ACTOR:", actor);
@@ -61,7 +70,7 @@ function getServeHandlers(fed: Federation<void>) {
     return {
         fed,
         handlers: {
-            contextData: undefined, // TODO
+            contextData: new URL('http://locahost:8000/fed/'),
             onNotFound: (req: Request) => {
                 console.log("URL:", new URL(req.url));
                 return new Response("🔍 Not found", { status: 404 });

@@ -1,24 +1,16 @@
 {
   "version": "5",
   "specifiers": {
-    "jsr:@es-toolkit/es-toolkit@^1.38.0": "1.39.8",
-    "jsr:@fedify/fedify@^1.7.7": "1.7.7",
-    "jsr:@hugoalh/http-header-link@^1.0.2": "1.0.3",
-    "jsr:@hugoalh/is-string-singleline@^1.0.4": "1.0.5",
-    "jsr:@logtape/logtape@1": "1.0.4",
-    "npm:@deno/vite-plugin@^1.0.5": "1.0.5_vite@7.0.6__picomatch@4.0.3",
+    "npm:@deno/vite-plugin@^1.0.5": "1.0.5_vite@7.0.6__picomatch@4.0.3_@types+node@22.15.15",
     "npm:@effect/platform@*": "0.90.0_effect@3.17.4",
-    "npm:@multiformats/base-x@^4.0.1": "4.0.1",
-    "npm:@opentelemetry/api@^1.9.0": "1.9.0",
-    "npm:@opentelemetry/semantic-conventions@^1.27.0": "1.36.0",
-    "npm:@phensley/language-tag@^1.9.0": "1.13.1",
+    "npm:@fedify/express@^1.8.4": "1.8.4_@fedify+fedify@1.8.4_express@5.1.0",
+    "npm:@fedify/fedify@^1.8.4": "1.8.4",
     "npm:@typegoose/typegoose@^12.17.0": "12.17.0_mongoose@8.17.0",
     "npm:@types/express@^5.0.3": "5.0.3",
+    "npm:@types/node@*": "22.15.15",
     "npm:@types/react-dom@^19.1.6": "19.1.7_@types+react@19.1.9",
     "npm:@types/react@^19.1.8": "19.1.9",
-    "npm:@vitejs/plugin-react@^4.6.0": "4.7.0_vite@7.0.6__picomatch@4.0.3_@babel+core@7.28.0",
-    "npm:asn1js@^3.0.5": "3.0.6",
-    "npm:byte-encodings@^1.0.11": "1.0.11",
+    "npm:@vitejs/plugin-react@^4.6.0": "4.7.0_vite@7.0.6__picomatch@4.0.3_@babel+core@7.28.0_@types+node@22.15.15",
     "npm:cookie-parser@^1.4.7": "1.4.7",
     "npm:cors@^2.8.5": "2.8.5",
     "npm:effect-mongodb@~0.3.1": "0.3.1_effect@3.17.4_mongodb@6.18.0",
@@ -26,60 +18,14 @@
     "npm:express@^5.1.0": "5.1.0",
     "npm:fs@^0.0.1-security": "0.0.1-security",
     "npm:jose@^6.0.12": "6.0.12",
-    "npm:json-canon@^1.0.1": "1.0.1",
-    "npm:jsonld@^8.3.2": "8.3.3",
     "npm:jsonwebtoken@^9.0.2": "9.0.2",
     "npm:mongodb@^6.18.0": "6.18.0",
     "npm:mongoose@^8.17.0": "8.17.0",
-    "npm:multicodec@^3.2.1": "3.2.1",
-    "npm:pkijs@^3.2.4": "3.2.5",
     "npm:react-dom@^19.1.0": "19.1.1_react@19.1.1",
     "npm:react-router-dom@^7.7.1": "7.7.1_react@19.1.1_react-dom@19.1.1__react@19.1.1",
     "npm:react-swipeable@^7.0.2": "7.0.2_react@19.1.1",
     "npm:react@^19.1.0": "19.1.1",
-    "npm:structured-field-values@^2.0.4": "2.0.4",
-    "npm:uri-template-router@^0.0.17": "0.0.17",
-    "npm:url-template@^3.1.1": "3.1.1",
-    "npm:vite@*": "7.0.6_picomatch@4.0.3",
-    "npm:vite@7": "7.0.6_picomatch@4.0.3"
-  },
-  "jsr": {
-    "@es-toolkit/es-toolkit@1.39.8": {
-      "integrity": "4c03332b6dea5f1597827e3aec426a88b8b0ba18aa1899102f4c1126fb4a42b4"
-    },
-    "@fedify/fedify@1.7.7": {
-      "integrity": "bdf8437d9685db629dd22503eabb5ddc4a450220d98c8b97f76ddbe3d27151a6",
-      "dependencies": [
-        "jsr:@es-toolkit/es-toolkit",
-        "jsr:@hugoalh/http-header-link",
-        "jsr:@logtape/logtape",
-        "npm:@multiformats/base-x",
-        "npm:@opentelemetry/api",
-        "npm:@opentelemetry/semantic-conventions",
-        "npm:@phensley/language-tag",
-        "npm:asn1js",
-        "npm:byte-encodings",
-        "npm:json-canon",
-        "npm:jsonld",
-        "npm:multicodec",
-        "npm:pkijs",
-        "npm:structured-field-values",
-        "npm:uri-template-router",
-        "npm:url-template"
-      ]
-    },
-    "@hugoalh/http-header-link@1.0.3": {
-      "integrity": "3372096a73d755e3351f7fbd7155db7725874c2682a594a655580e3866563024",
-      "dependencies": [
-        "jsr:@hugoalh/is-string-singleline"
-      ]
-    },
-    "@hugoalh/is-string-singleline@1.0.5": {
-      "integrity": "3409f64eaad51e4afccea0f21853cedf7b0b5b147e3606e585e5e88ba2b03b32"
-    },
-    "@logtape/logtape@1.0.4": {
-      "integrity": "6ada87764d995b1033c352a17fd9e20b217f3672083bc2d8debe356eac03fe10"
-    }
+    "npm:vite@7": "7.0.6_picomatch@4.0.3_@types+node@22.15.15"
   },
   "npm": {
     "@ampproject/remapping@2.3.0": {
@@ -226,10 +172,19 @@
         "@babel/helper-validator-identifier"
       ]
     },
+    "@cfworker/json-schema@4.1.1": {
+      "integrity": "sha512-gAmrUZSGtKc3AiBL71iNWxDsyUC5uMaKKGdvzYsBoTW/xi42JQHl7eKV2OYzCUqvc+D2RCcf7EXY2iCyFIk6og=="
+    },
     "@deno/vite-plugin@1.0.5_vite@7.0.6__picomatch@4.0.3": {
       "integrity": "sha512-tLja5n4dyMhcze1NzvSs2iiriBymfBlDCZIrjMTxb9O2ru0gvmV6mn5oBD2teNw5Sd92cj3YJzKwsAs8tMJXlg==",
       "dependencies": [
-        "vite"
+        "vite@7.0.6_picomatch@4.0.3"
+      ]
+    },
+    "@deno/vite-plugin@1.0.5_vite@7.0.6__picomatch@4.0.3_@types+node@22.15.15": {
+      "integrity": "sha512-tLja5n4dyMhcze1NzvSs2iiriBymfBlDCZIrjMTxb9O2ru0gvmV6mn5oBD2teNw5Sd92cj3YJzKwsAs8tMJXlg==",
+      "dependencies": [
+        "vite@7.0.6_picomatch@4.0.3_@types+node@22.15.15"
       ]
     },
     "@digitalbazaar/http-client@3.4.1_ky@0.33.3": {
@@ -383,6 +338,46 @@
     "@fastify/busboy@2.1.1": {
       "integrity": "sha512-vBZP4NlzfOlerQTnba4aqZoMhE/a9HY7HRqoOPaETQcSQuWEIyZMHGfVu6w9wGtGK5fED5qRs2DteVCjOH60sA=="
     },
+    "@fedify/express@1.8.4_@fedify+fedify@1.8.4_express@5.1.0": {
+      "integrity": "sha512-DK4yjgRU39oypHdA+dd6NOsgzpZP2sdxUBc1Sxfe/ERi/TZ/ty1EreZdzGIGrYf8rtIBPQEbDl28pZ1nCH3Edw==",
+      "dependencies": [
+        "@fedify/fedify",
+        "express"
+      ]
+    },
+    "@fedify/fedify@1.8.4": {
+      "integrity": "sha512-AkO+cByoApKmjIMONSKBXAaRVuFO7f3oc8VJnP2+TsqTyRz4ivRyTu/KtD+shbKlAkm9craomy4src7pZNMVKw==",
+      "dependencies": [
+        "@cfworker/json-schema",
+        "@hugoalh/http-header-link",
+        "@js-temporal/polyfill",
+        "@logtape/logtape",
+        "@multiformats/base-x",
+        "@opentelemetry/api",
+        "@opentelemetry/semantic-conventions",
+        "@phensley/language-tag",
+        "asn1js",
+        "byte-encodings",
+        "es-toolkit",
+        "json-canon",
+        "jsonld",
+        "multicodec",
+        "pkijs",
+        "structured-field-values",
+        "uri-template-router",
+        "url-template",
+        "urlpattern-polyfill"
+      ]
+    },
+    "@hugoalh/http-header-link@1.0.3": {
+      "integrity": "sha512-x4jzzKSzZQY115H/GxUWaAHzT5eqLXt99uSKY7+0O/h3XrV248+CkZA7cA274QahXzWkGQYYug/AF6QUkTnLEw==",
+      "dependencies": [
+        "@hugoalh/is-string-singleline"
+      ]
+    },
+    "@hugoalh/is-string-singleline@1.0.5": {
+      "integrity": "sha512-mFCgmAUK+xnWgst2qxXKSJc3b7sQSZ9z3Chen1fh7TonInMhHYvy3Dk6fpKPXX/rTrs0wCRSrR93Q/9C7Ger8A=="
+    },
     "@jridgewell/gen-mapping@0.3.12": {
       "integrity": "sha512-OuLGC46TjB5BbN1dH8JULVVZY4WTdkF7tV9Ys6wLL1rubZnCMstOhNHueU5bLCrnRuDhKPDM4g6sw4Bel5Gzqg==",
       "dependencies": [
@@ -402,6 +397,15 @@
         "@jridgewell/resolve-uri",
         "@jridgewell/sourcemap-codec"
       ]
+    },
+    "@js-temporal/polyfill@0.5.1": {
+      "integrity": "sha512-hloP58zRVCRSpgDxmqCWJNlizAlUgJFqG2ypq79DCvyv9tHjRYMDOcPFjzfl/A1/YxDvRCZz8wvZvmapQnKwFQ==",
+      "dependencies": [
+        "jsbi"
+      ]
+    },
+    "@logtape/logtape@1.0.4": {
+      "integrity": "sha512-YvNVrXIxVpnY528zoiEjX8PqTfr0UCtKXyssvaWL8AE+OByFTCooKuKMdPlm6g65YUI9fPXrHn4UnogSskABnA=="
     },
     "@mongodb-js/saslprep@1.3.0": {
       "integrity": "sha512-zlayKCsIjYb7/IdfqxorK5+xUMyi4vOKcFy10wKJYc63NSdKI8mNME+uJqfatkPmOSMMUiojrL58IePKBm3gvQ==",
@@ -699,7 +703,19 @@
         "@rolldown/pluginutils",
         "@types/babel__core",
         "react-refresh",
-        "vite"
+        "vite@7.0.6_picomatch@4.0.3"
+      ]
+    },
+    "@vitejs/plugin-react@4.7.0_vite@7.0.6__picomatch@4.0.3_@babel+core@7.28.0_@types+node@22.15.15": {
+      "integrity": "sha512-gUu9hwfWvvEDBBmgtAowQCojwZmJ5mcLn3aufeCsitijs3+f2NsrPtlAWIR6OPiqljl96GVCUbLe0HyqIpVaoA==",
+      "dependencies": [
+        "@babel/core",
+        "@babel/plugin-transform-react-jsx-self",
+        "@babel/plugin-transform-react-jsx-source",
+        "@rolldown/pluginutils",
+        "@types/babel__core",
+        "react-refresh",
+        "vite@7.0.6_picomatch@4.0.3_@types+node@22.15.15"
       ]
     },
     "abort-controller@3.0.0": {
@@ -886,6 +902,9 @@
       "dependencies": [
         "es-errors"
       ]
+    },
+    "es-toolkit@1.39.8": {
+      "integrity": "sha512-A8QO9TfF+rltS8BXpdu8OS+rpGgEdnRhqIVxO/ZmNvnXBYgOdSsxukT55ELyP94gZIntWJ+Li9QRrT2u1Kitpg=="
     },
     "esbuild@0.25.8": {
       "integrity": "sha512-vVC0USHGtMi8+R4Kz8rt6JhEWLxsv9Rnu/lGYbPR8u47B+DCBksq9JarW0zOO7bs37hyOK1l2/oqtbciutL5+Q==",
@@ -1090,6 +1109,9 @@
     },
     "js-tokens@4.0.0": {
       "integrity": "sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ=="
+    },
+    "jsbi@4.3.2": {
+      "integrity": "sha512-9fqMSQbhJykSeii05nxKl4m6Eqn2P6rOlYiS+C5Dr/HPIU/7yZxu5qzbs40tgaFORiw2Amd0mirjxatXYMkIew=="
     },
     "jsesc@3.1.0": {
       "integrity": "sha512-/sM3dO2FOzXjKQhJuo0Q173wf2KOo8t4I8vHy6lF9poUp7bKT0/NHE8fPX23PwfhnykfqnC2xRxOnVw5XuGIaA==",
@@ -1664,6 +1686,9 @@
     "url-template@3.1.1": {
       "integrity": "sha512-4oszoaEKE/mQOtAmdMWqIRHmkxWkUZMnXFnjQ5i01CuRSK3uluxcH1MRVVVWmhlnzT1SCDfKxxficm2G37qzCA=="
     },
+    "urlpattern-polyfill@10.1.0": {
+      "integrity": "sha512-IGjKp/o0NL3Bso1PymYURCJxMPNAf/ILOpendP9f5B6e1rTJgdgiOvgfoT8VxCAdY+Wisb9uhGaJJf3yZ2V9nw=="
+    },
     "varint@6.0.0": {
       "integrity": "sha512-cXEIW6cfr15lFv563k4GuVuW/fiwjknytD37jIOLSdSWuOI6WnO/oKwmP2FQTU2l01LP8/M5TSAJpzUaGe3uWg=="
     },
@@ -1682,6 +1707,25 @@
       ],
       "optionalDependencies": [
         "fsevents"
+      ],
+      "bin": true
+    },
+    "vite@7.0.6_picomatch@4.0.3_@types+node@22.15.15": {
+      "integrity": "sha512-MHFiOENNBd+Bd9uvc8GEsIzdkn1JxMmEeYX35tI3fv0sJBUTfW5tQsoaOwuY4KhBI09A3dUJ/DXf2yxPVPUceg==",
+      "dependencies": [
+        "@types/node",
+        "esbuild",
+        "fdir",
+        "picomatch",
+        "postcss",
+        "rollup",
+        "tinyglobby"
+      ],
+      "optionalDependencies": [
+        "fsevents"
+      ],
+      "optionalPeers": [
+        "@types/node"
       ],
       "bin": true
     },
@@ -1710,10 +1754,10 @@
   },
   "workspace": {
     "dependencies": [
-      "jsr:@fedify/express@^1.8.3",
-      "jsr:@fedify/fedify@^1.7.7",
       "npm:@deno/vite-plugin@^1.0.5",
       "npm:@effect/platform@*",
+      "npm:@fedify/express@^1.8.4",
+      "npm:@fedify/fedify@^1.8.4",
       "npm:@typegoose/typegoose@^12.17.0",
       "npm:@types/express@^5.0.3",
       "npm:@types/react-dom@^19.1.6",
