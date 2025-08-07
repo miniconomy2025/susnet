@@ -2,14 +2,16 @@
 import styles from "./CreateSubModal.module.css";
 import React, { useState } from "react";
 import { fetchApi } from "../../utils/fetchApi";
+import { useCreateSub } from "../../hooks/useCreateSub";
 
 interface CreateSubModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onSubCreated?: () => void;
 }
 
-function CreateSubModal({ isOpen, onClose }: CreateSubModalProps) {
-  const [creating, setCreating] = useState(false);
+function CreateSubModal({ isOpen, onClose, onSubCreated  }: CreateSubModalProps) {
+  const { createSub, creating } = useCreateSub();
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -21,15 +23,11 @@ function CreateSubModal({ isOpen, onClose }: CreateSubModalProps) {
   const handleCreate = async () => {
     if (!formData.name.trim()) return;
     
-    setCreating(true);
-    try {
-      const res = await fetchApi('createSub', {}, formData);
-      if (res.success) {
-        onClose();
-        setFormData({ name: '', description: '', thumbnailUrl: '/images/cat.jpg' });
-      }
-    } finally {
-      setCreating(false);
+    const res = await createSub(formData);
+    if (res.success) {
+      onClose();
+      setFormData({ name: '', description: '', thumbnailUrl: '/images/cat.jpg' });
+      if (onSubCreated) onSubCreated(); // Call the refresh function
     }
   };
 

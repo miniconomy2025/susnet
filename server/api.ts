@@ -307,7 +307,9 @@ const endpoints: Endpoints = {
 const authenticated: Set<keyof Endpoints> = new Set([
     'me',
     'updateMe',
-    'updateActor'
+    'updateActor',
+    'followActor',
+    'createSub',
 ]);
 
 const router = express.Router();
