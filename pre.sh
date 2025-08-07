@@ -45,4 +45,4 @@ else
   git config --global --add safe.directory "$CLONE_DIR"
 fi
 cd "$CLONE_DIR"
-# sudo deno run dev
+sudo deno run dev
