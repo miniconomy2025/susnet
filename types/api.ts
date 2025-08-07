@@ -57,10 +57,7 @@ export type Req_EditActor    = Partial<Pick<ActorData, EditableActorData>>;
 export type Req_vote         = { vote: VoteType | null };
 
 export type Req_login = {
-  googleId: string;
-  email: string;
-  accessToken: string;
-  refreshToken?: string
+  token: string
 };
 export type Req_createPost = {
   subName: string;
