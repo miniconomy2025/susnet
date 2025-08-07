@@ -3,6 +3,7 @@ import { useState } from 'react';
 import ImageCarousel from '../ImageCarousel/ImageCarousel.tsx';
 import styles from './FeedCard.module.css';
 import { fetchApi } from '../../utils/fetchApi.ts';
+import { VoteType } from '../../../../server/db/schema.ts';
 
 function getTimeAgo(epochMs: number): string {
 	const now = Date.now();
@@ -43,7 +44,7 @@ function FeedCard({
 }) {
 	const navigate = useNavigate();
 	const [isFollowing, setIsFollowing] = useState(isFollowingSub);
-	const [vote, setVote] = useState(null);
+	const [vote, setVote] = useState<VoteType | null>(null);
 
 	const onSubredditClick = () => {
 		navigate(`/subreddit/${encodeURIComponent(subName)}`);
@@ -65,13 +66,18 @@ function FeedCard({
 	};
 
 
-	const handleVoteClick = (type) => {
+	const handleVoteClick = async (type: VoteType) => {
 		const newVote = vote === type ? null : type;
+
 		setVote(newVote);
-		if (onVoteClick) {
-			onVoteClick(postId, newVote);
+
+		const res = await fetchApi('voteOnPost', { postId }, { vote: newVote });
+
+		if (!res.success) {
+			setVote(vote);
 		}
 	};
+
 
 	return (
 		<div className={styles.cardContainer}>
@@ -119,7 +125,7 @@ function FeedCard({
 					{upvotes != null && (
 						<span
 							className={`${styles.voteItem} ${vote === 'upvote' ? styles.selectedVote : ''}`}
-							onClick={() => handleVoteClick('upvote')}
+							onClick={() => handleVoteClick(VoteType.up)}
 						>
 							<span className="material-symbols-outlined">thumb_up</span>
 							{upvotes}
@@ -128,7 +134,7 @@ function FeedCard({
 					{downvotes != null && (
 						<span
 							className={`${styles.voteItem} ${vote === 'downvote' ? styles.selectedVote : ''}`}
-							onClick={() => handleVoteClick('downvote')}
+							onClick={() => handleVoteClick(VoteType.down)}
 						>
 							<span className="material-symbols-outlined">thumb_down</span>
 							{downvotes}
