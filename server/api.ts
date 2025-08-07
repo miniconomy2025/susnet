@@ -114,8 +114,10 @@ const endpoints: Endpoints = {
         ).exec();
     },
 
-    'me': async (_1, _2, user: AuthUser): Promise<any> => {
-        return user
+    'me': async (_1, _2, user: AuthUser): Promise<Res_me> => {
+        const doc = await ActorModel.findById(user.id).lean().exec();
+        if (doc == null) return { success: false, error: "invalidAuth" };
+        return { success: true, actor: toActorDataSimple(doc) };
     },
 
     'getActor': async (_, { name }: { name: string }): Promise<Res_getActor> => {

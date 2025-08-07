@@ -72,18 +72,41 @@ function AccountModal({ isOpen, onClose, actorName }: AccountModalProps) {
         ) : (
           <>
             <div className={styles.profileSection}>
-              <div className={styles.profilePicWrapper}>
-                <img
-                  src={tempData.thumbnailUrl}
-                  alt="Profile"
-                  className={styles.profilePic}
-                />
-              </div>
-              <div className={styles.profileInfo}>
-                <h2 className={styles.accountTitle}>{actor?.name || 'User'}</h2>
-                <p className={styles.userRole}>{actor?.type || 'User'}</p>
-              </div>
-            </div>
+        <div className={styles.profilePicWrapper}>
+          <img
+            src={tempData.thumbnailUrl}
+            alt="Profile"
+            className={styles.profilePic}
+          />
+          {editMode && (
+            <>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                      setTempData(prev => ({ ...prev, thumbnailUrl: e.target?.result as string }));
+                    };
+                    reader.readAsDataURL(file);
+                  }
+                }}
+                className={styles.fileInput}
+                id="profilePicInput"
+              />
+              <label htmlFor="profilePicInput" className={styles.overlay}>
+                <span className={styles.plusIcon}>＋</span>
+              </label>
+            </>
+          )}
+        </div>
+        <div className={styles.profileInfo}>
+          <h2 className={styles.accountTitle}>{actor?.name || 'User'}</h2>
+          <p className={styles.userRole}>{actor?.type || 'User'}</p>
+        </div>
+      </div>
 
             <div className={styles.detailsSection}>
               <div className={styles.info}>

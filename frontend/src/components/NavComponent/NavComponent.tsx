@@ -27,7 +27,7 @@ function NavComponent({ menuOpen, setMenuOpen }) {
         >
           Home
         </NavLink>
-        <NavLink
+        {/* <NavLink
           to="/explore"
           className={({ isActive }) =>
             isActive ? styles.activeLink : styles.link
@@ -35,7 +35,7 @@ function NavComponent({ menuOpen, setMenuOpen }) {
           onClick={() => setMenuOpen(false)}
         >
           Explore
-        </NavLink>
+        </NavLink> */}
         <NavLink
           to="/account"
           className={({ isActive }) =>

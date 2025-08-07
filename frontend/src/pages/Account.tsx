@@ -3,6 +3,7 @@ import AccountModal from '../components/AccountCard/AccountModal';
 import CreatePostModal from '../components/CreatePost/CreatePostModal';
 import FeedContainer from '../components/FeedContainer/FeedContainer';
 import { FeedContainerProps, MembershipStatus } from '../models/Feed';
+import { useAuth } from '../hooks/UseAuth';
 
 function Account() {
 	const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
@@ -111,11 +112,12 @@ function Account() {
 	return (
 		<>
 			<FeedContainer {...feedContainerProps} />
-			<AccountModal 
-				isOpen={isAccountModalOpen} 
-				onClose={() => setIsAccountModalOpen(false)}
-				actorName={'shiny_symbol_316'}
-			/>
+			{isAccountModalOpen && (
+				<AccountModal 
+					isOpen={isAccountModalOpen} 
+					onClose={() => setIsAccountModalOpen(false)}
+				/>
+			)}
 			<CreatePostModal isOpen={isCreatePostModalOpen} onClose={() => setIsCreatePostModalOpen(false)} onSubmit={undefined}/>
 		</>
 	);
