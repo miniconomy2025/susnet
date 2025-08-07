@@ -1,7 +1,6 @@
 .cardContainer {
   width: 100%;
   max-width: 600px;
-  max-height: 500px;
   background-color: var(--background-colour-light);
   border-radius: var(--border-radius);
   padding: var(--gap-s);
