@@ -1,0 +1,43 @@
+###
+GET http://localhost:8000/.well-known/webfinger?resource=acct:spooky_galaxy_16@localhost:8000
+
+###
+GET http://localhost:8000/users/tidy_panda_912
+Accept: application/activity+json
+
+###
+GET http://localhost:8000/posts/1Tfdd7IJhZ
+Accept: application/activity+json
+
+
+###
+GET https://41c7f1827d6d26.lhr.life/users/tidy_panda_912
+@tidy_panda_912@41c7f1827d6d26.lhr.life
+Accept: application/activity+json
+
+
+
+
+###
+GET https://mastodon.social/api/v2/search
+    ?q=@tidy_panda_912@41c7f1827d6d26.lhr.life
+    &type=accounts
+    &resolve=false
+    &limit=20
+
+
+###
+GET https://mastodon.social/users/asdf123
+Accept: application/activity+json
+
+
+###
+GET https://mastodon.social/.well-known/webfinger?resource=acct:asdf123@mastodon.social HTTP/1.1
+Accept: application/jrd+json, application/json
+
+
+###
+GET http://127.0.0.1:3000/api/auth/me
+
+###
+GET http://127.0.0.1:3000/api/actors/tidy_panda_912

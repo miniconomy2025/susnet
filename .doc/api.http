@@ -1,0 +1,175 @@
+# Vars
+@baseUrl = http://127.0.0.1:3000/api
+@googleId =
+@email = asdf@gmail.com
+@accessToken = asdf
+@refreshToken =
+@token =
+
+@actorName = tidy_panda_912
+# @actorName = curious_cloud_416
+
+@postId = 1Tfdd7IJhZ
+
+@subName = NewSub
+@thumbnailUrl = https://placehold.co/200x200?text=new_thumb
+
+@description = New description
+@title = A cool post
+@content = Here is some content
+@tag1 = dev
+@tag2 = fediverse
+
+@targetName = rusty_snail_404
+
+### Health Check
+GET {{baseUrl}}/health
+
+### Login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "googleId": "{{googleId}}",
+  "email": "{{email}}",
+  "accessToken": "{{accessToken}}",
+  "refreshToken": "{{refreshToken}}",
+  "name": "{{actorName}}",
+  "thumbnailUrl": "{{thumbnailUrl}}",
+  "description": "{{description}}"
+}
+
+### Get current authenticated user
+GET {{baseUrl}}/auth/me
+Authorization: Bearer {{token}}
+
+### Get actor by name
+GET {{baseUrl}}/actors/{{actorName}}
+
+### Get posts by actor
+GET {{baseUrl}}/actors/{{actorName}}/posts
+
+### Get followers of actor
+GET {{baseUrl}}/actors/{{actorName}}/followers
+
+### Get who actor is following
+GET {{baseUrl}}/actors/{{actorName}}/following
+
+### Create a new sub
+POST {{baseUrl}}/actors/subs
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "name": "{{subName}}3",
+  "thumbnailUrl": "{{thumbnailUrl}}"
+}
+
+### Update own actor details
+PATCH {{baseUrl}}/actors/me
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "description": "{{description}}",
+  "thumbnailUrl": "{{thumbnailUrl}}"
+}
+
+### Get post by ID
+GET {{baseUrl}}/posts/{{postId}}
+
+### Get vote aggregate for post
+GET {{baseUrl}}/posts/{{postId}}/votes
+
+### Create a new post
+POST {{baseUrl}}/posts
+
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "subName": "{{subName}}",
+  "title": "{{title}}",
+  "content": "{{content}}",
+  "attachments": [],
+  "tags": ["{{tag1}}", "{{tag2}}"]
+}
+
+
+### Vote on post
+POST {{baseUrl}}/posts/{{postId}}/vote
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "vote": "up"
+}
+
+### Follow an actor
+POST {{baseUrl}}/actors/{{targetName}}/follow
+Authorization: Bearer {{token}}
+
+### Unfollow an actor
+DELETE {{baseUrl}}/actors/{{targetName}}/follow
+Authorization: Bearer {{token}}
+
+### Check following status
+GET {{baseUrl}}/actors/{{targetName}}/following-status
+Authorization: Bearer {{token}}
+
+### Get paginated post feed
+POST {{baseUrl}}/posts/feed
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "limit": 500,
+  "sort": "hot",
+  "fromActorName": "{{actorName}}"
+}
+
+### Get feed filtered by actor
+GET {{baseUrl}}/posts?actorName={{actorName}}&sort=top
+Authorization: Bearer {{token}}
+
+### Get feed filtered by tag
+GET {{baseUrl}}/posts?tag=javascript&sort=new
+Authorization: Bearer {{token}}
+
+### Paginate feed from cursor
+GET {{baseUrl}}/posts?cursor={{postId}}&limit=24
+Authorization: Bearer {{token}}
+
+### Search for actors
+GET {{baseUrl}}/actors/search?q=tidy
+
+### Get trending subs
+GET {{baseUrl}}/subs/trending
+
+### Get trending posts
+GET {{baseUrl}}/posts/trending
+
+### Search for tags
+GET {{baseUrl}}/tags/search?q=java
+
+### Edit post (must be owned by current user)
+PATCH {{baseUrl}}/posts/{{postId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "Updated title",
+  "content": "Updated content body",
+  "tags": ["updated", "tags"]
+}
+
+### Edit sub metadata (as a mod)
+PATCH {{baseUrl}}/actors/{{actorName}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "description": "Updated sub description",
+  "thumbnailUrl": "https://placehold.co/400x400?text=Updated",
+  "bannerUrl": "https://placehold.co/1024x300?text=Banner"
+}

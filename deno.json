@@ -1,6 +1,7 @@
 {
   "tasks": {
     "dev": "deno run --env-file --allow-env --allow-net --allow-sys --allow-read --watch server/main.ts",
+    "live": "deno run dev & fedify tunnel 8000",
 
     "fe": "deno run -A --node-modules-dir npm:vite dev",
     "build": "deno run -A --node-modules-dir npm:vite build",
@@ -11,8 +12,12 @@
   },
   "nodeModulesDir": "auto",
   "imports": {
-    "@fedify/fedify": "jsr:@fedify/fedify@^1.7.7",
+    "@fedify/express": "npm:@fedify/express@^1.8.4",
+    "@fedify/fedify": "npm:@fedify/fedify@^1.8.4",
     "@typegoose/typegoose": "npm:@typegoose/typegoose@^12.17.0",
+    "@types/express": "npm:@types/express@^5.0.3",
+    "cookie-parser": "npm:cookie-parser@^1.4.7",
+    "cors": "npm:cors@^2.8.5",
 
     "effect": "npm:effect@^3.17.3",
     "effect-mongodb": "npm:effect-mongodb@^0.3.1",
@@ -22,11 +27,14 @@
     "@types/react": "npm:@types/react@^19.1.8",
     "@types/react-dom": "npm:@types/react-dom@^19.1.6",
     "@vitejs/plugin-react": "npm:@vitejs/plugin-react@^4.6.0",
+    "express": "npm:express@^5.1.0",
     "fs": "npm:fs@^0.0.1-security",
+    "jose": "npm:jose@^6.0.12",
     "jsonwebtoken": "npm:jsonwebtoken@^9.0.2",
     "pm2": "npm:pm2@^6.0.8",
     "react": "npm:react@^19.1.0",
     "react-dom": "npm:react-dom@^19.1.0",
+    "react-swipeable": "npm:react-swipeable@^7.0.2",
     "vite": "npm:vite@^7.0.0",
 
     "mongodb": "npm:mongodb@^6.18.0",
@@ -48,7 +56,8 @@
   },
   "lint": {
     "rules": {
-      "tags": ["recommended"]
+      "tags": ["recommended"],
+      "exclude": ["no-explicit-any"]
     }
   }
 }

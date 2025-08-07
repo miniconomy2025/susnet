@@ -1,0 +1,40 @@
+.ptrWrapper {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	overflow: hidden;
+	height: 100%;
+	-webkit-overflow-scrolling: touch;
+	position: relative;
+	width: 100%;
+}
+
+.spinnerSlot {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	pointer-events: none;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	overflow: visible;
+	box-sizing: border-box;
+}
+
+.spinnerInner {
+	height: 60px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	pointer-events: none;
+}
+
+.ptrContent {
+	will-change: transform;
+	background: inherit;
+	position: relative;
+	width: 100%;
+}

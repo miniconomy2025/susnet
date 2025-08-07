@@ -1,0 +1,278 @@
+
+.accountContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  padding: var(--gap-s);
+}
+
+.input {
+  padding: 5px;
+  font-size: 14px;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 2rem;
+  max-height: 12rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+
+.fileInput {
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+.accountCard {
+  background: var(--background-colour-light);
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 24px;
+  width: 100%;
+  max-width: 30rem;
+}
+
+.profileSection {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--background-colour-dark);
+}
+
+.profilePic {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 16px;
+  border: 3px solid var(--background-colour-dark);
+}
+
+.profileInfo {
+  margin-left: 1rem;
+  flex: 1;
+}
+
+.accountTitle {
+  margin: 0 0 4px 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-colour);
+}
+
+.userRole {
+  margin: 0;
+  font-size: 14px;
+  color: var(--primary-colour);
+  font-weight: 500;
+}
+
+.detailsSection {
+  margin-bottom: 24px;
+}
+
+.sectionTitle {
+  margin: 0 0 16px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-colour);
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  justify-content: safe;
+  gap: 1rem;
+  padding: 8px 0;
+}
+
+.infoRow:last-child {
+  margin-bottom: 0;
+}
+
+.label {
+  font-weight: 500;
+  color: var(--text-colour-secondary);
+  font-size: 14px;
+}
+
+.value {
+  font-weight: 500;
+  color: var(--text-colour);
+  font-size: 14px;
+}
+
+.statusActive {
+  color: #059669;
+  background-color: #d1fae5;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.actionsSection {
+  display: flex;
+  gap: 12px;
+}
+
+.primaryButton {
+  flex: 1;
+  background-color: var(--primary-colour);
+  color: white;
+  border: none;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.primaryButton:hover {
+  background-color: var(--primary-colour-dark);
+}
+
+.primaryButton:active {
+  background-color: var(--primary-colour-dark);
+}
+
+.secondaryButton {
+  flex: 1;
+  background-color: transparent;
+  color: var(--text-colour-secondary);
+  border: 1px solid #d1d5db;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.secondaryButton:hover {
+  background-color: #f9fafb;
+  border-color: #9ca3af;
+  color: #374151;
+}
+
+.secondaryButton:active {
+  background-color: #f3f4f6;
+}
+
+/* Responsive design */
+@media (max-width: 480px) {
+  .container {
+    padding: 16px;
+  }
+
+  .accountCard {
+    padding: 20px;
+  }
+
+  .profileSection {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .profilePic {
+    margin-right: 0;
+    margin-bottom: 12px;
+    object-fit: cover;
+  }
+
+  .actionsSection {
+    flex-direction: column;
+  }
+
+  .infoRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .value {
+    text-align: left;
+  }
+}
+
+
+.profilePicWrapper {
+  position: relative;
+  width: 80px;
+  height: 80px;
+}
+
+.profilePic {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+
+.fileInput {
+  display: none;
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.4);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  border-radius: 50%;
+  transition: opacity 0.3s ease;
+  cursor: pointer;
+}
+
+.profilePicWrapper:hover .overlay {
+  opacity: 1;
+}
+
+.plusIcon {
+  font-size: 24px;
+}
+
+
+/* Add to AccountCardComponent.module.css */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.closeButton {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+}
+
+.accountCard {
+  position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
+}
