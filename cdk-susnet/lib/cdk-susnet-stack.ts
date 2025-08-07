@@ -64,6 +64,8 @@ export class CdkSusnetStack extends cdk.Stack {
       },
     })
 
+    const imageStore = new s3
+
     // A RECORD FOR SERVER
     const serverRecord = new ARecord(this, 'ARecordServer', {
       target: RecordTarget.fromIpAddresses(server.instancePublicIp),

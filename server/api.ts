@@ -257,7 +257,8 @@ const endpoints: Endpoints = {
   },
 
     'getFollowingStatus': async (_, { targetName }: { targetName: string }, user: AuthUser): Promise<Res_followStatus> => {
-        const exists = await FollowModel.exists({ targetName, followerName: user.name });
+        const targetRef = getActorObjId(targetName)
+        const exists = await FollowModel.exists({ followerRef: user.id, targetRef: targetRef });
         return { success: true, following: Boolean(exists) };
     },
 
