@@ -1,13 +1,12 @@
 import React, { useState } from "react";
 import styles from "./NavComponent.module.css";
-import { Link, NavLink, useLocation } from "react-router-dom";
-import { get } from "../../utils/requests.ts";
+import { NavLink, useLocation } from "react-router-dom";
+import { useUserSubs } from "../../hooks/UseUserSubs";
 
 function NavComponent({ menuOpen, setMenuOpen }) {
   const location = useLocation();
-
+  const { userSubs, loading } = useUserSubs("shiny_symbol_316");
   const hideOnPaths = ["/", "/login"];
-  const [sectionOpen, setSectionOpen] = useState(false);
 
   if (hideOnPaths.includes(location.pathname)) {
     return null;
@@ -44,16 +43,13 @@ function NavComponent({ menuOpen, setMenuOpen }) {
           User
         </NavLink>
         <div className={styles.collapsibleSection}>
-          <input
-            type="checkbox"
-            className={styles.listCheckbox}
-            id="subs-toggle"
-          />
+          <input type="checkbox" className={styles.listCheckbox} id="subs-toggle" />
           <label htmlFor="subs-toggle" className={styles.link}>
             Your Subs
             <span className="material-icons dropdownIcon">chevron_right</span>
           </label>
           <div className={styles.subLinks}>
+<<<<<<< HEAD
             <NavLink
               to="/settings"
               className={({ isActive }) =>
@@ -71,6 +67,22 @@ function NavComponent({ menuOpen, setMenuOpen }) {
               Help
             </NavLink>
             {/* Add more sub-links as needed */}
+=======
+            {loading ? (
+              <div className={styles.link}>Loading...</div>
+            ) : (
+              userSubs.map(sub => (
+                <NavLink 
+                  key={sub.name}
+                  to={`/r/${sub.name}`} 
+                  className={({ isActive }) => isActive ? styles.activeLink : styles.link}
+                  onClick={() => setMenuOpen(false)}
+                >
+                  {sub.name}
+                </NavLink>
+              ))
+            )}
+>>>>>>> master
           </div>
         </div>
       </nav>

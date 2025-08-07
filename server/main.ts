@@ -1,5 +1,6 @@
 /// <reference lib="deno.ns" />
 
+import { migrateDb } from "./db/migrate.ts";
 import mongoose from "mongoose";
 import { env } from "./utils/env.ts";
 
@@ -14,6 +15,7 @@ import router from "./api.ts";
 // DB
 const DB_URL = env("DB_URL");
 const PORT = env("PORT", 3000);
+const FE_DIR = "./frontend/dist";
 
 mongoose.connect(DB_URL)
   .then(() => {
@@ -30,9 +32,7 @@ const fed = createFederation<void>({ kv: new MemoryKvStore() }); // TODO: Replac
 // Deno.serve(req => fed.fetch(req, handlers));
 
 //---------- Main ----------//
-
 const app = express();
-// const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/susnet';
 
 app.use(cors({
   origin: ["http://localhost:8000", "https://susnet.co.za"],
@@ -43,7 +43,9 @@ app.use(cookieParser());
 app.use("/api", router);
 
 app.set("trust proxy", true);
-// app.use(integrateFederation(fed, (req) => "context data goes here")); // TODO
+// app.use(integrateFederation(fed, (req) => fed.fetch(req, { contextData: null })));
+
+app.use('/api', router);
 
 app.listen(PORT, () => {
   console.log(`🚀 Server is running at http://localhost:${PORT}`);

@@ -1,12 +1,18 @@
 import { useEffect, useRef, useState } from 'react';
-import FeedCard from '../FeedCard/FeedCard';
-import Banner from '../Banner/Banner';
-import LoadingSpinner from '../LoadingSpinner/LoadingSpinner';
-import PullToRefresh from '../PullToRefresh/PullToRefresh';
+import FeedCard from '../FeedCard/FeedCard.tsx';
+import Banner from '../Banner/Banner.tsx';
+import LoadingSpinner from '../LoadingSpinner/LoadingSpinner.tsx';
+import PullToRefresh from '../PullToRefresh/PullToRefresh.tsx';
 import styles from './FeedContainer.module.css';
+import { FeedContainerProps } from '../../models/Feed.ts';
 
-function FeedContainer({ initialPosts, refreshFeed }) {
-	const [posts, setPosts] = useState(initialPosts);
+function FeedContainer({
+	bannerProps,
+	availablePosts,
+	onLoadPosts,
+	onRefresh,
+}: FeedContainerProps) {
+	const [posts, setPosts] = useState(availablePosts);
 	const [loading, setLoading] = useState(false);
 	const sentinelRef = useRef(null);
 
@@ -29,11 +35,19 @@ function FeedContainer({ initialPosts, refreshFeed }) {
 
 	const loadMorePosts = async () => {
 		setLoading(true);
-		await new Promise((r) => setTimeout(r, 2000));
+
+		await new Promise((resolve) => setTimeout(resolve, 1000));
+
+		const res = onLoadPosts();
+
+		if (res.success) {
+			console.log('ACTOR:', res.actor);
+			console.log('POSTS:', res.posts);
+		}
 
 		const newPosts = posts.slice(0, 2).map((post) => ({
 			...post,
-			timestamp: 'Just now',
+			timestamp: 1754513708642,
 			isFollowing: Math.random() > 0.5,
 		}));
 
@@ -43,15 +57,9 @@ function FeedContainer({ initialPosts, refreshFeed }) {
 
 	return (
 		<div className={styles.feedContainer}>
-			<Banner
-				profileImage="/images/profile.jpg"
-				title="r/southafrica"
-				onCreatePost={() => console.log('Create Post clicked')}
-				onJoin={() => console.log('Join clicked')}
-				onSettingsClick={() => console.log('Settings clicked')}
-			/>
+			<Banner {...bannerProps} />
 
-			<PullToRefresh onRefresh={refreshFeed} containerStyling={styles.feedContainer}>
+			<PullToRefresh onRefresh={onRefresh} containerStyling={styles.feedContainer}>
 				{posts.map((post, idx) => (
 					<div key={idx} className={styles.cardWrap}>
 						<FeedCard {...post} />

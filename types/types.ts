@@ -1,5 +1,7 @@
 // Generic utility types
 
+export type HTTPMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+
 export type Unit = { [K in never]: never };
 
 export type Result<

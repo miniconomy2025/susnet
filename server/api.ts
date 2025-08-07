@@ -51,7 +51,7 @@ import { authenticate, AuthenticatedRequest, noop } from "./auth.ts";
 
 import express, { Request, Response } from "express";
 import { Types } from "mongoose";
-import { Unit } from "../types/types.ts";
+import { HTTPMethod, Unit } from "../types/types.ts";
 import { MongoServerError } from "mongodb";
 import { env } from "./utils/env.ts";
 import { Random } from "effect/Random";
@@ -62,9 +62,6 @@ const ORIGIN = "susnet.co.za";
 const JWT_SECRET = env("JWT_SECRET");
 
 //---------- Utils ----------//
-
-type AuthUser = AuthenticatedRequest["user"];
-// type AuthUser = { id: Types.ObjectId; name: string };
 
 function toActorDataSimple(doc: any): ActorData<"simple"> {
   return {
@@ -116,11 +113,8 @@ async function getPostObjId(postId: string): Promise<Types.ObjectId | null> {
 
 //---------- Endpoints ----------//
 
-type ReqType = "GET" | "POST" | "PATCH" | "DELETE";
-type ReqTypeLower = "get" | "post" | "patch" | "delete";
-type Endpoints = {
-  [K in `${ReqType}|/${string}`]: (params: any) => Promise<any>;
-};
+type ReqType = 'GET' | 'POST' | 'PATCH' | 'DELETE';
+type Endpoints = { [K in `${ReqType}|/${string}`]: (params: any, user: AuthUser) => Promise<any> };
 
 const endpoints: Endpoints = {
   "GET|/health": async (): Promise<Res_health> => ({ success: true }),
@@ -151,16 +145,14 @@ const endpoints: Endpoints = {
     ).exec();
   },
 
-  "GET|/auth/me": async (_: Unit, user: AuthUser): Promise<Res_me> => {
+  'GET|/auth/me': async (_: Unit, user: AuthUser): Promise<Res_me> => {
     const doc = await ActorModel.findById(user.id).lean().exec();
     if (doc == null) return { success: false, error: "invalidAuth" };
     return { success: true, actor: toActorDataFull(doc) };
   },
 
   // Get data for a specific actor
-  "GET|/actors/:name": async (
-    { name }: { name: string },
-  ): Promise<Res_getActor> => { // DONE
+  'GET|/actors/:name': async ({ name }: { name: string }): Promise<Res_getActor> => { // DONE
     const doc = await ActorModel.findOne({ name }).lean().exec();
     if (doc == null) return { success: false, error: "notFound" };
 
@@ -183,9 +175,7 @@ const endpoints: Endpoints = {
   },
 
   // Get all posts for an actor
-  "GET|/actors/:name/posts": async (
-    { name }: { name: string },
-  ): Promise<Res_getActorPosts> => { // TODO: Paginate
+  'GET|/actors/:name/posts': async ({ name }: { name: string }): Promise<Res_getActorPosts> => { // TODO: Paginate
     const actorId = await getActorObjId(name);
     if (actorId == null) return { success: false, error: "notFound" };
 
@@ -194,9 +184,7 @@ const endpoints: Endpoints = {
   },
 
   // Get all the actors following a specific actor
-  "GET|/actors/:name/followers": async (
-    { name }: { name: string },
-  ): Promise<Res_followers> => { // DONE
+  'GET|/actors/:name/followers': async ({ name }: { name: string }): Promise<Res_followers> => { // DONE
     const actorId = await getActorObjId(name);
     if (actorId == null) return { success: false, error: "notFound" };
 
@@ -211,9 +199,7 @@ const endpoints: Endpoints = {
   },
 
   // Get all the actors a specific actor is following
-  "GET|/actors/:name/following": async (
-    { name }: { name: string },
-  ): Promise<Res_following> => { // DONE
+  'GET|/actors/:name/following': async ({ name }: { name: string }): Promise<Res_following> => { // DONE
     const actorId = await getActorObjId(name);
     if (actorId == null) return { success: false, error: "notFound" };
 
@@ -228,7 +214,7 @@ const endpoints: Endpoints = {
   },
 
   // Create a sub
-  "POST|/actors/subs": async (req: Req_createSub): Promise<Res_createSub> => {
+  'POST|/actors/subs': async (req: Req_createSub): Promise<Res_createSub> => {
     try {
       const sub = await ActorModel.create({
         name: req.name,
@@ -257,29 +243,20 @@ const endpoints: Endpoints = {
   },
 
   // Update your user data
-  "PATCH|/actors/me": async (
-    req: Req_updateActor,
-    user: AuthUser,
-  ): Promise<Res_updateActor> => {
-    const doc = await ActorModel.findByIdAndUpdate(user.id, req, { new: true })
-      .lean().exec(); // TODO: Filter fields
+  'PATCH|/actors/me': async (req: Req_updateActor, user: AuthUser): Promise<Res_updateActor> => {
+    const doc = await ActorModel.findByIdAndUpdate(user.id, req, { new: true }).lean().exec(); // TODO: Filter fields
     return { success: true, actor: toActorDataSimple(doc) };
   },
 
   // Get a specific post
-  "GET|/posts/:postId": async (
-    { postId }: { postId: string },
-  ): Promise<Res_getPost> => { // DONE
+  'GET|/posts/:postId': async ({ postId }: { postId: string }): Promise<Res_getPost> => { // DONE 
     const doc = await PostModel.findOne({ postId }).lean().exec();
     if (doc == null) return { success: false, error: "notFound" };
     return { success: true, post: toPostDataFull(doc) };
   },
 
   // Create a post
-  "POST|/posts": async (
-    req: Req_createPost,
-    user: AuthUser,
-  ): Promise<Res_createPost> => {
+  'POST|/posts': async (req: Req_createPost, user: AuthUser): Promise<Res_createPost> => {
     console.log("USER:", user);
     const postDoc = await PostModel.create({
       ...req,
@@ -289,9 +266,9 @@ const endpoints: Endpoints = {
     return { success: true, post: toPostDataSimple(postDoc) };
   },
 
-  "POST|/posts/:postId/vote": async (
+  'POST|/posts/:postId/vote': async (
     { postId, vote }: { postId: string; vote: VoteType | null },
-    user: AuthUser,
+    user: AuthUser
   ): Promise<Res_vote> => {
     const record = await VoteModel.findOneAndUpdate(
       { postId, actorId: user.id },
@@ -301,66 +278,54 @@ const endpoints: Endpoints = {
     return { success: true, vote: record.vote };
   },
 
-  "POST|/actors/:targetName/follow": async (
+  'POST|/actors/:targetName/follow': async (
     { targetName }: { targetName: string },
-    user: AuthUser,
+    user: AuthUser
   ): Promise<Res_follow> => {
     await FollowModel.create({ targetName, followerName: user.name });
     return { success: true };
   },
 
-  "DELETE|/actors/:targetName/follow": async (
+  'DELETE|/actors/:targetName/follow': async (
     { targetName }: { targetName: string },
-    user: AuthUser,
+    user: AuthUser
   ): Promise<Res_unfollow> => {
     await FollowModel.deleteOne({ targetName, followerName: user.name }).exec();
     return { success: true };
   },
 
-  "GET|/actors/:targetName/following-status": async (
+  'GET|/actors/:targetName/following-status': async (
     { targetName }: { targetName: string },
-    user: AuthUser,
+    user: AuthUser
   ): Promise<Res_followStatus> => {
-    const exists = await FollowModel.exists({
-      targetName,
-      followerName: user.name,
-    });
+    const exists = await FollowModel.exists({ targetName, followerName: user.name });
     return { success: true, following: Boolean(exists) };
   },
 
-  "POST|/api/posts/feed": async (req: Req_Feed): Promise<Res_Feed> => {
-    const { limit = 20, cursor, actorName, sort = "new" } = req;
+  'POST|/api/posts/feed': async (req: Req_Feed): Promise<Res_Feed> => {
+    const { limit = 20, cursor, actorName, sort = 'new' } = req;
     const match: any = {};
+
     if (actorName) match.actorName = actorName;
-    const sortOrder = sort === "new"
-      ? { _id: -1 }
-      : sort === "top"
-      ? { score: -1 }
-      : { score: -1, _id: -1 };
+    const sortOrder = sort === 'new' ? { _id: -1 } : sort === 'top' ? { score: -1 } : { score: -1, _id: -1 };
     const pipeline: any[] = [
       { $match: match },
       { $sort: sortOrder },
       { $limit: limit + 1 },
     ];
+
     const docs = await PostModel.aggregate(pipeline).exec();
     const hasMore = docs.length > limit;
-    const results = (hasMore ? docs.slice(0, limit) : docs).map((d) =>
-      toPostDataFull(d)
-    );
+    const results = (hasMore ? docs.slice(0, limit) : docs).map(d => toPostDataFull(d));
     return { success: true, posts: results };
   },
 
-  "POST|/api/actors/search": async (
-    req: Req_SearchActors,
-  ): Promise<Res_SearchActors> => {
-    const docs = await ActorModel.find({ name: new RegExp(req.query, "i") })
-      .lean().exec();
-    return { success: true, actors: docs.map((d) => toActorDataSimple(d)) };
+  'POST|/api/actors/search': async (req: Req_SearchActors): Promise<Res_SearchActors> => {
+    const docs = await ActorModel.find({ name: new RegExp(req.query, 'i') }).lean().exec();
+    return { success: true, actors: docs.map(d => toActorDataSimple(d)) };
   },
 
-  "POST|/api/tags/search": async (
-    req: Req_SearchTags,
-  ): Promise<Res_SearchTags> => {
+  'POST|/api/tags/search': async (req: Req_SearchTags): Promise<Res_SearchTags> => {
     const tags = await PostModel.aggregate([
       { $unwind: "$tags" },
       { $match: { tags: new RegExp(req.query, "i") } },
@@ -370,9 +335,9 @@ const endpoints: Endpoints = {
     return { success: true, tags };
   },
 
-  "PATCH|/api/posts/:postId": async (
+  'PATCH|/api/posts/:postId': async (
     { postId, ...rest }: { postId: string } & Req_EditPost,
-    user: AuthUser,
+    user: AuthUser
   ): Promise<Res_EditPost> => {
     const updated = await PostModel.findOneAndUpdate(
       { _id: postId, actorName: user.name },
@@ -383,9 +348,9 @@ const endpoints: Endpoints = {
     return { success: true };
   },
 
-  "PATCH|/api/actors/:actorName": async (
+  'PATCH|/api/actors/:actorName': async (
     { actorName, ...rest }: { actorName: string } & Req_EditActor,
-    user: AuthUser,
+    user: AuthUser
   ): Promise<Res_EditActor> => {
     const updated = await ActorModel.findOneAndUpdate(
       { name: actorName, _id: user.id },
@@ -400,43 +365,31 @@ const endpoints: Endpoints = {
 //---------- Endpoint scaffolding ----------//
 
 const authenticated: Set<string> = new Set([
-  "GET|/auth/me",
-  "PATCH|/actors/me",
+  'GET|/auth/me', 'PATCH|/actors/me'
 ]);
 
 const router = express.Router();
 
-for (const [route, handler] of Object.entries(endpoints)) {
-  const [method, path] = route.split("|");
+for(const [route, handler] of Object.entries(endpoints)) {
+  const [method, path] = route.split('|');
   const middleware = authenticated.has(route) ? authenticate : noop;
 
-  router[method.toLowerCase() as ReqTypeLower](
-    path,
-    middleware,
-    async (req: Request, res: Response) => {
-      try {
-        console.log(
-          "\x1b[93mREQUEST\x1b[0m:",
-          req.method,
-          req.path,
-          "\n- BODY:",
-          req.body,
-          "\n- PARAMS:",
-          req.params,
-        );
-        console.log("here");
-        const result = await handler({ ...req.body, ...req.params });
-        res.json(result);
-      } catch (err) {
-        console.error("\x1b[91mERROR\x1b[0m:", err);
-        res.json({
-          success: false,
-          error: "internalError",
-          message: String(err),
-        });
-      }
-    },
-  );
+  router[method.toLowerCase()](path, middleware, async (req: Request, res: Response) => {
+    try {
+      console.log("\x1b[93mREQUEST\x1b[0m:", req.method, req.path, "\n- BODY:", req.body, "\n- PARAMS:", req.params);
+
+      const result = await handler({ ...req.body, ...req.params }, req.user);
+      res.json(result);
+    }
+    catch (err) {
+      console.error("\x1b[91mERROR\x1b[0m:", err);
+      res.json({
+        success: false,
+        error: 'internalError',
+        message: String(err)
+      })
+    }
+  });
 }
 
 export default router;
