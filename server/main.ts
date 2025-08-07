@@ -31,8 +31,8 @@ const app = express();
 
 app.set("trust proxy", true);
 app.use(cors({
-  // origin: ["http://localhost:8000", "https://susnet.co.za"],
-  // credentials: true,
+  origin: ["http://localhost:8000", "https://susnet.co.za"],
+  credentials: true,
 }));
 
 // Handle fedify

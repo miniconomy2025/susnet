@@ -311,7 +311,9 @@ const authenticated: Set<keyof Endpoints> = new Set([
     'followActor',
     'unfollowActor',
     'getFeed',
-    'getFollowingStatus'
+    'getFollowingStatus',
+    'createSub',
+    'createPost',
 ]);
 
 const router = express.Router();
