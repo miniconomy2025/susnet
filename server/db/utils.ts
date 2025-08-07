@@ -9,6 +9,7 @@ import { Types } from "mongoose";
 import { ActorData, AuthData, PostData, Req_createPost, Req_Feed, Res_createPost, Res_Feed, Res_login } from "../../types/api.ts";
 import { SimpleResult } from "../../types/types.ts";
 import { times } from "effect/Duration";
+import fed from "../fed/fed.ts";
 
 //---------- Setup ----------//
 const JWT_SECRET = env("JWT_SECRET");
@@ -67,7 +68,7 @@ export async function getActorData(name: string, userId?: Types.ObjectId): Promi
     postCount,
     followerCount,
     followingCount,
-    isFollowing,
+    isFollowing, // TODO: Fix
   }
 }
 
@@ -199,12 +200,20 @@ export async function searchTags(query: string) {
 
 //---------- Create ----------//
 
-export async function createUserAccount(user: ActorData<"simple">, auth: AuthData): Promise<SimpleResult<{ actorDoc: DocumentType<Actor>, token: string }, 'internalError'>  > {
+export async function createUserAccount(req: Request, user: ActorData<"simple">, auth: AuthData): Promise<SimpleResult<{ actorDoc: DocumentType<Actor>, token: string }, 'internalError'>  > {
+  const ctx = fed.createContext(req, undefined);
+
   const actorDoc = await ActorModel.create({
-    name: user.name,
-    type: 'user',
+    name:         user.name,
+    type:         'user',
     thumbnailUrl: user.thumbnailUrl,
-    description: user.description,
+    description:  user.description,
+
+    // TODO: Show this on the frontend
+    uri:          ctx.getActorUri(user.name).href,
+    inbox:        ctx.getInboxUri(user.name).href, // "http[s]://*"
+    sharedInbox:  ctx.getInboxUri().href,          // "http[s]://*"
+    url:          ctx.getActorUri(user.name).href, // Profile page URL
   });
 
   const authDoc = await AuthModel.findOneAndUpdate(

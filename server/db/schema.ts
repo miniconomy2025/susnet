@@ -17,12 +17,35 @@ export class Actor {
   @prop({ default: "" })                                          description?:   string;     // Bio in the case of a user
   @prop({ default: LOCAL_ORIGIN })                                origin?:        string;     // Empty string => local
 
+  // See: [https://fedify.dev/tutorial/microblog#table-creation]
+  @prop({ required: true, unique: true })                         uri!:          string;
+  @prop({ required: true, unique: true })                         inbox!:        string;      // "http[s]://*"
+  @prop({ required: true, unique: true })                         sharedInbox!:  string;      // "http[s]://*"
+  @prop({ required: true, unique: true })                         url?:          string;      // Profile page URL
+  // @prop({ required: true, unique: true })                      handle?:       string;      // Derived: "@<name>@<origin>"
+
   _id?: Types.ObjectId;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
 export const ActorModel = getModelForClass(Actor);
+
+
+//---------- Key pair -----------//
+@modelOptions({ schemaOptions: { timestamps: true , strict: "throw"} })
+export class Key {
+  @prop({ ref: () => Actor, required: true, unique: true })       actorRef!:     Ref<Actor>;
+  @prop({ required: true, default: "Ed25519" })                   keyType!:      string; // "RSASSA-PKCS1-v1_5" | "Ed25519"
+  @prop({ required: true, default: "" })                          publicKey!:    string;
+  @prop({ required: true, default: "" })                          privateKey!:   string;
+
+  _id?: Types.ObjectId;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export const KeyModel = getModelForClass(Key);
 
 
 //---------- Auth (OAuth 2.0 credentials) -----------//
@@ -113,3 +136,33 @@ export class Follow {
 }
 
 export const FollowModel = getModelForClass(Follow);
+
+
+// @modelOptions({ schemaOptions: { timestamps: true } })
+// export class InboxActivity {
+//   @prop({ ref: () => Actor, required: true })                     recipientRef!: Ref<Actor>; // Who received it
+//   @prop({ required: true })                                       sender!:       string;     // IRI of sender
+//   @prop({ required: true, type: () => Object })                   activity!:     Record<string, any>; // Raw Activity JSON
+//   @prop()                                                         messageId?:    string;     // Idempotency check
+
+//   _id?: Types.ObjectId;
+//   createdAt?: Date;
+//   updatedAt?: Date;
+// }
+
+// export const InboxActivityModel = getModelForClass(InboxActivity);
+
+// //---------- Vote -----------//
+// @modelOptions({ schemaOptions: { timestamps: true } })
+// export class OutboxActivity {
+//   @prop({ ref: () => Actor, required: true })                     senderRef!:    Ref<Actor>; // Who sent it
+//   @prop({ required: true })                                       target!:       string;     // IRI of remote inbox
+//   @prop({ required: true, type: () => Object })                   activity!:     Record<string, any>; // Raw Activity JSON
+//   @prop()                                                         messageId?:    string;
+
+//   _id?: Types.ObjectId;
+//   createdAt?: Date;
+//   updatedAt?: Date;
+// }
+
+// export const OutboxActivityModel = getModelForClass(OutboxActivity);
