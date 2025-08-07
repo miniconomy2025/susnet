@@ -311,7 +311,8 @@ const authenticated: Set<keyof Endpoints> = new Set([
     'updateActor',
     'followActor',
     'unfollowActor',
-    "getFeed",
+    'getFeed',
+    'getFollowingStatus',
     'createSub',
     'createPost',
 ]);
