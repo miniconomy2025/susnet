@@ -79,7 +79,7 @@ function FeedCard({
 					</button>
 				)}
 				{actorName && (
-					<span className={styles.actorName}>Posted by u/{actorName}</span>
+					<span className={styles.actorName}>@{actorName}</span>
 				)}
 				<span className={styles.timestamp}>{getTimeAgo(timestamp)}</span>
 			</div>
