@@ -39,7 +39,7 @@ function FeedCard({
 	score,
 	isFollowingSub,
 	timestamp,
-	onVoteClick,
+	showFollowingButton,
 }) {
 	const navigate = useNavigate();
 	const [isFollowing, setIsFollowing] = useState(isFollowingSub);
@@ -49,22 +49,17 @@ function FeedCard({
 		navigate(`/subreddit/${encodeURIComponent(subName)}`);
 	};
 
-	const onFollowToggle = async () => {
-		const prevIsFollowing = isFollowing;
-		const endpoint = prevIsFollowing ? 'unfollowActor' : 'followActor';
+	const onUserClick = () => {
+		// navigate(`/subreddit/${encodeURIComponent(actorName)}`);
+	};
 
+	const onFollowToggle = async () => {
+		const prevIsFollowing = isFollowing ? true : false;
 		setIsFollowing(!prevIsFollowing);
 
-		console.log("Sending request to", endpoint);
+		const res = await fetchApi(prevIsFollowing ? 'unfollowActor' : 'followActor', { targetName: subName });
 
-		const res = await fetchApi(endpoint, { targetName: subName });
-
-		console.log(res);
-
-		if (res.success) {
-			console.log("Success");
-		} else {
-			console.log("Failed, reverting");
+		if (!res.success) {
 			setIsFollowing(prevIsFollowing); 
 		}
 	};
@@ -87,17 +82,19 @@ function FeedCard({
 				<span className={styles.subreddit} onClick={onSubredditClick}>
 					r/{subName}
 				</span>
-				{isFollowing ? (
-					<button onClick={onFollowToggle} className={styles.button}>
+				{showFollowingButton && (
+					isFollowing ? (
+						<button onClick={onFollowToggle} className={styles.button}>
 						Following
-					</button>
-				) : (
-					<button onClick={onFollowToggle} className={`${styles.button} ${styles.joinButton}`}>
+						</button>
+					) : (
+						<button onClick={onFollowToggle} className={`${styles.button} ${styles.joinButton}`}>
 						Follow
-					</button>
+						</button>
+					)
 				)}
 				{actorName && (
-					<span className={styles.actorName}>@{actorName}</span>
+					<span className={styles.actorName} onClick={onUserClick}>@{actorName}</span>
 				)}
 				<span className={styles.timestamp}>{getTimeAgo(timestamp)}</span>
 			</div>

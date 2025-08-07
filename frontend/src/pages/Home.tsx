@@ -26,6 +26,7 @@ function Home() {
 	const feedContainerProps: FeedContainerProps = {
 		bannerProps,
 		onLoadPosts,
+		showCardFollowButton: true,
 		onRefresh: async () => {},
 	};
 

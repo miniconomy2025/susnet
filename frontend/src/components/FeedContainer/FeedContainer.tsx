@@ -9,6 +9,7 @@ import { PostData, Res_Feed } from '../../../../types/api.ts';
 function FeedContainer({
 	bannerProps,
 	availablePosts = [],
+	showCardFollowButton,
 	onLoadPosts,
 	onRefresh,
 }: FeedContainerProps) {
@@ -46,7 +47,7 @@ function FeedContainer({
 		const res: Res_Feed | undefined = await onLoadPosts(cursor);
 
 		if (res?.success) {
-			if (res.nextCursor) setCursor(() => res.nextCursor);
+			if (res.nextCursor) setCursor(res.nextCursor);
 			newPosts = res.posts;
 			setPosts((prev) => [...prev, ...newPosts]);
 		}
@@ -58,7 +59,7 @@ function FeedContainer({
 			<Banner {...bannerProps} />
 			{posts.map((post, idx) => (
 				<div key={idx} className={styles.cardWrap}>
-					<FeedCard {...post} />
+					<FeedCard {...post} showFollowingButton={showCardFollowButton} />
 				</div>
 			))}
 			<div

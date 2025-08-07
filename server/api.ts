@@ -308,7 +308,8 @@ const authenticated: Set<keyof Endpoints> = new Set([
     'me',
     'updateMe',
     'updateActor',
-    'followActor'
+    'followActor',
+    'unfollowActor'
 ]);
 
 const router = express.Router();

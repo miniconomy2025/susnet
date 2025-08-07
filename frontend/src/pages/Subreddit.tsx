@@ -12,9 +12,8 @@ function Subreddit() {
 	const bannerProps: BannerProps = {
 		displayImage: '/images/profile.jpg',
 		title: id!,
-		membershipStatus: MembershipStatus.JOINED,
+		initialIsFollowing: false,
 		onCreatePost: async () => {},
-		onSetMembershipClick: async (membershipStatus) => {},
 		onSettingsClick: async () => {},
 	};
 
@@ -32,6 +31,7 @@ function Subreddit() {
 	const feedContainerProps: FeedContainerProps = {
 		bannerProps,
 		onLoadPosts,
+		showCardFollowButton: false,
 		onRefresh: async () => {},
 	};
 
