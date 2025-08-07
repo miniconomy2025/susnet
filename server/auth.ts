@@ -2,20 +2,42 @@
 import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { Types } from "mongoose";
+import { decode } from "node:punycode";
+import { decodeJWT, verifyJWT } from "./utils/authUtils.ts";
+import { verify } from "node:crypto";
+import { ActorModel, AuthModel } from "./db/schema.ts";
 
-const JWT_SECRET = process.env.JWT_SECRET || "dev-secret-key";
 
 export interface AuthenticatedRequest extends Request {
-  user: { id: Types.ObjectId; name: string };
+  user: { id: Types.ObjectId, name: string }
 }
 
 export function noop(req: Request, res: Response, next: NextFunction) {
   next();
 }
 
-export function authenticate(req: Request, res: Response, next: NextFunction) {
-  // // (req as AuthenticatedRequest).user = { id: new Types.ObjectId(), name: "tiny_panda_912" };
-  // // next();
+export async function authenticate(req: Request, res: Response, next: NextFunction) {
+  if (!req.headers.authorization) {
+    return res.status(401).json({ succes: false, message: "No token provided" })
+  }
+  const token = req.headers.authorization?.split(" ")[1]
+  await verifyJWT(token)
+
+  const payload = await decodeJWT(token)
+  const auth = await AuthModel.findOne(
+    { googleId: payload.sub }
+  )
+  if (!auth) {
+    return res.status(401).json({ succes: false, message: "No auth found for provided token" })
+  }
+  const actor = await ActorModel.findById(auth?.actorRef._id);
+  if (!actor) {
+    return res.status(401).json({ succes: false, message: "No actor found for provided token" })
+  }
+
+  (req as AuthenticatedRequest).user = { id: new Types.ObjectId(actor._id), name: actor.name }
+  next();
+}
 
   // const authHeader = req.headers.authorization;
   // if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -30,4 +52,3 @@ export function authenticate(req: Request, res: Response, next: NextFunction) {
   // } catch (err) {
   //   return res.status(401).json({ success: false, error: 'Unauthorized', message: 'Invalid or expired token' });
   // }
-}

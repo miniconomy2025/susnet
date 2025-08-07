@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import {
     ActorModel, AuthModel, PostModel, VoteModel,
     FollowModel, VoteType, ActorType, Actor, Post, Follow
-} from '../server/db/schema.ts';
+} from './db/schema.ts';
 import {
     Req_createSub, Req_updateActor, Req_SearchActors, Req_SearchTags,
     Req_EditPost, Req_EditActor, Req_vote, Req_login,
@@ -25,7 +25,7 @@ import { authenticate, noop, AuthenticatedRequest } from './auth.ts';
 
 import express, { Request, Response } from 'express';
 import { Types } from "mongoose";
-import { HTTPMethod, Unit } from "../types/types.ts";
+import { HTTPMethod, HTTPMethodLower, Unit } from "../types/types.ts";
 import { MongoServerError } from "mongodb";
 import { decodeJWT, verifyJWT } from "./utils/authUtils.ts";
 
@@ -114,10 +114,8 @@ const endpoints: Endpoints = {
         ).exec();
     },
 
-    'me': async (_1, _2, user: AuthUser): Promise<Res_me> => {
-        const doc = await ActorModel.findById(user.id).lean().exec();
-        if (doc == null) return { success: false, error: 'invalidAuth' };
-        return { success: true, actor: toActorDataFull(doc) };
+    'me': async (_1, _2, user: AuthUser): Promise<any> => {
+        return user
     },
 
     'getActor': async (_, { name }: { name: string }): Promise<Res_getActor> => {
@@ -289,18 +287,21 @@ const endpoints: Endpoints = {
 
 //---------- Endpoint scaffolding ----------//
 
-const authenticated: Set<keyof Endpoints> = new Set(['me', 'updateMe', 'updateActor']);
+const authenticated: Set<keyof Endpoints> = new Set([
+    'me',
+    'updateMe',
+    'updateActor'
+]);
 
 const router = express.Router();
 
 for (const [route, handler] of Object.entries(endpoints)) {
     const [method, path] = endpointSignatures[route as keyof Endpoints];
-    const middleware = authenticated.has(route as any) ? authenticate : noop;
+    const middleware = authenticated.has(route as any) ? await authenticate : noop;
 
-    router[method.toLowerCase()](path, middleware, async (req: Request, res: Response) => {
+    router[method.toLowerCase() as HTTPMethodLower](path, middleware, async (req: Request, res: Response) => {
         try {
             console.log("\x1b[93mREQUEST\x1b[0m:", req.method, req.path, "\n- BODY:", req.body, "\n- PARAMS:", req.params);
-
             const result = await handler(req.body, req.params, req.user);
             res.json(result);
         }
