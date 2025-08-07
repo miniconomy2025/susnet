@@ -1,41 +1,41 @@
-"use client";
-import styles from "./AuthComponent.module.css";
+import { useEffect, useRef } from "react";
+import { post } from "../../utils/requests.ts";
+import { useNavigate } from "react-router-dom";
 
-interface AuthComponentProps {
-  onGoogleLogin?: () => void;
-  isSignup?: boolean;
-}
+const GoogleLoginButton: React.FC = () => {
+  const navigate = useNavigate();
+  const buttonRef = useRef<HTMLDivElement>(null);
+  const CLIENT_ID =
+    "144675851144-dqjsn3ff0urka9mogbss98irppd81sns.apps.googleusercontent.com";
 
-export default function AuthComponent({
-  onGoogleLogin,
-  isSignup = false,
-}: AuthComponentProps) {
-  return (
-    <div className={styles.authContainer}>
-      <div className={styles.authCard}>
-        <h1 className={styles.authTitle}>
-          {isSignup ? "Create Account" : "Welcome Back"}
-        </h1>
-        <p className={styles.authSubtitle}>
-          {isSignup
-            ? "Sign up with your preferred provider"
-            : "Sign in to continue to your account"}
-        </p>
+  const handleLogin = async (credential: string) => {
+    sessionStorage.setItem('Token', credential)
+    const res = await post("/auth/login", { token: credential });
+    if (res.ok) {
+      navigate("/account");
+    } else {
+      //TODO BAD ACCOUNT
+    }
+  };
 
-        <button className={`${styles.oauthButton} ${styles.googleButton}`}>
-          <span
-            className="material-icons"
-            style={{ fontSize: 24, marginRight: "8px" }}
-          >
-            login
-          </span>
-          Continue with Google
-        </button>
+  useEffect(() => {
+    if (globalThis.google && buttonRef.current) {
+      globalThis.google.accounts.id.initialize({
+        client_id: CLIENT_ID,
+        callback: (response: google.accounts.id.CredentialResponse) => {
+          handleLogin(response.credential);
+        },
+      });
 
-        <div className={styles.authFooter}>
-          <p className={styles.authText}>Thank you for joining SusNet!</p>
-        </div>
-      </div>
-    </div>
-  );
-}
+      globalThis.google.accounts.id.renderButton(buttonRef.current, {
+        type: "standard",
+        theme: "outline",
+        size: "large",
+      });
+    }
+  }, []);
+
+  return <div ref={buttonRef}></div>;
+};
+
+export default GoogleLoginButton;

@@ -21,8 +21,7 @@ function App() {
 					<NavComponent menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
 					<main className="contentContainer">
 						<Routes>
-							<Route path="/" element={<Signup />} />
-							<Route path="/login" element={<Login />} />
+							<Route path="/" element={<Login />} />
 							<Route path="/home" element={<Home />} />
 							<Route path="/account" element={<Account />} />
 							<Route path="/explore" element={<Explore />} />

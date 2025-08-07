@@ -56,9 +56,9 @@ function NavComponent({ menuOpen, setMenuOpen }) {
               <div className={styles.link}>Loading...</div>
             ) : (
               userSubs.map(sub => (
-                <NavLink 
+                <NavLink
                   key={sub.name}
-                  to={`/r/${sub.name}`} 
+                  to={`/r/${sub.name}`}
                   className={({ isActive }) => isActive ? styles.activeLink : styles.link}
                   onClick={() => setMenuOpen(false)}
                 >
