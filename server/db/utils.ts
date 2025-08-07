@@ -338,7 +338,7 @@ function buildCursorMatch(cursorMetrics: CursorMetrics, sort: "new" | "top" | "h
   }
 }
 
-export async function getFeed({ limit = 20, cursor, fromActorName, sort = "top" }: Req_Feed, userId?: Types.ObjectId): Promise<Res_Feed> {
+export async function getFeed({ limit = 20, cursor, fromActorName, sort = "top" }: Req_Feed, userId: Types.ObjectId): Promise<Res_Feed> {
   try {
     //----- Pull cursor details for paging -----//
     let cursorMatch: object | null = null;
@@ -370,6 +370,34 @@ export async function getFeed({ limit = 20, cursor, fromActorName, sort = "top" 
       }},
       { $unwind: "$subDoc" }
     );
+
+    pipeline.push({
+      $lookup: {
+        from: FollowModel.collection.collectionName,
+        let: {
+          followerId: userId,
+          targetId: "$subRef"
+        },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ["$followerRef", "$$followerId"] },
+                  { $eq: ["$targetRef", "$$targetId"] }
+                ]
+              }
+            }
+          }
+        ],
+        as: "followDoc"
+      }
+    });
+    pipeline.push({
+  $addFields: {
+    followed: { $gt: [{ $size: "$followDoc" }, 0] }
+  }
+});
 
     // Optional actorName/subName filters
     if (fromActorName != null) {
@@ -453,6 +481,7 @@ export async function getFeed({ limit = 20, cursor, fromActorName, sort = "top" 
           upvotes: "$upCount",
           downvotes: "$downCount",
           score: "$score",
+          followed: "$followed",
       }}
     );
 
