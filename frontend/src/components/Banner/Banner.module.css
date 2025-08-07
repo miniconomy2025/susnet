@@ -68,12 +68,12 @@
 	transition: background-color 0.2s;
 }
 
-.bannerButton:hover {
-	background-color: rgba(255, 255, 255, 0.2);
+.followButton {
+	background-color: var(--primary-colour);
 }
 
-.joinButton {
-	background-color: var(--primary-colour);
+.followingButton {
+	background-color: var(--secondary-colour);
 }
 
 .joinButton:hover {
