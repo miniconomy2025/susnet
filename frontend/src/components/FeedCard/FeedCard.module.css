@@ -128,3 +128,65 @@
 .imageNavRight {
   right: 0px;
 }
+
+.actorName {
+  grid-column: 2 / 4;
+  grid-row: 3 / 4;
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+.tagsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tag {
+  background-color: var(--primary-colour);
+  color: white;
+  padding: 4px 8px;
+  font-size: 0.8rem;
+  border-radius: 999px;
+}
+
+.voteContainer {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  font-size: 0.9rem;
+  opacity: 0.9;
+  padding-top: 4px;
+}
+
+.voteItem {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.voteContainer {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  font-size: 0.9rem;
+  opacity: 0.9;
+  padding-top: 4px;
+}
+
+.voteItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.2s;
+}
+
+.voteItem:hover {
+  opacity: 1;
+}
+
+.selectedVote {
+  color: var(--primary-colour);
+}
