@@ -98,7 +98,7 @@ const endpoints: Endpoints = {
         if (isNew) {
             actor = await ActorModel.create(
                 {
-                    name: payload.email,
+                    name: (payload.email as string).split('@')[0],
                     type: "user",
                     thumbnailUrl: payload.picture,
                 },
