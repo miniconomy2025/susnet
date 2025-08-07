@@ -1,8 +1,8 @@
 # Vars
 @baseUrl = http://127.0.0.1:3000/api
 @googleId =
-@email = "asdf@gmail.com"
-@accessToken =
+@email = asdf@gmail.com
+@accessToken = asdf
 @refreshToken =
 @token =
 
@@ -41,7 +41,6 @@ Content-Type: application/json
 
 ### Get current authenticated user
 GET {{baseUrl}}/auth/me
-
 Authorization: Bearer {{token}}
 
 ### Get actor by name
@@ -99,7 +98,6 @@ Content-Type: application/json
 
 ### Vote on post
 POST {{baseUrl}}/posts/{{postId}}/vote
-
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
@@ -122,6 +120,13 @@ Authorization: Bearer {{token}}
 ### Get paginated post feed
 POST {{baseUrl}}/posts/feed
 Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "limit": 500,
+  "sort": "hot",
+  "fromActorName": "{{actorName}}"
+}
 
 ### Get feed filtered by actor
 GET {{baseUrl}}/posts?actorName={{actorName}}&sort=top

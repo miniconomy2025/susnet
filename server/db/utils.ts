@@ -1,153 +1,119 @@
-/* import { DocumentType } from "@typegoose/typegoose";
-import { ActorModel, AuthModel, PostModel, VoteModel, FollowModel } from './schema.ts';
+import { DocumentType } from "@typegoose/typegoose";
+import { ActorModel, AuthModel, PostModel, VoteModel, FollowModel, Post } from './schema.ts';
 import { Actor, ActorType, Attachment, VoteType } from './schema.ts';
 
 import jwt from 'jsonwebtoken';
 import { env } from "../utils/env.ts";
 import { Types } from "mongoose";
 
-import { PostData, Req_Feed, Res_Feed } from "../../types/api.ts";
+import { ActorData, AuthData, PostData, Req_createPost, Req_Feed, Res_createPost, Res_Feed, Res_login } from "../../types/api.ts";
+import { SimpleResult } from "../../types/types.ts";
+import { times } from "effect/Duration";
 
 //---------- Setup ----------//
 const JWT_SECRET = env("JWT_SECRET");
 
 
-//---------- Utils ----------//
-
-export async function createUserAccount({
-  googleId,
-  email,
-  accessToken,
-  refreshToken,
-  name,
-  thumbnailUrl,
-  description = '',
-}: {
-  googleId: string;
-  email: string;
-  accessToken: string;
-  refreshToken?: string;
-  name: string;
-  thumbnailUrl: string;
-  description?: string;
-}) {
-  const actor = await ActorModel.create({
-    name,
-    type: 'user',
-    thumbnailUrl,
-    description,
-  });
-
-  const auth = await AuthModel.create({
-    actorRef: actor._id,
-    googleId,
-    email,
-    accessToken,
-    refreshToken,
-  });
-
-  return { actor, auth };
-}
-
+//---------- JWT ----------//
 export function createJWT(actor: DocumentType<Actor>) {
-  return jwt.sign({ id: actor._id }, JWT_SECRET, {
-    expiresIn: '7d',
-  });
+  return jwt.sign({ id: actor._id }, JWT_SECRET, { expiresIn: '7d', });
 }
 
 export function verifyJWT(token: string) {
   return jwt.verify(token, JWT_SECRET) as { id: string };
 }
 
-export async function createSub({
-  name,
-  thumbnailUrl,
-  description = '',
-}: {
-  name: string;
-  thumbnailUrl: string;
-  description?: string;
-}) {
-  return await ActorModel.create({
-    name,
-    type: 'sub',
-    thumbnailUrl,
-    description,
-  });
+
+//---------- Getters ----------//
+
+export async function getActorObjId(name: string): Promise<Types.ObjectId | null> {
+  const doc = await ActorModel.findOne({ name }).lean().exec();
+  return doc?._id ?? null;
 }
 
-export async function createPost({
-  actorName,
-  subName,
-  title,
-  content,
-  attachments = [],
-  tags = [],
-}: {
-  actorName: string;
-  subName: string;
-  title: string;
-  content: string;
-  attachments?: Attachment[];
-  tags?: string[];
-}) {
-  const [actor, sub] = await ActorModel.find({
-    name: { $in: [actorName, subName] }
-  });
+export async function getActorObj(name: string): Promise<{ objId: Types.ObjectId, actor: ActorData<'simple'> } | null> {
+  const actorDoc = await ActorModel.findOne({ name }).lean().exec();
+  if (!actorDoc) return null;
 
-  const actorMap = { [actor.name]: actor, [sub.name]: sub };
-  const actorRef = actorMap[actorName]?._id;
-  const subRef = actorMap[subName]?._id;
+  return {
+    objId: actorDoc._id,
+    actor: {
+      name: actorDoc.name,
+      type: actorDoc.type,
+      thumbnailUrl: actorDoc.thumbnailUrl,
+      description: actorDoc.description ?? "",
+      origin: actorDoc.origin ?? "",
+    }
+  };
+}
 
-  if (!actorRef || !subRef) {
-    throw new Error("Actor or Sub not found");
+export async function getActorData(name: string, userId?: Types.ObjectId): Promise<ActorData<'full'> | null> {
+  const actorDoc = await ActorModel.findOne({ name }).lean().exec();
+  if (!actorDoc) return null;
+
+  const [postCount, followerCount, followingCount, isFollowing] = await Promise.all([
+    PostModel.countDocuments({ subRef: actorDoc._id }),
+    FollowModel.countDocuments({ targetRef: actorDoc._id }),
+    FollowModel.countDocuments({ followerRef: actorDoc._id }),
+    FollowModel.exists({ targetRef: actorDoc._id, followerRef: userId }),
+  ]);
+
+  return {
+    name: actorDoc.name,
+    type: actorDoc.type,
+    thumbnailUrl: actorDoc.thumbnailUrl,
+    description: actorDoc.description ?? "",
+    origin: actorDoc.origin ?? "",
+    postCount,
+    followerCount,
+    followingCount,
+    isFollowing,
   }
-
-  return await PostModel.create({
-    actorRef,
-    subRef,
-    title,
-    content,
-    attachments,
-    tags,
-  });
 }
 
-export async function followActor(followerName: string, targetName: string) {
-  const [follower, target] = await ActorModel.find({
-    name: { $in: [followerName, targetName] }
-  });
-
-  const followerRef = follower?.name === followerName ? follower._id : target?._id;
-  const targetRef = target?.name === targetName ? target._id : follower?._id;
-
-  if (!followerRef || !targetRef) {
-    throw new Error("Follower or Target not found");
-  }
-
-  return await FollowModel.findOneAndUpdate(
-    { followerRef, targetRef },
-    {},
-    { upsert: true, new: true, setDefaultsOnInsert: true }
-  );
+export async function getPostObjId(postId: string): Promise<Types.ObjectId | null> {
+  const doc = await PostModel.findOne({ postId }).lean().exec();
+  return doc?._id ?? null;
 }
 
-export async function voteOnPost(postId: string, actorName: string, vote: VoteType) {
+export async function getPostObj(postId: string): Promise<PostData<'simple'> | null> {
+  const postDoc = await PostModel.findOne({ postId }).lean().exec();
+  if (!postDoc) return null;
+
+  const actorDoc = await ActorModel.findById(postDoc.actorRef, { name: 1 }).lean().exec();
+  const subDoc = await ActorModel.findById(postDoc.subRef, { name: 1 }).lean().exec();
+
+  return {
+    postId: postDoc.postId ?? "",
+    actorName: actorDoc?.name ?? "deleted",
+    subName: subDoc?.name ?? "deleted",
+    title: postDoc.title,
+    content: postDoc.content,
+    attachments: postDoc.attachments as Attachment[],
+    tags: postDoc.tags ?? [],
+  };
+}
+
+export async function getPostsForActor(actorName: string) {
+  const actor = await ActorModel.findOne({ name: actorName });
+  if (!actor) return [];
+
+  return await PostModel.find({ actorRef: actor._id }).sort({ createdAt: -1 });
+}
+
+export async function getUserVote(postId: string, actorName: string) {
   const [post, actor] = await Promise.all([
     PostModel.findOne({ postId }),
     ActorModel.findOne({ name: actorName })
   ]);
 
-  if (!post || !actor) {
-    throw new Error("Post or Actor not found");
-  }
+  if (!post || !actor) return null;
 
-  return await VoteModel.findOneAndUpdate(
-    { postId: post._id, actorRef: actor._id },
-    { vote },
-    { upsert: true, new: true, setDefaultsOnInsert: true }
-  );
+  return await VoteModel.findOne({ postId: post._id, actorRef: actor._id });
 }
+
+
+//---------- Aggregation ----------//
 
 export type PostVoteAggregate = { upvotes: number, downvotes: number, score: number };
 export async function getPostVoteAggregate(postId: string): Promise<PostVoteAggregate> {
@@ -209,23 +175,8 @@ export async function getActorsFollowedBy(actorName: string, type?: ActorType) {
   ]);
 }
 
-export async function getPostsForActor(actorName: string) {
-  const actor = await ActorModel.findOne({ name: actorName });
-  if (!actor) return [];
 
-  return await PostModel.find({ actorRef: actor._id }).sort({ createdAt: -1 });
-}
-
-export async function getUserVote(postId: string, actorName: string) {
-  const [post, actor] = await Promise.all([
-    PostModel.findOne({ postId }),
-    ActorModel.findOne({ name: actorName })
-  ]);
-
-  if (!post || !actor) return null;
-
-  return await VoteModel.findOne({ postId: post._id, actorRef: actor._id });
-}
+//---------- Search ----------//
 
 export async function searchActors(query: string, limit: number = 10) {
   return await ActorModel.find({ name: { $regex: query, $options: 'i' }, }).limit(limit);
@@ -245,14 +196,114 @@ export async function searchTags(query: string) {
   ]);
 }
 
-// Fetches the key pagination metric(s) for a given postId, depending on sort
-async function getCursorMetrics(postId: string, sort: "new" | "top" | "hot"): Promise<{ createdAt: Date; score?: number; hotScore?: number } | undefined> {
 
+//---------- Create ----------//
+
+export async function createUserAccount(user: ActorData<"simple">, auth: AuthData): Promise<SimpleResult<{ actorDoc: DocumentType<Actor>, token: string }, 'internalError'>  > {
+  const actorDoc = await ActorModel.create({
+    name: user.name,
+    type: 'user',
+    thumbnailUrl: user.thumbnailUrl,
+    description: user.description,
+  });
+
+  const authDoc = await AuthModel.findOneAndUpdate(
+    { googleId: auth.googleId },
+    {
+      googleId: auth.googleId,
+      actorRef: actorDoc._id,
+      email: auth.email,
+      accessToken: auth.accessToken,
+      refreshToken: auth.refreshToken
+    },
+    { upsert: true, new: true }
+  ).exec();
+
+  if (!authDoc) { return { success: false, error: "internalError" }; }
+
+  const token = jwt.sign({ id: actorDoc._id.toString(), name: user.name }, JWT_SECRET!);
+
+  return { success: true, actorDoc, token };
+}
+
+export async function createPost(userId: Types.ObjectId, userName: string, post: Req_createPost): Promise<Res_createPost> {
+  // Find sub
+  const subId = getActorObjId(post.subName);
+  if (userId == null || subId == null) { return { success: false, error: "notFound" }; }
+
+  // Create post
+  const postDoc = await PostModel.create({
+    actorRef: userId,
+    subRef: subId,
+    title: post.title,
+    content: post.content,
+    attachments: post.attachments,
+    tags: post.tags,
+  });
+
+  return {
+    success: true,
+    post: {
+      postId: postDoc.postId ?? "",
+      actorName: userName,
+      subName: post.subName,
+      title: postDoc.title,
+      attachments: postDoc.attachments as Attachment[],
+      content: postDoc.content,
+      tags: postDoc.tags ?? [],
+    }
+  };
+}
+
+
+//---------- Interact ----------//
+
+export async function followActor(followerName: string, targetName: string) {
+  const [follower, target] = await ActorModel.find({
+    name: { $in: [followerName, targetName] }
+  });
+
+  const followerRef = follower?.name === followerName ? follower._id : target?._id;
+  const targetRef = target?.name === targetName ? target._id : follower?._id;
+
+  if (!followerRef || !targetRef) {
+    throw new Error("Follower or Target not found");
+  }
+
+  return await FollowModel.findOneAndUpdate(
+    { followerRef, targetRef },
+    {},
+    { upsert: true, new: true, setDefaultsOnInsert: true }
+  );
+}
+
+export async function voteOnPost(postId: string, actorName: string, vote: VoteType) {
+  const [post, actor] = await Promise.all([
+    PostModel.findOne({ postId }),
+    ActorModel.findOne({ name: actorName })
+  ]);
+
+  if (!post || !actor) {
+    throw new Error("Post or Actor not found");
+  }
+
+  return await VoteModel.findOneAndUpdate(
+    { postId: post._id, actorRef: actor._id },
+    { vote },
+    { upsert: true, new: true, setDefaultsOnInsert: true }
+  );
+}
+
+
+//---------- Feed ----------//
+
+// Fetches the key pagination metric(s) for a given postId, depending on sort
+type CursorMetrics = { createdAt: Date; score?: number; hotScore?: number };
+async function getCursorMetrics(postId: string, sort: "new" | "top" | "hot"): Promise<CursorMetrics | null> {
   // Get creation time
   const base = await PostModel.findOne({ postId }, { createdAt: 1 }).lean();
-  if (!base) return undefined;
-
-  const createdAt = base.createdAt ?? new Date();
+  if (!base) return null;
+  const createdAt = base.createdAt ?? new Date(0);
 
   if (sort === "new") { return { createdAt }; }
 
@@ -260,16 +311,13 @@ async function getCursorMetrics(postId: string, sort: "new" | "top" | "hot"): Pr
   const [{ upCount = 0, downCount = 0 }] =
     await VoteModel.aggregate([
       { $match: { postId: base._id } },
-      {
-        $group: {
+      { $group: {
           _id: "$postId",
           upCount:   { $sum: { $cond: [{ $eq: ["$vote", "up"]   }, 1, 0] }, },
           downCount: { $sum: { $cond: [{ $eq: ["$vote", "down"] }, 1, 0] }, },
-        },
-      },
+      }},
     ]);
   const score = upCount - downCount;
-
   if (sort === "top") { return { createdAt, score }; }
 
   // Get 'hotness'
@@ -281,29 +329,23 @@ async function getCursorMetrics(postId: string, sort: "new" | "top" | "hot"): Pr
 }
 
 // Build match stage to for cursor-based paging
-function buildCursorMatch(
-  cursorMetrics: { createdAt: Date; score?: number; hotScore?: number },
-  sort: "new" | "top" | "hot"
-) {
+function buildCursorMatch(cursorMetrics: CursorMetrics, sort: "new" | "top" | "hot") {
   const { createdAt, score = 0, hotScore = 0 } = cursorMetrics;
   switch (sort) {
-    case "new": return { createdAt: { $lt: createdAt } };
-    case "top": return { $or: [ { score:    { $lt: score    } }, { score, createdAt:    { $lt: createdAt } } ] };
-    case "hot": return { $or: [ { hotScore: { $lt: hotScore } }, { hotScore, createdAt: { $lt: createdAt } } ] };
+    case "new": return { createdAt: { $lt: createdAt } }; // Ordered by createdAt
+    case "top": return { $or: [ { score:    { $lt: score    } }, { score,    createdAt: { $lt: createdAt } } ] }; // Ordered by score, then createdAt
+    case "hot": return { $or: [ { hotScore: { $lt: hotScore } }, { hotScore, createdAt: { $lt: createdAt } } ] }; // Ordered by hotScore, then createdAt
   }
 }
 
-export async function getFeed({
-  limit = 25,
-  cursor,
-  subName,
-  actorName,
-  sort = "new",
-}: Req_Feed): Promise<Res_Feed> {
+export async function getFeed({ limit = 20, cursor, fromActorName, sort = "top" }: Req_Feed, userId?: Types.ObjectId): Promise<Res_Feed> {
   try {
-    //----- Pull cursor metrics for paging -----//
-    let cursorMatch: object | undefined;
-    if (cursor) {
+    //----- Pull cursor details for paging -----//
+    let cursorMatch: object | null = null;
+    if (!(["new", "top", "hot"].includes(sort))) return { success: false, error: 'invalidRequest' };
+
+    if (cursor != "") {
+      getPostObjId(cursor);
       const cm = await getCursorMetrics(cursor, sort);
       if (cm) cursorMatch = buildCursorMatch(cm, sort);
     }
@@ -313,55 +355,51 @@ export async function getFeed({
 
     // Lookup poster & sub
     pipeline.push(
-      {
-        $lookup: {
+      { $lookup: {
           from: ActorModel.collection.collectionName,
           localField: "actorRef",
           foreignField: "_id",
           as: "actorDoc",
-        },
-      },
+      }},
       { $unwind: "$actorDoc" },
-      {
-        $lookup: {
+      { $lookup: {
           from: ActorModel.collection.collectionName,
           localField: "subRef",
           foreignField: "_id",
           as: "subDoc",
-        },
-      },
+      }},
       { $unwind: "$subDoc" }
     );
 
     // Optional actorName/subName filters
-    if (actorName) pipeline.push({ $match: { "actorDoc.name": actorName } });
-    if (subName) pipeline.push({ $match: { "subDoc.name": subName } });
+    if (fromActorName != null) {
+      pipeline.push({
+        $match: { $or: [ { "actorDoc.name": fromActorName }, { "subDoc.name": fromActorName }, ]}
+      });
+    }
 
-    // Bring in vote docs & compute up/down counts + score
+    // Aggregate votes & compute scores
     pipeline.push(
-      {
-        $lookup: {
+      { $lookup: {
           from: VoteModel.collection.collectionName,
           localField: "_id",
           foreignField: "postId",
           as: "votes",
-        },
-      },
-      {
-        $addFields: {
+      }},
+      { $addFields: {
           upCount:   { $size: { $filter: { input: "$votes", cond: { $eq: ["$$this.vote", "up"]   }, }, }, },
           downCount: { $size: { $filter: { input: "$votes", cond: { $eq: ["$$this.vote", "down"] }, }, }, },
-        },
-      },
+      }},
       { $addFields: { score: { $subtract: ["$upCount", "$downCount"] } }, }
     );
 
-    // for hot, compute a hotScore field
+    // Compute hotness score
     if (sort === "hot") {
       pipeline.push({
         $addFields: {
           hotScore: {
             $let: {
+
               vars: {
                 ageHrs: { $divide: [ { $subtract: ["$$NOW", "$createdAt"] }, 1000 * 60 * 60 ], },
                 sign: {
@@ -374,10 +412,12 @@ export async function getFeed({
                   },
                 },
               },
+
               in: { $add: [
                 { $log10: { $max: [{ $abs: "$score" }, 1], }, },
                 { $multiply: ["$$sign", { $divide: ["$$ageHrs", 45] }] },
               ]},
+
             },
           },
         },
@@ -387,20 +427,19 @@ export async function getFeed({
     // Apply cursor-based paging filter
     if (cursorMatch) { pipeline.push({ $match: cursorMatch }); }
 
-    // sort stage
+    // Sort stage
     const sortStage: Record<string, -1> =
       sort === "new"
         ? { createdAt: -1 }
         : sort === "top"
-        ? { score: -1, createdAt: -1 }
-        : { hotScore: -1, createdAt: -1 };
+          ? { score: -1, createdAt: -1 }
+          : { hotScore: -1, createdAt: -1 };
     pipeline.push({ $sort: sortStage });
 
-    // limit & project our PostData shape
+    // Limit & project to PostData
     pipeline.push(
       { $limit: limit },
-      {
-        $project: {
+      { $project: {
           _id: 0,
           postId: 1,
           title: 1,
@@ -409,16 +448,21 @@ export async function getFeed({
           attachments: 1,
           actorName: "$actorDoc.name",
           subName: "$subDoc.name",
-        },
-      }
+          timestamp: { $toLong: "$createdAt" },
+          subThumbnailUrl: "$subDoc.thumbnailUrl",
+          upvotes: "$upCount",
+          downvotes: "$downCount",
+          score: "$score",
+      }}
     );
 
-    const docs = (await PostModel.aggregate(pipeline)) as PostData[];
+    const docs = (await PostModel.aggregate(pipeline)) satisfies PostData<'full'>[];
+    const nextCursor = docs.length > 0 ? docs[docs.length - 1].postId : "";
 
-    return { success: true, posts: docs };
+    return { success: true, posts: docs, nextCursor };
   }
   catch (err) {
     console.error("getFeed error:", err);
     return { success: false, error: "internalError" };
   }
-} */
+}

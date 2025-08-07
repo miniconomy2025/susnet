@@ -5,7 +5,6 @@ import LoadingSpinner from '../LoadingSpinner/LoadingSpinner.tsx';
 import PullToRefresh from '../PullToRefresh/PullToRefresh.tsx';
 import styles from './FeedContainer.module.css';
 import { FeedContainerProps } from '../../models/Feed.ts';
-import { PostData } from "../../../../types/api.ts";
 import { fetchApi } from "../../utils/fetchApi.ts";
 
 function FeedContainer({
