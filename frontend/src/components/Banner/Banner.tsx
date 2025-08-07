@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { BannerProps, MembershipStatus } from '../../models/Feed';
+import { useEffect, useState } from 'react';
+import { BannerProps } from '../../models/Feed';
 import styles from './Banner.module.css';
 import { fetchApi } from '../../utils/fetchApi';
 
@@ -12,20 +12,27 @@ function Banner({
 	onSettingsClick,
 }: BannerProps) {
 	const [isFollowing, setIsFollowing] = useState(initialIsFollowing);
-	const [pending, setPending] = useState(false);
 
-	const buttonText = isFollowing ? 'Following' : 'Follow';
-
-	const onFollowToggle = async () => {
-			const prevIsFollowing = isFollowing ? true : false;
-			setIsFollowing(!prevIsFollowing);
-	
-			const res = await fetchApi(prevIsFollowing ? 'unfollowActor' : 'followActor', { targetName: title });
-	
-			if (!res.success) {
-				setIsFollowing(prevIsFollowing); 
+	useEffect(() => {
+		const fetchFollowingStatus = async () => {
+			const res = await fetchApi('getFollowingStatus', { targetName: title });
+			if (res?.success) {
+				setIsFollowing(res.following)
 			}
 		};
+		if (initialIsFollowing !== undefined) fetchFollowingStatus();
+	}, []);
+
+	const onFollowToggle = async () => {
+		const prevIsFollowing = isFollowing ? true : false;
+		setIsFollowing(!prevIsFollowing);
+
+		const res = await fetchApi(prevIsFollowing ? 'unfollowActor' : 'followActor', { targetName: title });
+
+		if (!res.success) {
+			setIsFollowing(prevIsFollowing); 
+		}
+	};
 
 	return (
 		<div className={styles.bannerWrapper}>

@@ -648,9 +648,14 @@ export async function getFeed(
           upvotes: "$upCount",
           downvotes: "$downCount",
           score: "$score",
+<<<<<<< HEAD
           followed: "$followed",
         },
       },
+=======
+          isFollowingSub: "$followed",
+      }}
+>>>>>>> 3e3a55bdd18f54ce8b5fdabd32b6e8c4cce45e6e
     );
 
     const docs = (await PostModel.aggregate(pipeline)) satisfies PostData<

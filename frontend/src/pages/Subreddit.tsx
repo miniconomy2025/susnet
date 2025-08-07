@@ -1,19 +1,20 @@
 import { useParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import FeedContainer from '../components/FeedContainer/FeedContainer';
 import { BannerProps, FeedContainerProps } from '../models/Feed';
 import { Req_Feed, Res_Feed } from '../../../types/api';
 import { fetchApi } from '../utils/fetchApi';
-import { useState } from 'react';
+import LoadingSpinner from '../components/LoadingSpinner/LoadingSpinner';
 import CreatePostModal from '../components/CreatePost/CreatePostModal';
-import { useCreatePost } from '../hooks/UseCreatePost';
 import { useAuth } from '../hooks/UseAuth';
+import { useCreatePost } from '../hooks/UseCreatePost';
 
 function Subreddit() {
 	const { id } = useParams();
 	const { currentUser } = useAuth();
 	const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false);
 	const [refreshKey, setRefreshKey] = useState(0);
-	const { createPost, creating } = useCreatePost();
+	const { createPost } = useCreatePost();
 
 	const limit: number = 10;
 
@@ -34,7 +35,7 @@ function Subreddit() {
 		const result = await createPost(postData);
 		if (result.success) {
 			setIsCreatePostModalOpen(false);
-			setRefreshKey(prev => prev + 1); // Force refresh
+			setRefreshKey(prev => prev + 1); 
 		} else {
 			console.error('Post creation failed:', result);
 		}
@@ -53,10 +54,12 @@ function Subreddit() {
 			limit,
 			cursor,
 			fromActorName: id,
-		}
+		};
 
-		try { return await fetchApi('getFeed', {}, reqFeed); } catch {}
-	};
+		try {
+			return await fetchApi('getFeed', {}, reqFeed);
+		} catch {}
+	}
 
 	const feedContainerProps: FeedContainerProps = {
 		bannerProps,
@@ -67,8 +70,8 @@ function Subreddit() {
 
 	return (
 		<>	
-			<FeedContainer key={refreshKey} {...feedContainerProps} />
-			<CreatePostModal 
+			<FeedContainer key={`${id}-${refreshKey}`} {...feedContainerProps} />
+			<CreatePostModal
 				isOpen={isCreatePostModalOpen} 
 				onClose={() => setIsCreatePostModalOpen(false)} 
 				onSubmit={handleCreatePost}

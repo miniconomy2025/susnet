@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { use, useEffect, useRef, useState } from 'react';
 import FeedCard from '../FeedCard/FeedCard.tsx';
 import Banner from '../Banner/Banner.tsx';
 import LoadingSpinner from '../LoadingSpinner/LoadingSpinner.tsx';
@@ -19,6 +19,7 @@ function FeedContainer({
 	const sentinelRef = useRef(null);
 	const triggerLoadThreshload = 2000;
 	const loadingRef = useRef(loading);
+	const isPostsFetchedRef = useRef(false);
 
 	useEffect(() => {
 		loadingRef.current = loading;
@@ -28,7 +29,9 @@ function FeedContainer({
 		const observer = new IntersectionObserver(
 			(entries) => {
 				if (entries[0].isIntersecting && !loadingRef.current) {
-					loadMorePosts();
+					if (!isPostsFetchedRef.current) {
+						loadMorePosts();
+					}
 				}
 			},
 			{ root: null, rootMargin: `${triggerLoadThreshload}px`, threshold: 0.1 }
@@ -50,6 +53,7 @@ function FeedContainer({
 			if (res.nextCursor) setCursor(res.nextCursor);
 			newPosts = res.posts;
 			setPosts((prev) => [...prev, ...newPosts]);
+			isPostsFetchedRef.current = true;
 		}
 		setLoading(false);
 	};
@@ -71,6 +75,9 @@ function FeedContainer({
 				}}
 			/>
 			{loading && <LoadingSpinner />}
+			{isPostsFetchedRef.current && !posts.length && (
+				<div className={styles.noPostContainer}>No posts exist, please refresh</div>
+			)}
 		</div>
 	);
 }
