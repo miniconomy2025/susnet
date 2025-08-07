@@ -15,7 +15,7 @@ import fed from "./fed/fed.ts";
 // DB
 const DB_URL = env("DB_URL");
 const PORT = env("PORT", 3000);
-const FE_DIR = "./frontend/dist";
+const FE_DIR = "./frontend/dist"
 
 mongoose.connect(DB_URL)
   .then(() => {
@@ -61,7 +61,10 @@ app.use("/api", router);
 
 // Handle frontend
 app.use(express.static(FE_DIR));
-app.all("/{*any}", (req, res) => {
+app.all("/{*any}", (req, res, next) => {
+  if (req.baseUrl.includes('/fed') || req.baseUrl.includes('/api')) {
+    next()
+  }
   res.sendFile("index.html", { root: FE_DIR });
 });
 

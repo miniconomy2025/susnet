@@ -102,6 +102,8 @@ export class CdkSusnetStack extends cdk.Stack {
       }),
     );
 
+    imageStore.grantPut(server.role);
+
     // A RECORD FOR SERVER
     const serverRecord = new ARecord(this, "ARecordServer", {
       target: RecordTarget.fromIpAddresses(server.instancePublicIp),

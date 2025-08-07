@@ -2,7 +2,7 @@
 import styles from "./CreateSubModal.module.css";
 import React, { useState } from "react";
 import { fetchApi } from "../../utils/fetchApi";
-import { useCreateSub } from "../../hooks/useCreateSub";
+import { useCreateSub } from "../../hooks/UseCreateSub.ts";
 
 interface CreateSubModalProps {
   isOpen: boolean;
