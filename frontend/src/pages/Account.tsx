@@ -27,7 +27,6 @@ function Account() {
 			fromActorName: currentUser?.name,
 		}
 		
-		console.log(currentUser?.name, 'loading posts');
 		try { return await fetchApi('getFeed', {}, reqFeed); } catch {}
 	};
 
