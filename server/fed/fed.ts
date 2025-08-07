@@ -1,10 +1,11 @@
-import { Activity, ActorDispatcher, CollectionDispatcher, createFederation, Federation, Follow, Group, MemoryKvStore, Note, Person, PUBLIC_COLLECTION } from "@fedify/fedify";
+import { Activity, ActorDispatcher, CollectionDispatcher, createFederation, Federation, Follow, Group, InProcessMessageQueue, MemoryKvStore, Note, Person, PUBLIC_COLLECTION } from "@fedify/fedify";
+import { integrateFederation } from "@fedify/express";
 import { DenoKvStore } from "@fedify/fedify/x/denokv";
-import { Router } from "effect/platform/HttpApiBuilder";
+import { handler, Router } from "effect/platform/HttpApiBuilder";
 import { ActorModel, ActorType, PostModel } from "../db/schema.ts";
 
 // See [https://fedify.dev/manual/federation#tcontextdata]
-export function getServeHandlers(fed: Federation<void>) {
+function getServeHandlers(fed: Federation<void>) {
 
     //---------- Endpoints ----------//
 
@@ -70,4 +71,21 @@ export function getServeHandlers(fed: Federation<void>) {
             }
         }
     };
+}
+
+export function getFed() {
+    const federation = createFederation<void>({
+        kv: new MemoryKvStore(),
+        queue: new InProcessMessageQueue(),
+        allowPrivateAddress: true,
+    });
+
+    const { fed, handlers } = getServeHandlers(federation)
+    return integrateFederation(
+        fed,
+        (_req) => {
+            console.log(_req)
+            return handlers.contextData
+        }
+    )
 }

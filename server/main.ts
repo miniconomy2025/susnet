@@ -4,12 +4,15 @@ import { migrateDb } from "./db/migrate.ts";
 import mongoose from "mongoose";
 import { env } from "./utils/env.ts";
 
-import { createFederation, MemoryKvStore } from "@fedify/fedify";
+import { createFederation, InProcessMessageQueue, MemoryKvStore } from "@fedify/fedify";
 import cookieParser from "cookie-parser";
 
 import cors from "cors";
 import express from "express";
 import router from "./api.ts";
+import { getFed } from "./fed/fed.ts";
+
+const app = express();
 
 //---------- Setup ----------//
 // DB
@@ -26,14 +29,12 @@ mongoose.connect(DB_URL)
     process.exit(1);
   });
 
-// Fedify
-const fed = createFederation<void>({ kv: new MemoryKvStore() }); // TODO: Replace with DenoKvStore
-// const handlers = getServeHandlers(fed);
-// Deno.serve(req => fed.fetch(req, handlers));
+//--------- Fedify ---------//
+
+app.use('/fed', getFed())
 
 //---------- Main ----------//
-const app = express();
-
+app.set("trust proxy", true)
 app.use(cors({
   origin: ["http://localhost:8000", "https://susnet.co.za"],
   credentials: true,
@@ -41,11 +42,6 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 app.use("/api", router);
-
-app.set("trust proxy", true);
-// app.use(integrateFederation(fed, (req) => fed.fetch(req, { contextData: null })));
-
-app.use('/api', router);
 
 app.listen(PORT, () => {
   console.log(`🚀 Server is running at http://localhost:${PORT}`);
