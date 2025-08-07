@@ -45,5 +45,4 @@ else
   git config --global --add safe.directory "$CLONE_DIR"
 fi
 cd "$CLONE_DIR"
-sudo pm2 start
-sudo pm2 restart all
+# sudo deno run dev
