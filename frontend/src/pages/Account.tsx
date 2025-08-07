@@ -10,7 +10,7 @@ import { fetchApi } from '../utils/fetchApi';
 function Account() {
 	const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
 	const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false);
-	const { currentUser } = useAuth();
+	const { currentUser, loading } = useAuth();
 	
 	const limit: number = 10;
 
@@ -39,7 +39,7 @@ function Account() {
 
 	return (
 		<>
-			<FeedContainer {...feedContainerProps} />
+			{!loading && <FeedContainer {...feedContainerProps} />}
 			{isAccountModalOpen && (
 				<AccountModal 
 					isOpen={isAccountModalOpen} 
