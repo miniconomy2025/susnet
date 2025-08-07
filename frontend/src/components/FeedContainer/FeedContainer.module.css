@@ -4,7 +4,6 @@
 	align-items: center;
 	gap: var(--gap-s);
 	width: 100%;
-	min-height: 100%;
 }
 
 :root {
