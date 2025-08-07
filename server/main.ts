@@ -11,14 +11,24 @@ import cors from "cors";
 import express from "express";
 import router from "./api.ts";
 import { getFed } from "./fed/fed.ts";
+import path from "node:path";
+
+// Needed for ES module path resolution
 
 const app = express();
+
+//FE
+const FE_DIR = "./frontend/dist";
+const frontendPath = path.join(process.cwd(), FE_DIR);
+app.use(express.static(frontendPath));
+app.get('/FRONTEND', (req, res) => {
+  res.sendFile(path.join(frontendPath, 'index.html'));
+});
 
 //---------- Setup ----------//
 // DB
 const DB_URL = env("DB_URL");
 const PORT = env("PORT", 3000);
-const FE_DIR = "./frontend/dist";
 
 mongoose.connect(DB_URL)
   .then(() => {
