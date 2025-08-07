@@ -20,7 +20,7 @@ export type EditableActorData = 'description' | 'thumbnailUrl';
 
 
 export type AttachmentData = {
-  url:      string;
+  url:string;
   mimeType: string;
   altText?: string;
 };

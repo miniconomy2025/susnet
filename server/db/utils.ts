@@ -1,37 +1,77 @@
 import { DocumentType } from "@typegoose/typegoose";
-import { ActorModel, AuthModel, PostModel, VoteModel, FollowModel, Post } from './schema.ts';
-import { Actor, ActorType, Attachment, VoteType } from './schema.ts';
+import {
+  ActorModel,
+  AuthModel,
+  FollowModel,
+  Post,
+  PostModel,
+  VoteModel,
+} from "./schema.ts";
+import { Actor, ActorType, Attachment, VoteType } from "./schema.ts";
 
-import jwt from 'jsonwebtoken';
+import jwt from "jsonwebtoken";
 import { env } from "../utils/env.ts";
 import { Types } from "mongoose";
 
-import { ActorData, AuthData, PostData, Req_createPost, Req_Feed, Res_createPost, Res_Feed, Res_login } from "../../types/api.ts";
+import {
+  ActorData,
+  AuthData,
+  PostData,
+  Req_createPost,
+  Req_Feed,
+  Res_createPost,
+  Res_Feed,
+  Res_login,
+} from "../../types/api.ts";
 import { SimpleResult } from "../../types/types.ts";
 import { times } from "effect/Duration";
+import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import { Buffer } from "node:buffer";
+import { randomUUID } from "node:crypto";
+import process from "node:process";
 
 //---------- Setup ----------//
 const JWT_SECRET = env("JWT_SECRET");
 
+const s3Config: any = {
+  region: "af-south-1",
+};
+
+if (
+  process.env.AWS_ACCESS_KEY_ID &&
+  process.env.AWS_SECRET_ACCESS_KEY &&
+  process.env.AWS_SESSION_TOKEN
+) {
+  s3Config.credentials = {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    sessionToken: process.env.AWS_SESSION_TOKEN,
+  };
+}
+
+const s3 = new S3Client(s3Config);
 
 //---------- JWT ----------//
 export function createJWT(actor: DocumentType<Actor>) {
-  return jwt.sign({ id: actor._id }, JWT_SECRET, { expiresIn: '7d', });
+  return jwt.sign({ id: actor._id }, JWT_SECRET, { expiresIn: "7d" });
 }
 
 export function verifyJWT(token: string) {
   return jwt.verify(token, JWT_SECRET) as { id: string };
 }
 
-
 //---------- Getters ----------//
 
-export async function getActorObjId(name: string): Promise<Types.ObjectId | null> {
+export async function getActorObjId(
+  name: string,
+): Promise<Types.ObjectId | null> {
   const doc = await ActorModel.findOne({ name }).lean().exec();
   return doc?._id ?? null;
 }
 
-export async function getActorObj(name: string): Promise<{ objId: Types.ObjectId, actor: ActorData<'simple'> } | null> {
+export async function getActorObj(
+  name: string,
+): Promise<{ objId: Types.ObjectId; actor: ActorData<"simple"> } | null> {
   const actorDoc = await ActorModel.findOne({ name }).lean().exec();
   if (!actorDoc) return null;
 
@@ -43,20 +83,24 @@ export async function getActorObj(name: string): Promise<{ objId: Types.ObjectId
       thumbnailUrl: actorDoc.thumbnailUrl,
       description: actorDoc.description ?? "",
       origin: actorDoc.origin ?? "",
-    }
+    },
   };
 }
 
-export async function getActorData(name: string, userId?: Types.ObjectId): Promise<ActorData<'full'> | null> {
+export async function getActorData(
+  name: string,
+  userId?: Types.ObjectId,
+): Promise<ActorData<"full"> | null> {
   const actorDoc = await ActorModel.findOne({ name }).lean().exec();
   if (!actorDoc) return null;
 
-  const [postCount, followerCount, followingCount, isFollowing] = await Promise.all([
-    PostModel.countDocuments({ subRef: actorDoc._id }),
-    FollowModel.countDocuments({ targetRef: actorDoc._id }),
-    FollowModel.countDocuments({ followerRef: actorDoc._id }),
-    FollowModel.exists({ targetRef: actorDoc._id, followerRef: userId }),
-  ]);
+  const [postCount, followerCount, followingCount, isFollowing] = await Promise
+    .all([
+      PostModel.countDocuments({ subRef: actorDoc._id }),
+      FollowModel.countDocuments({ targetRef: actorDoc._id }),
+      FollowModel.countDocuments({ followerRef: actorDoc._id }),
+      FollowModel.exists({ targetRef: actorDoc._id, followerRef: userId }),
+    ]);
 
   return {
     name: actorDoc.name,
@@ -68,20 +112,26 @@ export async function getActorData(name: string, userId?: Types.ObjectId): Promi
     followerCount,
     followingCount,
     isFollowing,
-  }
+  };
 }
 
-export async function getPostObjId(postId: string): Promise<Types.ObjectId | null> {
+export async function getPostObjId(
+  postId: string,
+): Promise<Types.ObjectId | null> {
   const doc = await PostModel.findOne({ postId }).lean().exec();
   return doc?._id ?? null;
 }
 
-export async function getPostObj(postId: string): Promise<PostData<'simple'> | null> {
+export async function getPostObj(
+  postId: string,
+): Promise<PostData<"simple"> | null> {
   const postDoc = await PostModel.findOne({ postId }).lean().exec();
   if (!postDoc) return null;
 
-  const actorDoc = await ActorModel.findById(postDoc.actorRef, { name: 1 }).lean().exec();
-  const subDoc = await ActorModel.findById(postDoc.subRef, { name: 1 }).lean().exec();
+  const actorDoc = await ActorModel.findById(postDoc.actorRef, { name: 1 })
+    .lean().exec();
+  const subDoc = await ActorModel.findById(postDoc.subRef, { name: 1 }).lean()
+    .exec();
 
   return {
     postId: postDoc.postId ?? "",
@@ -104,7 +154,7 @@ export async function getPostsForActor(actorName: string) {
 export async function getUserVote(postId: string, actorName: string) {
   const [post, actor] = await Promise.all([
     PostModel.findOne({ postId }),
-    ActorModel.findOne({ name: actorName })
+    ActorModel.findOne({ name: actorName }),
   ]);
 
   if (!post || !actor) return null;
@@ -112,11 +162,16 @@ export async function getUserVote(postId: string, actorName: string) {
   return await VoteModel.findOne({ postId: post._id, actorRef: actor._id });
 }
 
-
 //---------- Aggregation ----------//
 
-export type PostVoteAggregate = { upvotes: number, downvotes: number, score: number };
-export async function getPostVoteAggregate(postId: string): Promise<PostVoteAggregate> {
+export type PostVoteAggregate = {
+  upvotes: number;
+  downvotes: number;
+  score: number;
+};
+export async function getPostVoteAggregate(
+  postId: string,
+): Promise<PostVoteAggregate> {
   const post = await PostModel.findOne({ postId });
   if (!post) return { upvotes: 0, downvotes: 0, score: 0 };
 
@@ -125,8 +180,10 @@ export async function getPostVoteAggregate(postId: string): Promise<PostVoteAggr
     {
       $group: {
         _id: null,
-        upvotes:   { $sum: { $cond: [{ $eq: ['$vote', VoteType.up] }, 1, 0] } },
-        downvotes: { $sum: { $cond: [{ $eq: ['$vote', VoteType.down] }, 1, 0] } },
+        upvotes: { $sum: { $cond: [{ $eq: ["$vote", VoteType.up] }, 1, 0] } },
+        downvotes: {
+          $sum: { $cond: [{ $eq: ["$vote", VoteType.down] }, 1, 0] },
+        },
       },
     },
     {
@@ -134,15 +191,15 @@ export async function getPostVoteAggregate(postId: string): Promise<PostVoteAggr
         _id: false,
         upvotes: true,
         downvotes: true,
-        score: { $subtract: ['$upvotes', '$downvotes'] },
-      }
-    }
+        score: { $subtract: ["$upvotes", "$downvotes"] },
+      },
+    },
   ]);
 
   return votes[0] ?? { upvotes: 0, downvotes: 0, score: 0 };
 }
 
-export type SubAggregate = { postCount: number, followerCount: number };
+export type SubAggregate = { postCount: number; followerCount: number };
 export async function getSubAggregate(subName: string): Promise<SubAggregate> {
   const sub = await ActorModel.findOne({ name: subName, type: ActorType.sub });
   if (!sub) return { postCount: 0, followerCount: 0 };
@@ -163,23 +220,23 @@ export async function getActorsFollowedBy(actorName: string, type?: ActorType) {
     { $match: { followerRef: actor._id } },
     {
       $lookup: {
-        from: 'actors',
-        localField: 'targetRef',
-        foreignField: '_id',
-        as: 'target',
+        from: "actors",
+        localField: "targetRef",
+        foreignField: "_id",
+        as: "target",
         pipeline: type ? [{ $match: { type } }] : [],
       },
     },
-    { $unwind: '$target' },
-    { $replaceWith: '$target' },
+    { $unwind: "$target" },
+    { $replaceWith: "$target" },
   ]);
 }
-
 
 //---------- Search ----------//
 
 export async function searchActors(query: string, limit: number = 10) {
-  return await ActorModel.find({ name: { $regex: query, $options: 'i' }, }).limit(limit);
+  return await ActorModel.find({ name: { $regex: query, $options: "i" } })
+    .limit(limit);
 }
 
 export async function searchPosts(query: string) {
@@ -188,21 +245,28 @@ export async function searchPosts(query: string) {
 
 export async function searchTags(query: string) {
   return await PostModel.aggregate([
-    { $unwind: '$tags' },
-    { $match: { tags: { $regex: query, $options: 'i' } } },
-    { $group: { _id: '$tags', count: { $sum: 1 } } },
+    { $unwind: "$tags" },
+    { $match: { tags: { $regex: query, $options: "i" } } },
+    { $group: { _id: "$tags", count: { $sum: 1 } } },
     { $sort: { count: -1 } },
     { $limit: 20 },
   ]);
 }
 
-
 //---------- Create ----------//
 
-export async function createUserAccount(user: ActorData<"simple">, auth: AuthData): Promise<SimpleResult<{ actorDoc: DocumentType<Actor>, token: string }, 'internalError'>  > {
+export async function createUserAccount(
+  user: ActorData<"simple">,
+  auth: AuthData,
+): Promise<
+  SimpleResult<
+    { actorDoc: DocumentType<Actor>; token: string },
+    "internalError"
+  >
+> {
   const actorDoc = await ActorModel.create({
     name: user.name,
-    type: 'user',
+    type: "user",
     thumbnailUrl: user.thumbnailUrl,
     description: user.description,
   });
@@ -214,23 +278,64 @@ export async function createUserAccount(user: ActorData<"simple">, auth: AuthDat
       actorRef: actorDoc._id,
       email: auth.email,
       accessToken: auth.accessToken,
-      refreshToken: auth.refreshToken
+      refreshToken: auth.refreshToken,
     },
-    { upsert: true, new: true }
+    { upsert: true, new: true },
   ).exec();
 
-  if (!authDoc) { return { success: false, error: "internalError" }; }
+  if (!authDoc) return { success: false, error: "internalError" };
 
-  const token = jwt.sign({ id: actorDoc._id.toString(), name: user.name }, JWT_SECRET!);
+  const token = jwt.sign(
+    { id: actorDoc._id.toString(), name: user.name },
+    JWT_SECRET!,
+  );
 
   return { success: true, actorDoc, token };
 }
 
-export async function createPost(userId: Types.ObjectId, userName: string, post: Req_createPost): Promise<Res_createPost> {
+async function uploadImageFromBase64(base64String: string): Promise<string> {
+  const matches = base64String.match(/^data:(.+);base64,(.+)$/);
+  if (!matches || matches.length !== 3) {
+    throw new Error("Invalid base64 string");
+  }
+
+  const contentType = matches[1]; // e.g., "image/jpeg"
+  const base64Data = matches[2];
+  const buffer = Buffer.from(base64Data, "base64");
+
+  const key = `${randomUUID()}`; // or .png/.webp depending on contentType
+
+  const command = new PutObjectCommand({
+    Bucket: "susnet-s3-bucket-images",
+    Key: key,
+    Body: buffer,
+    ContentEncoding: "base64",
+    ContentType: contentType,
+    // ACL: "public-read", // optional if your bucket policy allows public access
+  });
+
+  await s3.send(command);
+
+  return `https://susnet-s3-bucket-images.s3.af-south-1.amazonaws.com/${key}`;
+}
+
+export async function createPost(
+  userId: Types.ObjectId,
+  userName: string,
+  post: Req_createPost,
+): Promise<Res_createPost> {
   // Find sub
   const subId = await getActorObjId(post.subName);
-  if (userId == null || subId == null) { return { success: false, error: "notFound" }; }
+  if (userId == null || subId == null) {
+    return { success: false, error: "notFound" };
+  }
 
+  const urls = await Promise.all(
+    post.attachments.map((file) => uploadImageFromBase64(file.url)),
+  );
+  for (let i in urls) {
+    post.attachments[i].url = urls[i];
+  }
   // Create post
   const postDoc = await PostModel.create({
     actorRef: userId,
@@ -251,19 +356,20 @@ export async function createPost(userId: Types.ObjectId, userName: string, post:
       attachments: postDoc.attachments as Attachment[],
       content: postDoc.content,
       tags: postDoc.tags ?? [],
-    }
+    },
   };
 }
-
 
 //---------- Interact ----------//
 
 export async function followActor(followerName: string, targetName: string) {
   const [follower, target] = await ActorModel.find({
-    name: { $in: [followerName, targetName] }
+    name: { $in: [followerName, targetName] },
   });
 
-  const followerRef = follower?.name === followerName ? follower._id : target?._id;
+  const followerRef = follower?.name === followerName
+    ? follower._id
+    : target?._id;
   const targetRef = target?.name === targetName ? target._id : follower?._id;
 
   if (!followerRef || !targetRef) {
@@ -273,14 +379,18 @@ export async function followActor(followerName: string, targetName: string) {
   return await FollowModel.findOneAndUpdate(
     { followerRef, targetRef },
     {},
-    { upsert: true, new: true, setDefaultsOnInsert: true }
+    { upsert: true, new: true, setDefaultsOnInsert: true },
   );
 }
 
-export async function voteOnPost(postId: string, actorName: string, vote: VoteType) {
+export async function voteOnPost(
+  postId: string,
+  actorName: string,
+  vote: VoteType,
+) {
   const [post, actor] = await Promise.all([
     PostModel.findOne({ postId }),
-    ActorModel.findOne({ name: actorName })
+    ActorModel.findOne({ name: actorName }),
   ]);
 
   if (!post || !actor) {
@@ -290,59 +400,85 @@ export async function voteOnPost(postId: string, actorName: string, vote: VoteTy
   return await VoteModel.findOneAndUpdate(
     { postId: post._id, actorRef: actor._id },
     { vote },
-    { upsert: true, new: true, setDefaultsOnInsert: true }
+    { upsert: true, new: true, setDefaultsOnInsert: true },
   );
 }
-
 
 //---------- Feed ----------//
 
 // Fetches the key pagination metric(s) for a given postId, depending on sort
 type CursorMetrics = { createdAt: Date; score?: number; hotScore?: number };
-async function getCursorMetrics(postId: string, sort: "new" | "top" | "hot"): Promise<CursorMetrics | null> {
+async function getCursorMetrics(
+  postId: string,
+  sort: "new" | "top" | "hot",
+): Promise<CursorMetrics | null> {
   // Get creation time
   const base = await PostModel.findOne({ postId }, { createdAt: 1 }).lean();
   if (!base) return null;
   const createdAt = base.createdAt ?? new Date(0);
 
-  if (sort === "new") { return { createdAt }; }
+  if (sort === "new") return { createdAt };
 
   // Get aggregate voting scores
-  const [{ upCount = 0, downCount = 0 }] =
-    await VoteModel.aggregate([
-      { $match: { postId: base._id } },
-      { $group: {
-          _id: "$postId",
-          upCount:   { $sum: { $cond: [{ $eq: ["$vote", "up"]   }, 1, 0] }, },
-          downCount: { $sum: { $cond: [{ $eq: ["$vote", "down"] }, 1, 0] }, },
-      }},
-    ]);
+  const [{ upCount = 0, downCount = 0 }] = await VoteModel.aggregate([
+    { $match: { postId: base._id } },
+    {
+      $group: {
+        _id: "$postId",
+        upCount: { $sum: { $cond: [{ $eq: ["$vote", "up"] }, 1, 0] } },
+        downCount: { $sum: { $cond: [{ $eq: ["$vote", "down"] }, 1, 0] } },
+      },
+    },
+  ]);
   const score = upCount - downCount;
-  if (sort === "top") { return { createdAt, score }; }
+  if (sort === "top") return { createdAt, score };
 
   // Get 'hotness'
   // Reddit's metric: log10(max(abs(score), 1)) + sign(score) * (ageHrs)/45
-  const ageHrs = (Date.now() - new Date(createdAt).getTime()) / (1000 * 60 * 60);
-  const hotScore = Math.log10(Math.max(Math.abs(score), 1)) + Math.sign(score) * (ageHrs / 45);
+  const ageHrs = (Date.now() - new Date(createdAt).getTime()) /
+    (1000 * 60 * 60);
+  const hotScore = Math.log10(Math.max(Math.abs(score), 1)) +
+    Math.sign(score) * (ageHrs / 45);
 
   return { createdAt, score, hotScore };
 }
 
 // Build match stage to for cursor-based paging
-function buildCursorMatch(cursorMetrics: CursorMetrics, sort: "new" | "top" | "hot") {
+function buildCursorMatch(
+  cursorMetrics: CursorMetrics,
+  sort: "new" | "top" | "hot",
+) {
   const { createdAt, score = 0, hotScore = 0 } = cursorMetrics;
   switch (sort) {
-    case "new": return { createdAt: { $lt: createdAt } }; // Ordered by createdAt
-    case "top": return { $or: [ { score:    { $lt: score    } }, { score,    createdAt: { $lt: createdAt } } ] }; // Ordered by score, then createdAt
-    case "hot": return { $or: [ { hotScore: { $lt: hotScore } }, { hotScore, createdAt: { $lt: createdAt } } ] }; // Ordered by hotScore, then createdAt
+    case "new":
+      return { createdAt: { $lt: createdAt } }; // Ordered by createdAt
+    case "top":
+      return {
+        $or: [{ score: { $lt: score } }, {
+          score,
+          createdAt: { $lt: createdAt },
+        }],
+      }; // Ordered by score, then createdAt
+    case "hot":
+      return {
+        $or: [{ hotScore: { $lt: hotScore } }, {
+          hotScore,
+          createdAt: { $lt: createdAt },
+        }],
+      }; // Ordered by hotScore, then createdAt
   }
 }
 
-export async function getFeed({ limit = 20, cursor, fromActorName, sort = "top" }: Req_Feed, userId: Types.ObjectId): Promise<Res_Feed> {
+export async function getFeed(
+  { limit = 20, cursor, fromActorName, sort = "top" }: Req_Feed,
+  userId: Types.ObjectId,
+): Promise<Res_Feed> {
   try {
     //----- Pull cursor details for paging -----//
     let cursorMatch: object | null = null;
-    if (!(["new", "top", "hot"].includes(sort))) return { success: false, error: 'invalidRequest' };
+    if (!(["new", "top", "hot"].includes(sort))) {
+      return { success: false, error: "invalidRequest" };
+    }
 
     if (cursor != "") {
       getPostObjId(cursor);
@@ -355,20 +491,24 @@ export async function getFeed({ limit = 20, cursor, fromActorName, sort = "top" 
 
     // Lookup poster & sub
     pipeline.push(
-      { $lookup: {
+      {
+        $lookup: {
           from: ActorModel.collection.collectionName,
           localField: "actorRef",
           foreignField: "_id",
           as: "actorDoc",
-      }},
+        },
+      },
       { $unwind: "$actorDoc" },
-      { $lookup: {
+      {
+        $lookup: {
           from: ActorModel.collection.collectionName,
           localField: "subRef",
           foreignField: "_id",
           as: "subDoc",
-      }},
-      { $unwind: "$subDoc" }
+        },
+      },
+      { $unwind: "$subDoc" },
     );
 
     pipeline.push({
@@ -376,7 +516,7 @@ export async function getFeed({ limit = 20, cursor, fromActorName, sort = "top" 
         from: FollowModel.collection.collectionName,
         let: {
           followerId: userId,
-          targetId: "$subRef"
+          targetId: "$subRef",
         },
         pipeline: [
           {
@@ -384,41 +524,63 @@ export async function getFeed({ limit = 20, cursor, fromActorName, sort = "top" 
               $expr: {
                 $and: [
                   { $eq: ["$followerRef", "$$followerId"] },
-                  { $eq: ["$targetRef", "$$targetId"] }
-                ]
-              }
-            }
-          }
+                  { $eq: ["$targetRef", "$$targetId"] },
+                ],
+              },
+            },
+          },
         ],
-        as: "followDoc"
-      }
+        as: "followDoc",
+      },
     });
     pipeline.push({
-  $addFields: {
-    followed: { $gt: [{ $size: "$followDoc" }, 0] }
-  }
-});
+      $addFields: {
+        followed: { $gt: [{ $size: "$followDoc" }, 0] },
+      },
+    });
 
     // Optional actorName/subName filters
     if (fromActorName != null) {
       pipeline.push({
-        $match: { $or: [ { "actorDoc.name": fromActorName }, { "subDoc.name": fromActorName }, ]}
+        $match: {
+          $or: [{ "actorDoc.name": fromActorName }, {
+            "subDoc.name": fromActorName,
+          }],
+        },
       });
     }
 
     // Aggregate votes & compute scores
     pipeline.push(
-      { $lookup: {
+      {
+        $lookup: {
           from: VoteModel.collection.collectionName,
           localField: "_id",
           foreignField: "postId",
           as: "votes",
-      }},
-      { $addFields: {
-          upCount:   { $size: { $filter: { input: "$votes", cond: { $eq: ["$$this.vote", "up"]   }, }, }, },
-          downCount: { $size: { $filter: { input: "$votes", cond: { $eq: ["$$this.vote", "down"] }, }, }, },
-      }},
-      { $addFields: { score: { $subtract: ["$upCount", "$downCount"] } }, }
+        },
+      },
+      {
+        $addFields: {
+          upCount: {
+            $size: {
+              $filter: {
+                input: "$votes",
+                cond: { $eq: ["$$this.vote", "up"] },
+              },
+            },
+          },
+          downCount: {
+            $size: {
+              $filter: {
+                input: "$votes",
+                cond: { $eq: ["$$this.vote", "down"] },
+              },
+            },
+          },
+        },
+      },
+      { $addFields: { score: { $subtract: ["$upCount", "$downCount"] } } },
     );
 
     // Compute hotness score
@@ -427,9 +589,13 @@ export async function getFeed({ limit = 20, cursor, fromActorName, sort = "top" 
         $addFields: {
           hotScore: {
             $let: {
-
               vars: {
-                ageHrs: { $divide: [ { $subtract: ["$$NOW", "$createdAt"] }, 1000 * 60 * 60 ], },
+                ageHrs: {
+                  $divide: [
+                    { $subtract: ["$$NOW", "$createdAt"] },
+                    1000 * 60 * 60,
+                  ],
+                },
                 sign: {
                   $switch: {
                     branches: [
@@ -441,11 +607,12 @@ export async function getFeed({ limit = 20, cursor, fromActorName, sort = "top" 
                 },
               },
 
-              in: { $add: [
-                { $log10: { $max: [{ $abs: "$score" }, 1], }, },
-                { $multiply: ["$$sign", { $divide: ["$$ageHrs", 45] }] },
-              ]},
-
+              in: {
+                $add: [
+                  { $log10: { $max: [{ $abs: "$score" }, 1] } },
+                  { $multiply: ["$$sign", { $divide: ["$$ageHrs", 45] }] },
+                ],
+              },
             },
           },
         },
@@ -453,21 +620,21 @@ export async function getFeed({ limit = 20, cursor, fromActorName, sort = "top" 
     }
 
     // Apply cursor-based paging filter
-    if (cursorMatch) { pipeline.push({ $match: cursorMatch }); }
+    if (cursorMatch) pipeline.push({ $match: cursorMatch });
 
     // Sort stage
-    const sortStage: Record<string, -1> =
-      sort === "new"
-        ? { createdAt: -1 }
-        : sort === "top"
-          ? { score: -1, createdAt: -1 }
-          : { hotScore: -1, createdAt: -1 };
+    const sortStage: Record<string, -1> = sort === "new"
+      ? { createdAt: -1 }
+      : sort === "top"
+      ? { score: -1, createdAt: -1 }
+      : { hotScore: -1, createdAt: -1 };
     pipeline.push({ $sort: sortStage });
 
     // Limit & project to PostData
     pipeline.push(
       { $limit: limit },
-      { $project: {
+      {
+        $project: {
           _id: 0,
           postId: 1,
           title: 1,
@@ -485,12 +652,13 @@ export async function getFeed({ limit = 20, cursor, fromActorName, sort = "top" 
       }}
     );
 
-    const docs = (await PostModel.aggregate(pipeline)) satisfies PostData<'full'>[];
+    const docs = (await PostModel.aggregate(pipeline)) satisfies PostData<
+      "full"
+    >[];
     const nextCursor = docs.length > 0 ? docs[docs.length - 1].postId : null;
 
     return { success: true, posts: docs, nextCursor };
-  }
-  catch (err) {
+  } catch (err) {
     console.error("getFeed error:", err);
     return { success: false, error: "internalError" };
   }
