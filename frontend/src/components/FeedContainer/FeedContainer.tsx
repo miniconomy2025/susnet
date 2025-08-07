@@ -29,9 +29,7 @@ function FeedContainer({
 		const observer = new IntersectionObserver(
 			(entries) => {
 				if (entries[0].isIntersecting && !loadingRef.current) {
-					if (!isPostsFetchedRef.current) {
-						loadMorePosts();
-					}
+					loadMorePosts();
 				}
 			},
 			{ root: null, rootMargin: `${triggerLoadThreshload}px`, threshold: 0.1 }
