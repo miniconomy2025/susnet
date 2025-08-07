@@ -4,7 +4,7 @@ import CreatePostModal from '../components/CreatePost/CreatePostModal';
 import FeedContainer from '../components/FeedContainer/FeedContainer';
 import { BannerProps, FeedContainerProps, MembershipStatus } from '../models/Feed';
 import { useAuth } from '../hooks/UseAuth';
-import { PostData, Req_Feed, Res_Feed } from '../../../types/api';
+import { Req_Feed, Res_Feed } from '../../../types/api';
 import { fetchApi } from '../utils/fetchApi';
 
 function Account() {
