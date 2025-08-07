@@ -43,7 +43,7 @@ function FeedContainer({
 		const res: Res_Feed | undefined = await onLoadPosts(cursor);
 		
 		if (res?.success) {
-			setCursor(() => res.nextCursor);
+			if (res.nextCursor) setCursor(() => res.nextCursor);
 			newPosts = res.posts; 
 		} else {
 			console.log('Failed to fetch feed: ', res ? res.error : 'failed to connect to server');
