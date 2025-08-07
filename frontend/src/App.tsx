@@ -24,7 +24,7 @@ function App() {
 							<Route path="/" element={<Login />} />
 							<Route path="/home" element={<Home />} />
 							<Route path="/account" element={<Account />} />
-							<Route path="/explore" element={<Explore />} />
+							{/* <Route path="/explore" element={<Explore />} /> */}
 							<Route path="/subreddit/:id" element={<Subreddit />} />
 						</Routes>
 					</main>
