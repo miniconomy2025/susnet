@@ -9,7 +9,12 @@ import {
   CertificateValidation,
   KeyAlgorithm,
 } from "aws-cdk-lib/aws-certificatemanager";
-import { BlockPublicAccess, Bucket, BucketAccessControl, HttpMethods } from "aws-cdk-lib/aws-s3";
+import {
+  BlockPublicAccess,
+  Bucket,
+  BucketAccessControl,
+  HttpMethods,
+} from "aws-cdk-lib/aws-s3";
 import { AnyPrincipal, Effect, PolicyStatement } from "aws-cdk-lib/aws-iam";
 
 export class CdkSusnetStack extends cdk.Stack {
@@ -80,8 +85,18 @@ export class CdkSusnetStack extends cdk.Stack {
       },
     });
 
-    const imageStore = new Bucket(this, 'imageStoreS3Bucket', {
-      bucketName: 'susnet-s3-bucket-images', // Make this globally unique!
+    const eip = new ec2.CfnEIP(this, "MyEIP", {
+      domain: "vpc",
+    });
+
+    // Associate the EIP with the instance
+    new ec2.CfnEIPAssociation(this, "MyEIPAssociation", {
+      instanceId: server.instanceId,
+      allocationId: eip.attrAllocationId,
+    });
+
+    const imageStore = new Bucket(this, "imageStoreS3Bucket", {
+      bucketName: "susnet-s3-bucket-images", // Make this globally unique!
       blockPublicAccess: {
         blockPublicAcls: false,
         blockPublicPolicy: false,
@@ -94,10 +109,10 @@ export class CdkSusnetStack extends cdk.Stack {
     // Attach a bucket policy allowing only public **GET** (read)
     imageStore.addToResourcePolicy(
       new PolicyStatement({
-        sid: 'PublicReadGetObject',
+        sid: "PublicReadGetObject",
         effect: Effect.ALLOW,
         principals: [new AnyPrincipal()],
-        actions: ['s3:GetObject'],
+        actions: ["s3:GetObject"],
         resources: [`${imageStore.bucketArn}/*`],
       }),
     );
@@ -106,7 +121,7 @@ export class CdkSusnetStack extends cdk.Stack {
 
     // A RECORD FOR SERVER
     const serverRecord = new ARecord(this, "ARecordServer", {
-      target: RecordTarget.fromIpAddresses(server.instancePublicIp),
+      target: RecordTarget.fromIpAddresses(eip.attrPublicIp),
       zone: hostedZone,
     });
   }

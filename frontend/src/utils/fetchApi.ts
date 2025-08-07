@@ -10,7 +10,7 @@ export async function fetchApi<const E extends keyof EndpointIO>(endpoint: E, pa
         headers.Authorization = `Bearer ${token}`;
     }
 
-    const response = await fetch(`http://localhost:3000/api${endpt}`, {
+    const response = await fetch(`https://susnet.co.za/api${endpt}`, {
         method: endpointSignatures[endpoint][0],
         headers, 
         body: Object.keys(data).length > 0 ? JSON.stringify(data) : undefined
