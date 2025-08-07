@@ -14,21 +14,9 @@ function Subreddit() {
 	const { currentUser } = useAuth();
 	const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false);
 	const [refreshKey, setRefreshKey] = useState(0);
-	const { createPost, creating } = useCreatePost();
+	const { createPost } = useCreatePost();
 
 	const limit: number = 10;
-
-	const [initialIsFollowing, setInitialIsFollowing] = useState<boolean | undefined>(undefined);
-
-	useEffect(() => {
-		const fetchFollowingStatus = async () => {
-			const res = await fetchApi('getFollowingStatus', { targetName: id! });
-			if (res?.success) {
-				setInitialIsFollowing(res.following);
-			}
-		};
-		fetchFollowingStatus();
-	}, [id]);
 
 	const handleCreatePost = async ({ title, textBody, attachments }) => {
 		if (!id || !currentUser) {
@@ -47,7 +35,7 @@ function Subreddit() {
 		const result = await createPost(postData);
 		if (result.success) {
 			setIsCreatePostModalOpen(false);
-			setRefreshKey(prev => prev + 1); // Force refresh
+			setRefreshKey(prev => prev + 1); 
 		} else {
 			console.error('Post creation failed:', result);
 		}
@@ -56,7 +44,7 @@ function Subreddit() {
 	const bannerProps: BannerProps = {
 		displayImage: '/images/profile.jpg',
 		title: id!,
-		initialIsFollowing,
+		initialIsFollowing: false,
 		onCreatePost: () => setIsCreatePostModalOpen(true),
 		onSettingsClick: () => {},
 	};
@@ -79,10 +67,6 @@ function Subreddit() {
 		showCardFollowButton: false,
 		onRefresh: async () => {},
 	};
-
-	if (!id || initialIsFollowing === null) {
-		return <LoadingSpinner />;
-	}
 
 	return (
 		<>	
