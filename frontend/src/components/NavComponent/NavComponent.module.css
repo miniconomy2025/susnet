@@ -5,7 +5,6 @@
   border-top-right-radius: 16px;
   background-color: var(--background-colour-light);
   margin-top: var(--gap-s);
-  height: calc(100vh - var(--gap-s));
 }
 
 
