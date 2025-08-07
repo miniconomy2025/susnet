@@ -226,13 +226,28 @@ const endpoints: Endpoints = {
   },
 
   'voteOnPost': async ({ vote }: Req_vote, { postId }: { postId: string; }, user: AuthUser): Promise<Res_vote> => {
-      const record = await VoteModel.findOneAndUpdate(
-          { postId, actorId: user.id },
-          { vote, actorId: user.id, postId },
-          { upsert: true, new: true }
-      ).lean().exec();
-      return { success: true, vote: record.vote };
-  },
+    const post = await PostModel.findOne({ postId }).lean().exec();
+    if (!post) return { success: false, error: 'notFound' } as any;
+    
+    console.log('Vote request:', { vote, postId, userId: user.id, postObjectId: post._id });
+    
+    if (vote === null) {
+        // Delete the vote record
+        const deleteResult = await VoteModel.deleteOne({ postId: post._id, actorRef: user.id }).exec();
+        console.log('Delete result:', deleteResult);
+        return { success: true, vote: null as any };
+    } else {
+        // Create or update vote
+        const record = await VoteModel.findOneAndUpdate(
+            { postId: post._id, actorRef: user.id },
+            { vote, actorRef: user.id, postId: post._id },
+            { upsert: true, new: true }
+        ).lean().exec();
+        console.log('Upsert result:', record);
+        return { success: true, vote: record.vote };
+    }
+},
+
 
   'followActor': async (_, { targetName }: { targetName: string }, user: AuthUser): Promise<Res_follow> => {
     if (targetName === user.name) return { success: false, error: 'invalidRequest' };
