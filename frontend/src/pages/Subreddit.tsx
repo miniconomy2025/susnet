@@ -70,7 +70,7 @@ function Subreddit() {
 
 	return (
 		<>	
-			<FeedContainer key={refreshKey} {...feedContainerProps} />
+			<FeedContainer key={`${id}-${refreshKey}`} {...feedContainerProps} />
 			<CreatePostModal
 				isOpen={isCreatePostModalOpen} 
 				onClose={() => setIsCreatePostModalOpen(false)} 
