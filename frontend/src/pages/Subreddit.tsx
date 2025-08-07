@@ -1,20 +1,51 @@
 import { useParams } from 'react-router-dom';
 import FeedContainer from '../components/FeedContainer/FeedContainer';
-import { BannerProps, FeedContainerProps, MembershipStatus } from '../models/Feed';
+import { BannerProps, FeedContainerProps } from '../models/Feed';
 import { Req_Feed, Res_Feed } from '../../../types/api';
 import { fetchApi } from '../utils/fetchApi';
+import { useState } from 'react';
+import CreatePostModal from '../components/CreatePost/CreatePostModal';
+import { useCreatePost } from '../hooks/UseCreatePost';
+import { useAuth } from '../hooks/UseAuth';
 
 function Subreddit() {
 	const { id } = useParams();
+	const { currentUser } = useAuth();
+	const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false);
+	const [refreshKey, setRefreshKey] = useState(0);
+	const { createPost, creating } = useCreatePost();
 
 	const limit: number = 10;
+
+	const handleCreatePost = async ({ title, textBody, attachments }) => {
+		if (!id || !currentUser) {
+			console.log('Missing id or user:', { id, currentUser });
+			return;
+		}
+		
+		const postData = {
+			subName: id,
+			title,
+			content: textBody,
+			attachments: attachments.map(url => ({ url, mimeType: 'image/jpeg' })),
+			tags: []
+		};
+
+		const result = await createPost(postData);
+		if (result.success) {
+			setIsCreatePostModalOpen(false);
+			setRefreshKey(prev => prev + 1); // Force refresh
+		} else {
+			console.error('Post creation failed:', result);
+		}
+	};
 
 	const bannerProps: BannerProps = {
 		displayImage: '/images/profile.jpg',
 		title: id!,
 		initialIsFollowing: false,
-		onCreatePost: async () => {},
-		onSettingsClick: async () => {},
+		onCreatePost: () => setIsCreatePostModalOpen(true),
+		onSettingsClick: () => {},
 	};
 
 	async function onLoadPosts(cursor: string): Promise<Res_Feed | undefined> {
@@ -27,7 +58,6 @@ function Subreddit() {
 		try { return await fetchApi('getFeed', {}, reqFeed); } catch {}
 	};
 
-
 	const feedContainerProps: FeedContainerProps = {
 		bannerProps,
 		onLoadPosts,
@@ -35,7 +65,16 @@ function Subreddit() {
 		onRefresh: async () => {},
 	};
 
-	return <FeedContainer {...feedContainerProps} />;
+	return (
+		<>	
+			<FeedContainer key={refreshKey} {...feedContainerProps} />
+			<CreatePostModal 
+				isOpen={isCreatePostModalOpen} 
+				onClose={() => setIsCreatePostModalOpen(false)} 
+				onSubmit={handleCreatePost}
+			/>
+		</>
+	);
 }
 
 export default Subreddit;

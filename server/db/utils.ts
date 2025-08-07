@@ -228,7 +228,7 @@ export async function createUserAccount(user: ActorData<"simple">, auth: AuthDat
 
 export async function createPost(userId: Types.ObjectId, userName: string, post: Req_createPost): Promise<Res_createPost> {
   // Find sub
-  const subId = getActorObjId(post.subName);
+  const subId = await getActorObjId(post.subName);
   if (userId == null || subId == null) { return { success: false, error: "notFound" }; }
 
   // Create post
