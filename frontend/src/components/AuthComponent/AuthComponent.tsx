@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { post } from "../../utils/requests.ts";
 import { useNavigate } from "react-router-dom";
+import styles from "./AuthComponent.module.css";
 
 const GoogleLoginButton: React.FC = () => {
   const navigate = useNavigate();
@@ -12,7 +13,7 @@ const GoogleLoginButton: React.FC = () => {
     sessionStorage.setItem('Token', credential)
     const res = await post("/auth/login", { token: credential });
     if (res.ok) {
-      navigate("/account");
+      navigate("/home");
     } else {
       //TODO BAD ACCOUNT
     }
@@ -35,7 +36,27 @@ const GoogleLoginButton: React.FC = () => {
     }
   }, []);
 
-  return <div ref={buttonRef}></div>;
+  return (
+    <div className={styles.authContainer}>
+      <div className={styles.authCard}>
+        <h1 className={styles.authTitle}>
+          Welcome to SusNet!
+        </h1>
+        <p className={styles.authSubtitle}>
+            Sign in to continue to your account
+        </p>
+
+        <div ref={buttonRef}></div>
+
+        <div className={styles.authFooter}>
+          <p className={styles.authText}>Thank you for joining SusNet!</p>
+        </div>
+      </div>
+    </div>
+  );
+  
+  
+  
 };
 
 export default GoogleLoginButton;

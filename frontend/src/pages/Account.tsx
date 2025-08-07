@@ -4,13 +4,14 @@ import CreatePostModal from '../components/CreatePost/CreatePostModal';
 import FeedContainer from '../components/FeedContainer/FeedContainer';
 import { BannerProps, FeedContainerProps, MembershipStatus } from '../models/Feed';
 import { useAuth } from '../hooks/UseAuth';
-import { PostData, Req_Feed, Res_Feed } from '../../../types/api';
+import { Req_Feed, Res_Feed } from '../../../types/api';
 import { fetchApi } from '../utils/fetchApi';
 
 function Account() {
 	const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
 	const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false);
-
+	const { currentUser, loading } = useAuth();
+	
 	const limit: number = 10;
 
 	const bannerProps: BannerProps = {
@@ -23,8 +24,9 @@ function Account() {
 		const reqFeed: Req_Feed = {
 			limit,
 			cursor,
+			fromActorName: currentUser?.name,
 		}
-
+		
 		try { return await fetchApi('getFeed', {}, reqFeed); } catch {}
 	};
 
@@ -36,7 +38,7 @@ function Account() {
 
 	return (
 		<>
-			<FeedContainer {...feedContainerProps} />
+			{!loading && <FeedContainer {...feedContainerProps} />}
 			{isAccountModalOpen && (
 				<AccountModal 
 					isOpen={isAccountModalOpen} 

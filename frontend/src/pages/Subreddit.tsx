@@ -8,7 +8,6 @@ function Subreddit() {
 	const { id } = useParams();
 
 	const limit: number = 10;
-	const fromActorName = ""; // TODO: get actor name or id?
 
 	const bannerProps: BannerProps = {
 		displayImage: '/images/profile.jpg',
@@ -23,7 +22,7 @@ function Subreddit() {
 		const reqFeed: Req_Feed = {
 			limit,
 			cursor,
-			fromActorName,
+			fromActorName: id,
 		}
 
 		try { return await fetchApi('getFeed', {}, reqFeed); } catch {}

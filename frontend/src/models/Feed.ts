@@ -5,6 +5,7 @@ export interface BannerProps {
 	displayImage?: string;
 	membershipStatus?: MembershipStatus;
 	onCreatePost?: () => void;
+	onCreateSub?: () => void;
 	onSetMembershipClick?: (status: MembershipStatus) => void;
 	onSettingsClick?: () => void;
 }
