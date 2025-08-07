@@ -40,8 +40,9 @@
 }
 
 .bannerProfileImage {
-	height: 120px; /* same as banner height */
-	width: 120px;
+	aspect-ratio: 1;
+	max-width: 120px;
+	width: 20vw;
 	border-radius: 50%;
 	object-fit: cover;
 	border: 4px solid var(--background-colour);
