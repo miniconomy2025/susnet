@@ -21,7 +21,8 @@ function NavComponent({ menuOpen, setMenuOpen }) {
         <NavLink
           to="/home"
           className={({ isActive }) =>
-            isActive ? styles.activeLink : styles.link}
+            isActive ? styles.activeLink : styles.link
+          }
           onClick={() => setMenuOpen(false)}
         >
           Home
@@ -29,7 +30,8 @@ function NavComponent({ menuOpen, setMenuOpen }) {
         <NavLink
           to="/explore"
           className={({ isActive }) =>
-            isActive ? styles.activeLink : styles.link}
+            isActive ? styles.activeLink : styles.link
+          }
           onClick={() => setMenuOpen(false)}
         >
           Explore
@@ -37,7 +39,8 @@ function NavComponent({ menuOpen, setMenuOpen }) {
         <NavLink
           to="/account"
           className={({ isActive }) =>
-            isActive ? styles.activeLink : styles.link}
+            isActive ? styles.activeLink : styles.link
+          }
           onClick={() => setMenuOpen(false)}
         >
           User
@@ -49,32 +52,13 @@ function NavComponent({ menuOpen, setMenuOpen }) {
             <span className="material-icons dropdownIcon">chevron_right</span>
           </label>
           <div className={styles.subLinks}>
-<<<<<<< HEAD
-            <NavLink
-              to="/settings"
-              className={({ isActive }) =>
-                isActive ? styles.activeLink : styles.link}
-              onClick={() => setMenuOpen(false)}
-            >
-              Settings
-            </NavLink>
-            <NavLink
-              to="/help"
-              className={({ isActive }) =>
-                isActive ? styles.activeLink : styles.link}
-              onClick={() => setMenuOpen(false)}
-            >
-              Help
-            </NavLink>
-            {/* Add more sub-links as needed */}
-=======
             {loading ? (
               <div className={styles.link}>Loading...</div>
             ) : (
               userSubs.map(sub => (
-                <NavLink 
+                <NavLink
                   key={sub.name}
-                  to={`/r/${sub.name}`} 
+                  to={`/r/${sub.name}`}
                   className={({ isActive }) => isActive ? styles.activeLink : styles.link}
                   onClick={() => setMenuOpen(false)}
                 >
@@ -82,7 +66,6 @@ function NavComponent({ menuOpen, setMenuOpen }) {
                 </NavLink>
               ))
             )}
->>>>>>> master
           </div>
         </div>
       </nav>
