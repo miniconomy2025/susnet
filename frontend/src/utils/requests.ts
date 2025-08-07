@@ -1,4 +1,4 @@
-const BASE_URL = "https://susnet.co.za/api";
+const BASE_URL = "http://locahost:3000/api";
 
 export async function post(endpoint: string, body: object) {
   return await fetch(`${BASE_URL}${endpoint}`, {
