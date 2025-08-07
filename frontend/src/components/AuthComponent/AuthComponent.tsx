@@ -9,15 +9,13 @@ const GoogleLoginButton: React.FC = () => {
     "144675851144-dqjsn3ff0urka9mogbss98irppd81sns.apps.googleusercontent.com";
 
   const handleLogin = async (credential: string) => {
-    console.log(credential);
-    // const res = await post("/auth/login", { token: credential });
-
-    // const { success } = await res.json();
-    // if (success) {
-    //   navigate("/account");
-    // } else {
-    //   //TODO TOKEN INCORRECT
-    // }
+    sessionStorage.setItem('Token', credential)
+    const res = await post("/auth/login", { token: credential });
+    if (res.ok) {
+      navigate("/account");
+    } else {
+      //TODO BAD ACCOUNT
+    }
   };
 
   useEffect(() => {
