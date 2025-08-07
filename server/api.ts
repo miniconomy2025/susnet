@@ -1,5 +1,3 @@
-import jwt from 'jsonwebtoken';
-
 import {
     ActorModel, AuthModel, PostModel, VoteModel,
     FollowModel, VoteType, ActorType, Actor, Post, Follow
@@ -15,19 +13,20 @@ import {
     endpointSignatures,
 } from '../types/api.ts';
 import {
-    Res_health, Res_login, Res_me, Res_getActor,
-    Res_getActorPosts, Res_followers, Res_following, Res_createSub,
-    Res_updateActor, Res_getPost, Res_createPost, Res_vote,
-    Res_follow, Res_unfollow, Res_followStatus, Res_Feed,
-    Res_SearchActors, Res_SearchTags, Res_EditPost, Res_EditActor,
+  Res_health, Res_login, Res_me, Res_getActor,
+  Res_followers, Res_following, Res_createSub,
+  Res_updateActor, Res_getPost, Res_createPost, Res_vote,
+  Res_follow, Res_unfollow, Res_followStatus, Res_Feed,
+  Res_SearchActors, Res_SearchTags, Res_EditPost, Res_EditActor,
 } from '../types/api.ts';
 import { authenticate, noop, AuthenticatedRequest } from './auth.ts';
 
 import express, { Request, Response } from 'express';
 import { Types } from "mongoose";
-import { HTTPMethod, HTTPMethodLower, Unit } from "../types/types.ts";
+import { HTTPMethodLower } from "../types/types.ts";
 import { MongoServerError } from "mongodb";
 import { decodeJWT, verifyJWT } from "./utils/authUtils.ts";
+import { createPost, createUserAccount, getActorObjId, getFeed } from "./db/utils.ts";
 
 const ORIGIN = "susnet.co.za";
 const JWT_SECRET = "";
@@ -35,51 +34,50 @@ const JWT_SECRET = "";
 //---------- Utils ----------//
 
 function toActorDataSimple(doc: any): ActorData<'simple'> {
-    return {
-        name: doc.name,
-        type: doc.type,
-        thumbnailUrl: doc.thumbnailUrl,
-        description: doc.description,
-        origin: doc.origin
-    };
+  return {
+    name: doc.name,
+    type: doc.type,
+    thumbnailUrl: doc.thumbnailUrl,
+    description: doc.description ?? "",
+    origin: doc.origin ?? ORIGIN,
+  };
 }
-function toActorDataFull(doc: any): ActorData<'full'> {
-    return {
-        ...toActorDataSimple(doc),
-        postCount: doc.postCount,
-        followerCount: doc.followerCount,
-        followingCount: doc.followingCount,
-    };
+function toActorDataFull(
+  doc:            any,
+  postCount:      number,
+  followerCount:  number,
+  followingCount: number,
+  isFollowing:    boolean,
+): ActorData<'full'> {
+  return { ...toActorDataSimple(doc), postCount, followerCount, followingCount, isFollowing, };
 }
 
 function toPostDataSimple(doc: any): PostData<'simple'> {
-    return {
-        postId: doc.postId,
-        actorName: doc.actorName,
-        subName: doc.subName,
-        title: doc.title,
-        content: doc.content,
-        attachments: doc.attachments.map((a: any) => ({ ...a, _id: undefined })),
-        tags: doc.tags,
-    };
-}
-function toPostDataFull(doc: any): PostData<'full'> {
-    return {
-        ...toPostDataSimple(doc),
-        upvotes: doc.upvotes,
-        downvotes: doc.downvotes,
-        score: doc.score,
-    };
+  return {
+    postId: doc.postId,
+    title: doc.title,
+    actorName: doc.actorName,
+    subName: doc.subName,
+    content: doc.content,
+    attachments: doc.attachments.map((a: any) => ({ ...a, _id: undefined})),
+    tags: doc.tags,
+  };
 }
 
-async function getActorObjId(name: string): Promise<Types.ObjectId | null> {
-    const doc = await ActorModel.findOne({ name }).lean().exec();
-    return doc?._id ?? null;
-}
-
-async function getPostObjId(postId: string): Promise<Types.ObjectId | null> {
-    const doc = await PostModel.findOne({ postId }).lean().exec();
-    return doc?._id ?? null;
+function toPostDataFull(
+  doc:            any, 
+  upvotes:        number,
+  downvotes:      number,
+  score:          number,
+  isFollowingSub: boolean,
+  timestamp:      number,
+  subThumbnailUrl: string,
+): PostData<'full'> {
+  return {
+    ...toPostDataSimple(doc),
+    upvotes, downvotes, score, subThumbnailUrl,
+    isFollowingSub, timestamp
+  };
 }
 
 
@@ -89,6 +87,20 @@ const endpoints: Endpoints = {
     'health': async (): Promise<Res_health> => ({ success: true }),
 
     'login': async (req: Req_login): Promise<void> => {
+        // return await createUserAccount({
+        //   name: req.googleId,
+        //   type: ActorType.user,
+        //   thumbnailUrl: `https://www.gravatar.com/avatar/${req.googleId}?d=mp&s=256`,
+        //   origin: ORIGIN,
+        //   description: "",
+        // }, {
+        //   accessToken: req.accessToken,
+        //   email: req.email,
+        //   googleId: req.googleId,
+        //   refreshToken: req.refreshToken,
+        // });
+
+      // TODO: Move to createUserAccount
         await verifyJWT(req.token);
         const payload = await decodeJWT(req.token);
         const isNew = await AuthModel.findOne({
@@ -120,28 +132,30 @@ const endpoints: Endpoints = {
         return { success: true, actor: toActorDataSimple(doc) };
     },
 
-    'getActor': async (_, { name }: { name: string }): Promise<Res_getActor> => {
-        const doc = await ActorModel.findOne({ name }).lean().exec();
-        if (doc == null) return { success: false, error: 'notFound' };
+  'getActor': async (_, { name }: { name: string }): Promise<Res_getActor> => {
+    const doc = await ActorModel.findOne({ name }).lean().exec();
+    if (doc == null) return { success: false, error: 'notFound' };
+    const [postCount, followerCount, followingCount] = await Promise.all([
+      PostModel.countDocuments({ actorRef: doc._id }),
+      FollowModel.countDocuments({ targetRef: doc._id }),
+      FollowModel.countDocuments({ followerRef: doc._id })
+    ]);
+    return { success: true, actor: toActorDataFull({ ...doc, postCount, followerCount, followingCount }) };
+  },
 
-        const postCount = await PostModel.countDocuments({ actorRef: doc._id });
-        const followerCount = await FollowModel.countDocuments({ targetRef: doc._id });
-        const followingCount = await FollowModel.countDocuments({ followerRef: doc._id });
-        return { success: true, actor: toActorDataFull({ ...doc, postCount, followerCount, followingCount }) };
-    },
+  // Get all posts for an actor
+  // REMOVED: Use getFeed instead
+  // 'getActorPosts': async (_, { name, limit = 20, cursor = "" }: { name: string, limit?: number, cursor?: string }): Promise<Res_getActorPosts> => {
+  //   const actorId = await getActorObjId(name);
+  //   if (actorId == null) return { success: false, error: 'notFound' };
+  //   const { posts, nextCursor } = await getFeed({ actorRef: actorId }, limit, cursor);
+  //   return { success: true, posts, nextCursor };
+  // },
 
-    // Get all posts for an actor
-    'getActorPosts': async (_, { name }: { name: string }): Promise<Res_getActorPosts> => { // TODO: Paginate
-        const actorId = await getActorObjId(name);
-        if (actorId == null) return { success: false, error: 'notFound' };
-
-        const docs = await PostModel.find({ actorRef: actorId }).lean().exec();
-        return { success: true, posts: docs.map(d => toPostDataFull(d)) };
-    },
-
-    'getActorFollowers': async (_, { name }: { name: string }): Promise<Res_followers> => {
-        const actorId = await getActorObjId(name);
-        if (actorId == null) return { success: false, error: 'notFound' };
+  // Get all followers of an actor
+  'getActorFollowers': async (_, { name }: { name: string }): Promise<Res_followers> => {
+    const actorId = await getActorObjId(name);
+    if (actorId == null) return { success: false, error: 'notFound' };
 
         const docs = await FollowModel.find({ targetRef: actorId })
             .populate('followerRef')
@@ -150,9 +164,10 @@ const endpoints: Endpoints = {
         return { success: true, followers: docs.map(f => toActorDataSimple(f.followerRef)) };
     },
 
-    'getActorFollowing': async (_, { name }: { name: string }): Promise<Res_following> => {
-        const actorId = await getActorObjId(name);
-        if (actorId == null) return { success: false, error: 'notFound' };
+  // Get all actors that an actor is following
+  'getActorFollowing': async (_, { name }: { name: string }): Promise<Res_following> => {
+    const actorId = await getActorObjId(name);
+    if (actorId == null) return { success: false, error: 'notFound' };
 
         const docs = await FollowModel.find({ followerRef: actorId })
             .populate('targetRef')
@@ -161,19 +176,27 @@ const endpoints: Endpoints = {
         return { success: true, following: docs.map(f => toActorDataSimple(f.targetRef)) }; // TODO: Fix
     },
 
-    'createSub': async (req: Req_createSub): Promise<Res_createSub> => {
-        try {
-            const sub = await ActorModel.create({
-                name: req.name,
-                type: ActorType.sub,
-                thumbnailUrl: req.thumbnailUrl,
-                description: req.description,
-                origin: ORIGIN,
-            });
-            return { success: true, sub: toActorDataSimple(sub) };
-        }
-        catch (err) {
-            if (!(err instanceof MongoServerError)) return { success: false, error: 'internalError' }
+  'createSub': async (req: Req_createSub, _, user: AuthUser): Promise<Res_createSub> => {
+    try {
+      const sub = await ActorModel.create({
+        name: req.name,
+        type: ActorType.sub,
+        thumbnailUrl: req.thumbnailUrl,
+        description: req.description,
+        origin: ORIGIN,
+      });
+
+      // Add follow relationship for the creator with role 'mod'
+      await FollowModel.create({
+        targetRef: sub._id,
+        followerRef: user.id, // The actor creating the sub
+        role: 'mod',
+      });
+
+      return { success: true, sub: toActorDataSimple(sub) };
+    }
+    catch (err) {
+      if (!(err instanceof MongoServerError)) return { success: false, error: 'internalError' }
 
             console.log("ERR:", JSON.stringify(err, null, 2));
 
@@ -198,11 +221,9 @@ const endpoints: Endpoints = {
         return { success: true, post: toPostDataFull(doc) };
     },
 
-    'createPost': async (req: Req_createPost, _, user: AuthUser): Promise<Res_createPost> => {
-        console.log("USER:", user);
-        const postDoc = await PostModel.create({ ...req, actorId: user.id, actorName: user.name });
-        return { success: true, post: toPostDataSimple(postDoc) };
-    },
+  'createPost': async (req: Req_createPost, _, user: AuthUser): Promise<Res_createPost> => {
+    return await createPost(user.id, user.name, req);
+  },
 
     'voteOnPost': async ({ vote }: Req_vote, { postId }: { postId: string; }, user: AuthUser): Promise<Res_vote> => {
         const record = await VoteModel.findOneAndUpdate(
@@ -213,42 +234,36 @@ const endpoints: Endpoints = {
         return { success: true, vote: record.vote };
     },
 
-    'followActor': async (_, { targetName }: { targetName: string }, user: AuthUser): Promise<Res_follow> => {
-        if (targetName === user.name) return { success: false, error: 'invalidRequest' };
+  'followActor': async (_, { targetName }: { targetName: string }, user: AuthUser): Promise<Res_follow> => {
+    if (targetName === user.name) return { success: false, error: 'invalidRequest' };
+    const targetRef = await getActorObjId(targetName);
+    if (targetRef == null) return { success: false, error: 'notFound' };
 
-        await FollowModel.create({ targetName, followerName: user.name });
-        return { success: true };
-    },
+    await FollowModel.updateOne(
+      { targetRef, followerRef: user.id },
+      { targetRef, followerRef: user.id },
+      { upsert: true }
+    ).exec();
 
-    'unfollowActor': async (_, { targetName }: { targetName: string }, user: AuthUser): Promise<Res_unfollow> => {
-        await FollowModel.deleteOne({ targetName, followerName: user.name }).exec();
-        return { success: true };
-    },
+    return { success: true };
+  },
+
+  'unfollowActor': async (_, { targetName }: { targetName: string }, user: AuthUser): Promise<Res_unfollow> => {
+    const targetRef = await getActorObjId(targetName)
+    if (targetRef == null) return { success: false, error: 'notFound' };
+
+    await FollowModel.deleteOne({ targetRef, followerRef: user.id }).exec();
+    return { success: true };
+  },
 
     'getFollowingStatus': async (_, { targetName }: { targetName: string }, user: AuthUser): Promise<Res_followStatus> => {
         const exists = await FollowModel.exists({ targetName, followerName: user.name });
         return { success: true, following: Boolean(exists) };
     },
 
-    'getFeed': async (req: Req_Feed, _, user: AuthUser): Promise<Res_Feed> => {
-        const { limit = 20, cursor, actorName, sort = 'new' } = req;
-        const match: any = {};
-
-        if (actorName) match.actorName = actorName;
-        const sortOrder = sort === 'new' ? { _id: -1 } : sort === 'top' ? { score: -1 } : { score: -1, _id: -1 };
-
-        const pipeline: any[] = [
-            { $match: match },
-            { $sort: sortOrder },
-            { $limit: limit + 1 },
-        ];
-
-        const docs = await PostModel.aggregate(pipeline).exec();
-        const hasMore = docs.length > limit;
-        const results = (hasMore ? docs.slice(0, limit) : docs).map(d => toPostDataFull(d));
-
-        return { success: true, posts: results };
-    },
+  'getFeed': async (req: Req_Feed, _, user: AuthUser): Promise<Res_Feed> => {
+    return await getFeed(req);
+  },
 
     'searchActors': async (req: Req_SearchActors): Promise<Res_SearchActors> => {
         const docs = await ActorModel.find({ name: new RegExp(req.query, 'i') }).lean().exec();
