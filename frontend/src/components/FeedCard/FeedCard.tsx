@@ -43,7 +43,6 @@ function FeedCard({
 	const navigate = useNavigate();
 
 	const onSubredditClick = () => {
-		console.log("here")
 		navigate(`/subreddit/${encodeURIComponent(subName)}`);
 	};
 
