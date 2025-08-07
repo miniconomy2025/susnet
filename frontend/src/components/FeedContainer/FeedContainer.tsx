@@ -15,11 +15,11 @@ function FeedContainer({
 }: FeedContainerProps) {
 	const [posts, setPosts] = useState(availablePosts);
 	const [loading, setLoading] = useState(false);
-	const [cursor, setCursor] = useState('');
 	const sentinelRef = useRef(null);
 	const triggerLoadThreshload = 2000;
 	const loadingRef = useRef(loading);
 	const isPostsFetchedRef = useRef(false);
+	const cursorRef = useRef('');
 
 	useEffect(() => {
 		loadingRef.current = loading;
@@ -29,9 +29,7 @@ function FeedContainer({
 		const observer = new IntersectionObserver(
 			(entries) => {
 				if (entries[0].isIntersecting && !loadingRef.current) {
-					if (!isPostsFetchedRef.current) {
-						loadMorePosts();
-					}
+					loadMorePosts();
 				}
 			},
 			{ root: null, rootMargin: `${triggerLoadThreshload}px`, threshold: 0.1 }
@@ -47,10 +45,10 @@ function FeedContainer({
 	const loadMorePosts = async () => {
 		setLoading(true);
 		let newPosts: PostData<'full'>[];
-		const res: Res_Feed | undefined = await onLoadPosts(cursor);
+		const res: Res_Feed | undefined = await onLoadPosts(cursorRef.current);
 
 		if (res?.success) {
-			if (res.nextCursor) setCursor(res.nextCursor);
+			if (res.nextCursor) cursorRef.current = res.nextCursor;
 			newPosts = res.posts;
 			setPosts((prev) => [...prev, ...newPosts]);
 			isPostsFetchedRef.current = true;

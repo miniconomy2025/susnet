@@ -21,3 +21,5 @@ export enum MembershipStatus {
 	JOINED = 'Joined',
 	NOT_JOINED = 'Not Joined',
 }
+
+export enum VoteType { up = "up", down = "down" };
