@@ -21,9 +21,9 @@ const app = express();
 const FE_DIR = "./frontend/dist";
 const frontendPath = path.join(process.cwd(), FE_DIR);
 app.use(express.static(frontendPath));
-app.get('/FRONTEND', (req, res) => {
-  res.sendFile(path.join(frontendPath, 'index.html'));
-});
+// app.get('/FRONTEND', (req, res) => {
+//   res.sendFile(path.join(frontendPath, 'index.html'));
+// });
 
 //---------- Setup ----------//
 // DB
