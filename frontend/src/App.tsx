@@ -17,6 +17,8 @@ function App() {
 	const { currentUser, loading: authLoading } = useAuth();
 	const { userSubs, loading: subsLoading, refreshSubs } = useUserSubs(currentUser?.name || "");
 	
+	console.log('App state:', { currentUser: currentUser?.name, userSubs: userSubs.length, subsLoading, authLoading });
+	
 
 	return (
 		<Router>

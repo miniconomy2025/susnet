@@ -578,6 +578,24 @@ export async function getFeed(
               },
             },
           },
+          userVote: {
+            $let: {
+              vars: {
+                userVoteDoc: {
+                  $arrayElemAt: [
+                    {
+                      $filter: {
+                        input: "$votes",
+                        cond: { $eq: ["$$this.actorRef", userId] },
+                      },
+                    },
+                    0,
+                  ],
+                },
+              },
+              in: "$$userVoteDoc.vote",
+            },
+          },
         },
       },
       { $addFields: { score: { $subtract: ["$upCount", "$downCount"] } } },
@@ -649,6 +667,7 @@ export async function getFeed(
           downvotes: "$downCount",
           score: "$score",
           isFollowingSub: "$followed",
+          userVote: "$userVote",
       }}
     );
 
