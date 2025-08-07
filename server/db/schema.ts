@@ -29,12 +29,10 @@ export const ActorModel = getModelForClass(Actor);
 
 @index({ googleId: 1 }, { unique: true })
 @index({ email: 1 })
-@modelOptions({ schemaOptions: { timestamps: true } })
+@modelOptions({ schemaOptions: { timestamps: true , strict: "throw"} })
 export class Auth {
   @prop({ ref: () => Actor, required: true, unique: true })       actorRef!:     Ref<Actor>;
   @prop({ required: true })                                       googleId!:     string;
-  @prop({ required: true })                                       accessToken!:  string;
-  @prop({ default: "" })                                          refreshToken?: string;
   @prop({ required: true })                                       email!:        string;
 
   _id?: Types.ObjectId;

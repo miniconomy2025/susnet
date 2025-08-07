@@ -28,8 +28,15 @@
 	width: 100%;
 	display: flex;
 	align-items: center;
-	justify-content: space-between;
 	padding: 0 var(--gap-s);
+}
+
+.bannerLeft {
+	width: 120px;
+	height: 120px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 }
 
 .bannerProfileImage {
@@ -44,6 +51,7 @@
 .bannerActions {
 	display: flex;
 	gap: 10px;
+	margin-left: auto;
 }
 
 .bannerButton {

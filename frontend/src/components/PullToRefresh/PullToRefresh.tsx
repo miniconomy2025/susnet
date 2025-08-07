@@ -28,7 +28,6 @@ export default function PullToRefresh({
 			if (el.scrollTop > 0 || refreshing) return;
 			pullingRef.current = true;
 			startYRef.current = e.clientY ?? e.touches?.[0]?.clientY;
-			el.setPointerCapture?.(e.pointerId);
 		}
 
 		function onPointerMove(e) {

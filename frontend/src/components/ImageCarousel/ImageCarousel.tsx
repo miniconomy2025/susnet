@@ -1,16 +1,17 @@
 import { useState } from 'react';
 import { useSwipeable } from 'react-swipeable';
 import styles from './ImageCarousel.module.css';
+import { AttachmentData } from '../../../../types/api';
 
-export default function ImageCarousel({ images }) {
+export default function ImageCarousel({ attachments }) {
 	const [index, setIndex] = useState(0);
 
 	const nextImage = () => {
-		setIndex((i) => (i + 1) % images.length);
+		setIndex((i) => (i + 1) % attachments.length);
 	};
 
 	const prevImage = () => {
-		setIndex((i) => (i - 1 + images.length) % images.length);
+		setIndex((i) => (i - 1 + attachments.length) % attachments.length);
 	};
 
 	const swipeHandlers = useSwipeable({
@@ -22,7 +23,7 @@ export default function ImageCarousel({ images }) {
 
 	return (
 		<div className={styles.carouselWrapper} {...swipeHandlers}>
-			{images.length > 1 && (
+			{attachments.length > 1 && (
 				<>
 					<button
 						className={`material-symbols-outlined ${styles.navLeft}`}
@@ -42,10 +43,10 @@ export default function ImageCarousel({ images }) {
 				className={styles.slidesContainer}
 				style={{ transform: `translateX(-${index * 100}%)` }}
 			>
-				{images.map((src, i) => (
+				{attachments.map((attachment, i) => (
 					<img
 						key={i}
-						src={src}
+						src={attachment.url}
 						alt={`carousel-${i}`}
 						className={styles.image}
 						draggable={false}
@@ -53,9 +54,9 @@ export default function ImageCarousel({ images }) {
 				))}
 			</div>
 
-			{images.length > 1 && (
+			{attachments.length > 1 && (
 				<div className={styles.dots}>
-					{images.map((_, i) => (
+					{attachments.map((_, i) => (
 						<span
 							key={i}
 							className={`${styles.dot} ${index === i ? styles.activeDot : ''}`}
