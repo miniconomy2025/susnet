@@ -262,7 +262,7 @@ const endpoints: Endpoints = {
     },
 
   'getFeed': async (req: Req_Feed, _, user: AuthUser): Promise<Res_Feed> => {
-    return await getFeed(req);
+    return await getFeed(req, user.id);
   },
 
     'searchActors': async (req: Req_SearchActors): Promise<Res_SearchActors> => {
@@ -309,7 +309,8 @@ const authenticated: Set<keyof Endpoints> = new Set([
     'updateMe',
     'updateActor',
     'followActor',
-    'unfollowActor'
+    'unfollowActor',
+    "getFeed"
 ]);
 
 const router = express.Router();
