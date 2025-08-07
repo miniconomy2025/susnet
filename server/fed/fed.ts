@@ -1,15 +1,25 @@
-import { Activity, ActorDispatcher, CollectionDispatcher, createFederation, Federation, Follow, Group, MemoryKvStore, Note, Person, PUBLIC_COLLECTION } from "@fedify/fedify";
+import { Activity, ActorDispatcher, CollectionDispatcher, createFederation, Federation, Follow, Group, InProcessMessageQueue, MemoryKvStore, Note, Person, PUBLIC_COLLECTION } from "@fedify/fedify";
+import { integrateFederation } from "@fedify/express";
 import { DenoKvStore } from "@fedify/fedify/x/denokv";
-import { Router } from "effect/platform/HttpApiBuilder";
+import { handler, Router } from "effect/platform/HttpApiBuilder";
 import { ActorModel, ActorType, PostModel } from "../db/schema.ts";
 
 // See [https://fedify.dev/manual/federation#tcontextdata]
-export function getServeHandlers(fed: Federation<void>) {
+function getServeHandlers(fed: Federation<void>) {
 
     //---------- Endpoints ----------//
 
     //--- Generic actors (uniform for users & groups) ---//
     fed.setActorDispatcher("/users/{identifier}", async (ctx, id) => {
+        if (id == "me") {
+            return new Person({
+                id: ctx.getActorUri(id),
+                name: "Me",  // Display name
+                summary: "This is me!",  // Bio
+                preferredUsername: id,  // Bare handle
+                url: new URL("/", ctx.url),
+            });
+        }
         console.log("LOOKING FOR ACTOR:", id);
         const actor = await ActorModel.findOne({ name: id });
         console.log("ACTOR:", actor);
@@ -61,7 +71,7 @@ export function getServeHandlers(fed: Federation<void>) {
     return {
         fed,
         handlers: {
-            contextData: undefined, // TODO
+            contextData: new URL('http://locahost:8000/fed/'),
             onNotFound: (req: Request) => {
                 console.log("URL:", new URL(req.url));
                 return new Response("🔍 Not found", { status: 404 });
@@ -71,4 +81,21 @@ export function getServeHandlers(fed: Federation<void>) {
             }
         }
     };
+}
+
+export function getFed() {
+    const federation = createFederation<void>({
+        kv: new MemoryKvStore(),
+        queue: new InProcessMessageQueue(),
+        allowPrivateAddress: true,
+    });
+
+    const { fed, handlers } = getServeHandlers(federation)
+    return integrateFederation(
+        fed,
+        (_req) => {
+            console.log(_req)
+            return handlers.contextData
+        }
+    )
 }

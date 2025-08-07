@@ -44,3 +44,5 @@ else
   git clone --branch stable "$REPO_URL" "$CLONE_DIR"
   git config --global --add safe.directory "$CLONE_DIR"
 fi
+cd "$CLONE_DIR"
+# sudo deno run dev
