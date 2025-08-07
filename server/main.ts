@@ -16,7 +16,7 @@ import fed from "./fed/fed.ts";
 // DB
 const DB_URL = env("DB_URL");
 const PORT = env("PORT", 3000);
-const FE_DIR = "../frontend/dist"
+const FE_DIR = "./frontend/dist"
 
 mongoose.connect(DB_URL)
   .then(() => {
