@@ -1,16 +1,20 @@
 .sideBar {
   width: 16rem;
+  max-width: 16rem;
+  box-sizing: border-box;
   border-top-right-radius: 16px;
   background-color: var(--background-colour-light);
   margin-top: var(--gap-s);
 }
 
+
 .navLinks {
   display: flex;
   flex-direction: column;
-  align-items: flex-start; /* Ensures left-alignment */
+  align-items: flex-start;
   padding-top: 1.5rem;
   gap: 1rem;
+  height: 100%;
 }
 
 
@@ -48,8 +52,9 @@
 /* 2. Collapsible container styling (optional if not already styled) */
 .collapsibleSection {
   width: 100%;
-  border-top: 1px solid var(--background-colour-dark);
-  border-bottom: 1px solid var(--background-colour-dark);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 /* 3. Sub-links container - initially hidden */
@@ -62,27 +67,40 @@
 
 .subLinks .link {
   font-size: 1.3rem;
-  font-weight: 400;
+  font-weight: 200;
   color: var(--text-colour);
-  padding-left: 2.5rem; /* More indentation for sublinks */
+  opacity: 60%;
+  font-size: 1rem;
+  padding-left: 2.5rem;
+    word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.subLinks .link:hover {
+  opacity: 100%;
 }
 
 .subLinks .activeLink {
-  background-color: transparent;
-  background: none;
-  font-size: 1.3rem;
+  all: unset;
+  display: flex;
+  box-sizing: border-box;
+  font-size: 1rem;
   color: var(--primary-colour);
+  font-weight: 600;
+  padding: 0.5rem 1rem 0.5rem 2rem;
   padding-left: 2.5rem;
-  font-weight: 400;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
+
+
 
 /* 4. Show when checkbox is checked */
 .listCheckbox:checked + .link + .subLinks {
-  max-height: 20rem; /* Adjust to fit your content */
+  max-height: calc(100vh - 300px);
   overflow-y: auto;
   opacity: 1;
 }
-
 .subLinks::-webkit-scrollbar {
   width: 6px;
 }

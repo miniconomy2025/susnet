@@ -256,13 +256,14 @@ const endpoints: Endpoints = {
     return { success: true };
   },
 
-    'getFollowingStatus': async (_, { targetName }: { targetName: string }, user: AuthUser): Promise<Res_followStatus> => {
-        const exists = await FollowModel.exists({ targetName, followerName: user.name });
-        return { success: true, following: Boolean(exists) };
-    },
+  'getFollowingStatus': async (_, { targetName }: { targetName: string }, user: AuthUser): Promise<Res_followStatus> => {
+      const targetRef = await getActorObjId(targetName)
+      const exists = await FollowModel.findOne({ followerRef: user.id, targetRef: targetRef });
+      return { success: true, following: (exists !== null) };
+  },
 
   'getFeed': async (req: Req_Feed, _, user: AuthUser): Promise<Res_Feed> => {
-    return await getFeed(req);
+    return await getFeed(req, user.id);
   },
 
     'searchActors': async (req: Req_SearchActors): Promise<Res_SearchActors> => {
@@ -308,7 +309,12 @@ const authenticated: Set<keyof Endpoints> = new Set([
     'me',
     'updateMe',
     'updateActor',
-    'followActor'
+    'followActor',
+    'unfollowActor',
+    'getFeed',
+    'getFollowingStatus',
+    'createSub',
+    'createPost',
 ]);
 
 const router = express.Router();

@@ -26,16 +26,13 @@ mongoose.connect(DB_URL)
     process.exit(1);
   });
 
-// Fedify
-// const handlers = getServeHandlers(fed);
-// Deno.serve(req => fed.fetch(req, handlers));
 //---------- Main ----------//
 const app = express();
 
 app.set("trust proxy", true);
 app.use(cors({
-  // origin: ["http://localhost:8000", "https://susnet.co.za"],
-  // credentials: true,
+  origin: ["http://localhost:8000", "https://susnet.co.za"],
+  credentials: true,
 }));
 
 // Handle fedify
@@ -54,8 +51,8 @@ app.use(integrateFederation(fed, () => undefined))
 // });
 
 // Parse body
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+app.use(express.urlencoded({ extended: true , limit: '1gb'}));
+app.use(express.json({limit: '1gb'}));
 
 // app.use('', injectFedContext, otherRoutes);
 
