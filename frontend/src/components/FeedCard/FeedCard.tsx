@@ -42,7 +42,7 @@ function FeedCard({
 }) {
 	const navigate = useNavigate();
 	const [isFollowing, setIsFollowing] = useState(isFollowingSub);
-	const [vote, setVote] = useState(null); // 'upvote', 'downvote', or null
+	const [vote, setVote] = useState(null);
 
 	const onSubredditClick = () => {
 		navigate(`/subreddit/${encodeURIComponent(subName)}`);
@@ -67,7 +67,7 @@ function FeedCard({
 					<img className={styles.profileImage} src={subThumbnailUrl} alt="" />
 				)}
 				<span className={styles.subreddit} onClick={onSubredditClick}>
-					r/{subName}
+					{subName}
 				</span>
 				{isFollowing ? (
 					<button onClick={onFollowToggle} className={styles.button}>

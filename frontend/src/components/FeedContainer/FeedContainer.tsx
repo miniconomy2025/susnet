@@ -5,6 +5,7 @@ import LoadingSpinner from '../LoadingSpinner/LoadingSpinner.tsx';
 import PullToRefresh from '../PullToRefresh/PullToRefresh.tsx';
 import styles from './FeedContainer.module.css';
 import { FeedContainerProps } from '../../models/Feed.ts';
+import { PostData, Res_Feed } from '../../../../types/api.ts';
 
 function FeedContainer({
 	bannerProps,
@@ -14,7 +15,9 @@ function FeedContainer({
 }: FeedContainerProps) {
 	const [posts, setPosts] = useState(availablePosts);
 	const [loading, setLoading] = useState(false);
+	const [cursor, setCursor] = useState('');
 	const sentinelRef = useRef(null);
+	const triggerLoadThreshload = 2000; 
 
 	useEffect(() => {
 		const observer = new IntersectionObserver(
@@ -23,7 +26,7 @@ function FeedContainer({
 					loadMorePosts();
 				}
 			},
-			{ root: null, rootMargin: '200px', threshold: 0.1 }
+			{ root: null, rootMargin: `${triggerLoadThreshload}px`, threshold: 0.1 }
 		);
 
 		if (sentinelRef.current) {
@@ -34,22 +37,24 @@ function FeedContainer({
 	}, [loading]);
 
 	const loadMorePosts = async () => {
+		console.log('fetching')
 		setLoading(true);
 
-		await new Promise((resolve) => setTimeout(resolve, 1000));
+		let newPosts: PostData<'full'>[];
+		const res: Res_Feed | undefined = await onLoadPosts(cursor);
+		
+		if (res?.success) {
+			setCursor(() => res.nextCursor);
+			newPosts = res.posts; 
+		} else {
+			console.log('Failed to fetch feed: ', res ? res.error : 'failed to connect to server');
 
-		const res = onLoadPosts();
-
-		if (res.success) {
-			console.log('ACTOR:', res.actor);
-			console.log('POSTS:', res.posts);
+			newPosts = posts.slice(0, 4).map((post) => ({
+				...post,
+				timestamp: 1754513708642,
+				isFollowing: Math.random() > 0.5,
+			}));
 		}
-
-		const newPosts = posts.slice(0, 2).map((post) => ({
-			...post,
-			timestamp: 1754513708642,
-			isFollowing: Math.random() > 0.5,
-		}));
 
 		setPosts((prev) => [...prev, ...newPosts]);
 		setLoading(false);
@@ -59,16 +64,18 @@ function FeedContainer({
 		<div className={styles.feedContainer}>
 			<Banner {...bannerProps} />
 
-			<PullToRefresh onRefresh={onRefresh} containerStyling={styles.feedContainer}>
-				{posts.map((post, idx) => (
-					<div key={idx} className={styles.cardWrap}>
-						<FeedCard {...post} />
-					</div>
-				))}
+			{posts.map((post, idx) => (
+				<div key={idx} className={styles.cardWrap}>
+					<FeedCard {...post} />
+				</div>
+			))}
 
-				<div ref={sentinelRef} style={{ height: '0px' }} />
-				{loading && <LoadingSpinner />}
-			</PullToRefresh>
+			<div ref={sentinelRef} style={{
+				height: `${triggerLoadThreshload}px`,
+				marginTop: `-${triggerLoadThreshload}px`,
+				pointerEvents: 'none',
+			}} />
+			{loading && <LoadingSpinner />}
 		</div>
 	);
 }
