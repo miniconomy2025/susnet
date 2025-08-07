@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import ImageCarousel from '../ImageCarousel/ImageCarousel.tsx';
 import styles from './FeedCard.module.css';
+import { fetchApi } from '../../utils/fetchApi.ts';
 
 function getTimeAgo(epochMs: number): string {
 	const now = Date.now();
@@ -38,7 +39,7 @@ function FeedCard({
 	score,
 	isFollowingSub,
 	timestamp,
-	onVoteClick,
+	showFollowingButton,
 }) {
 	const navigate = useNavigate();
 	const [isFollowing, setIsFollowing] = useState(isFollowingSub);
@@ -48,9 +49,21 @@ function FeedCard({
 		navigate(`/subreddit/${encodeURIComponent(subName)}`);
 	};
 
-	const onFollowToggle = () => {
-		setIsFollowing((prev) => !prev);
+	const onUserClick = () => {
+		// navigate(`/subreddit/${encodeURIComponent(actorName)}`);
 	};
+
+	const onFollowToggle = async () => {
+		const prevIsFollowing = isFollowing ? true : false;
+		setIsFollowing(!prevIsFollowing);
+
+		const res = await fetchApi(prevIsFollowing ? 'unfollowActor' : 'followActor', { targetName: subName });
+
+		if (!res.success) {
+			setIsFollowing(prevIsFollowing); 
+		}
+	};
+
 
 	const handleVoteClick = (type) => {
 		const newVote = vote === type ? null : type;
@@ -67,19 +80,21 @@ function FeedCard({
 					<img className={styles.profileImage} src={subThumbnailUrl} alt="" />
 				)}
 				<span className={styles.subreddit} onClick={onSubredditClick}>
-					{subName}
+					r/{subName}
 				</span>
-				{isFollowing ? (
-					<button onClick={onFollowToggle} className={styles.button}>
+				{showFollowingButton && (
+					isFollowing ? (
+						<button onClick={onFollowToggle} className={styles.button}>
 						Following
-					</button>
-				) : (
-					<button onClick={onFollowToggle} className={`${styles.button} ${styles.joinButton}`}>
+						</button>
+					) : (
+						<button onClick={onFollowToggle} className={`${styles.button} ${styles.joinButton}`}>
 						Follow
-					</button>
+						</button>
+					)
 				)}
 				{actorName && (
-					<span className={styles.actorName}>@{actorName}</span>
+					<span className={styles.actorName} onClick={onUserClick}>@{actorName}</span>
 				)}
 				<span className={styles.timestamp}>{getTimeAgo(timestamp)}</span>
 			</div>

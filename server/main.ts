@@ -4,12 +4,13 @@ import { migrateDb } from "./db/migrate.ts";
 import mongoose from "mongoose";
 import { env } from "./utils/env.ts";
 
-import { createFederation, MemoryKvStore } from "@fedify/fedify";
 import cookieParser from "cookie-parser";
+import { integrateFederation } from "@fedify/express";
 
 import cors from "cors";
 import express from "express";
 import router from "./api.ts";
+import fed from "./fed/fed.ts";
 
 //---------- Setup ----------//
 // DB
@@ -26,25 +27,45 @@ mongoose.connect(DB_URL)
     process.exit(1);
   });
 
-// Fedify
-const fed = createFederation<void>({ kv: new MemoryKvStore() }); // TODO: Replace with DenoKvStore
-// const handlers = getServeHandlers(fed);
-// Deno.serve(req => fed.fetch(req, handlers));
 //---------- Main ----------//
 const app = express();
 
+app.set("trust proxy", true);
 app.use(cors({
-  origin: ["http://localhost:8000", "https://susnet.co.za"],
-  credentials: true,
+  // origin: ["http://localhost:8000", "https://susnet.co.za"],
+  // credentials: true,
 }));
+
+// Handle fedify
+app.use(integrateFederation(fed, () => undefined))
+
+// app.use((req, res, next) => {
+//   console.log("FEDIFY REQUEST");
+//   // if (req.path.startsWith('/api') && ["POST", "PUT", "PATCH", "DELETE"].includes(req.method)) { return next(); } // Skip
+
+//   integrateFederation(fed, (rq) => {
+//     const domain = env("DOMAIN", "localhost:3000")
+//     const url = new URL(rq.originalUrl, `${domain.startsWith('localhost') ? 'http' : 'https'}://${domain}`);
+//     console.log("URL:", url);
+//     return url;
+//   })(req, res, next);
+// });
+
+// Parse body
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
+
+// app.use('', injectFedContext, otherRoutes);
+
+// Handle API
 app.use("/api", router);
 
-app.set("trust proxy", true);
-// app.use(integrateFederation(fed, (req) => fed.fetch(req, { contextData: null })));
-
-app.use('/api', router);
+// Handle frontend
+app.use(express.static(FE_DIR));
+app.all("/{*any}", (req, res) => {
+  res.sendFile("index.html", { root: FE_DIR });
+});
 
 app.listen(PORT, () => {
   console.log(`🚀 Server is running at http://localhost:${PORT}`);

@@ -309,6 +309,7 @@ const authenticated: Set<keyof Endpoints> = new Set([
     'updateMe',
     'updateActor',
     'followActor',
+    'unfollowActor',
     'createSub',
 ]);
 

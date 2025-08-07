@@ -23,11 +23,12 @@ function Home({ refreshSubs }) {
     try { return await fetchApi('getFeed', {}, reqFeed); } catch {}
   };
 
-  const feedContainerProps: FeedContainerProps = {
-    bannerProps,
-    onLoadPosts,
-    onRefresh: async () => {},
-  };
+	const feedContainerProps: FeedContainerProps = {
+		bannerProps,
+		onLoadPosts,
+		showCardFollowButton: true,
+		onRefresh: async () => {},
+	};
 
   return (
     <>

@@ -16,8 +16,8 @@ function Account() {
 
 	const bannerProps: BannerProps = {
 		title: 'Your Feed',
-		onSettingsClick: () => setIsAccountModalOpen(true),
 		onCreatePost: () => setIsCreatePostModalOpen(true),
+		onSettingsClick: () => setIsAccountModalOpen(true),
 	};
 
 	async function onLoadPosts(cursor: string): Promise<Res_Feed | undefined> {
@@ -33,6 +33,7 @@ function Account() {
 	const feedContainerProps: FeedContainerProps = {
 		bannerProps,
 		onLoadPosts,
+		showCardFollowButton: false,
 		onRefresh: async () => {},
 	};
 
