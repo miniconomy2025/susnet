@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import FeedCard from '../FeedCard/FeedCard.tsx';
 import Banner from '../Banner/Banner.tsx';
 import LoadingSpinner from '../LoadingSpinner/LoadingSpinner.tsx';
-import PullToRefresh from '../PullToRefresh/PullToRefresh.tsx';
 import styles from './FeedContainer.module.css';
 import { FeedContainerProps } from '../../models/Feed.ts';
 import { PostData, Res_Feed } from '../../../../types/api.ts';
