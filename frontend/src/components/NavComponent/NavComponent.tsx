@@ -58,7 +58,7 @@ function NavComponent({ menuOpen, setMenuOpen, userSubs, subsLoading }: NavCompo
               userSubs.map(sub => (
                 <NavLink
                   key={sub.name}
-                  to={`/subreddit/${sub.name}`}
+                  to={`/subreddit/${encodeURIComponent(sub.name)}`}
                   caseSensitive={true}
                   className={({ isActive }) => isActive ? styles.activeLink : styles.link}
                   onClick={() => setMenuOpen(false)}
