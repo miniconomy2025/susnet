@@ -98,7 +98,7 @@ const endpoints: Endpoints = {
         if (isNew) {
             actor = await ActorModel.create(
                 {
-                    name: payload.jti,
+                    name: payload.email,
                     type: "user",
                     thumbnailUrl: payload.picture,
                 },
