@@ -9,16 +9,15 @@ const GoogleLoginButton: React.FC = () => {
     "144675851144-dqjsn3ff0urka9mogbss98irppd81sns.apps.googleusercontent.com";
 
   const handleLogin = async (credential: string) => {
-    console.log("Google JWT:", credential);
+    console.log(credential);
+    // const res = await post("/auth/login", { token: credential });
 
-    const res = await post("/auth/login", { token: credential });
-
-    const { success } = await res.json();
-    if (success) {
-      navigate("/account");
-    } else {
-      //TODO TOKEN INCORRECT
-    }
+    // const { success } = await res.json();
+    // if (success) {
+    //   navigate("/account");
+    // } else {
+    //   //TODO TOKEN INCORRECT
+    // }
   };
 
   useEffect(() => {

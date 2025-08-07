@@ -73,7 +73,6 @@ export type Req_Feed = {
 
 //--- Result types ---//
 export type Res_health        = Result<Unit>;
-export type Res_login         = Result<{ token: string }>;
 export type Res_me            = SimpleResult<{ actor: ActorData }, 'invalidAuth'>;
 export type Res_getActor      = SimpleResult<{ actor: ActorData<'full'> }, 'notFound'>;
 export type Res_getActorPosts = SimpleResult<{ posts: PostData<'full'>[] }, 'notFound'>;

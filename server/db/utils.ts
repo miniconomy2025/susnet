@@ -49,6 +49,16 @@ export async function createUserAccount({
   return { actor, auth };
 }
 
+export function createJWT(actor: DocumentType<Actor>) {
+  return jwt.sign({ id: actor._id }, JWT_SECRET, {
+    expiresIn: '7d',
+  });
+}
+
+export function verifyJWT(token: string) {
+  return jwt.verify(token, JWT_SECRET) as { id: string };
+}
+
 export async function createSub({
   name,
   thumbnailUrl,
@@ -219,10 +229,6 @@ export async function getUserVote(postId: string, actorName: string) {
 
 export async function searchActors(query: string, limit: number = 10) {
   return await ActorModel.find({ name: { $regex: query, $options: 'i' }, }).limit(limit);
-}
-
-export async function searchAuthsByExactGoogleID(ID: string) {
-  return await AuthModel.find({googleId: ID})
 }
 
 export async function searchPosts(query: string) {

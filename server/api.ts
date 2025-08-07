@@ -40,7 +40,6 @@ import {
   Res_getActorPosts,
   Res_getPost,
   Res_health,
-  Res_login,
   Res_me,
   Res_SearchActors,
   Res_SearchTags,
@@ -54,9 +53,13 @@ import express, { Request, Response } from "express";
 import { Types } from "mongoose";
 import { Unit } from "../types/types.ts";
 import { MongoServerError } from "mongodb";
+import { env } from "./utils/env.ts";
+import { Random } from "effect/Random";
+import { verify } from "node:crypto";
+import { decodeJWT, verifyJWT } from "./utils/authUtils.ts";
 
 const ORIGIN = "susnet.co.za";
-const JWT_SECRET = "";
+const JWT_SECRET = env("JWT_SECRET");
 
 //---------- Utils ----------//
 
@@ -114,25 +117,38 @@ async function getPostObjId(postId: string): Promise<Types.ObjectId | null> {
 //---------- Endpoints ----------//
 
 type ReqType = "GET" | "POST" | "PATCH" | "DELETE";
+type ReqTypeLower = "get" | "post" | "patch" | "delete";
 type Endpoints = {
-  [K in `${ReqType}|/${string}`]: (params: any, user: AuthUser) => Promise<any>;
+  [K in `${ReqType}|/${string}`]: (params: any) => Promise<any>;
 };
 
 const endpoints: Endpoints = {
   "GET|/health": async (): Promise<Res_health> => ({ success: true }),
 
-  "POST|/auth/login": async (req: Req_login): Promise<Res_login> => {
+  "POST|/auth/login": async (req: any): Promise<void> => {
+    await verifyJWT(req.token);
+    const payload = await decodeJWT(req.token);
+    const isNew = await AuthModel.findOne({
+      googleId: payload.sub,
+    }) == null;
+    let actor = null;
+    if (isNew) {
+      actor = await ActorModel.create(
+        {
+          name: payload.jti,
+          type: "user",
+          thumbnailUrl: payload.picture,
+        },
+      );
+    }
     const auth = await AuthModel.findOneAndUpdate(
-      { googleId: req.googleId },
+      { googleId: payload.sub },
       {
-        email: req.email,
-        accessToken: req.accessToken,
-        refreshToken: req.refreshToken,
+        email: payload.email,
+        ...(isNew && actor ? { actorRef: actor._id } : {}),
       },
-      { upsert: true, new: true },
+      { upsert: true, new: true, runValidators: true },
     ).exec();
-    const token = jwt.sign({ sub: auth._id.toString() }, JWT_SECRET!);
-    return { success: true, token };
   },
 
   "GET|/auth/me": async (_: Unit, user: AuthUser): Promise<Res_me> => {
@@ -390,252 +406,11 @@ const authenticated: Set<string> = new Set([
 
 const router = express.Router();
 
-//---------- Health ----------//
-
-router.get("/health", async (_: Request, res: Response) => {
-  res.json({ success: true });
-});
-
-//---------- Auth ----------//
-
-router.post("/auth/login", async (req: Request, res: Response) => {
-  const { token } = req.body;
-  if (await verifyJWT(token)) {
-    console.log("Token is real");
-    const auth = await decodeJWT(token);
-    if (auth.sub) {
-      res.cookie("token", token, {
-        httpOnly: true, // prevent JS access (XSS protection)
-        secure: process.env.NODE_ENV === "production", // use HTTPS in prod
-        sameSite: "lax", // or "strict" or "none" depending on your frontend/backend setup
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-        path: "/",
-      });
-
-      const isNew = (await searchAuthsByExactGoogleID(token)).length == 0;
-      if (isNew) {
-      }
-
-      res.json({ success: true });
-    }
-  } else {
-    res.json({ success: false });
-    //TODO YOU GOT A BAD TOKEN
-  }
-});
-
-router.get("/auth/me", async (req: Request, res: Response) => {
-  const { token } = req.cookies.token;
-  res.json({ success: true, isNew: isNew });
-});
-
-// router.post('/auth/login', async (req: Request<{}, {}, Req_login>, res: Response<Res_login>) => {
-//   const { googleId, email, accessToken, refreshToken } = req.body;
-//   // TEMP: Add name and thumbnailUrl from body until OAuth2 flow is implemented
-//   const { name, thumbnailUrl, description = '' } = req.body as any;
-
-//   const { actor } = await createUserAccount({ googleId, email, accessToken, refreshToken, name, thumbnailUrl, description });
-//   const token = createJWT(actor);
-//   res.json({ success: true, token });
-// });
-
-// router.get('/auth/me', authenticate, async (req: Request, res: Response<Res_me>) => {
-//   const actor = await ActorModel.findOne({ name: req.user.name });
-//   res.json({ success: true, actor: actor! });
-// });
-
-//---------- Actors ----------//
-
-router.get(
-  "/actors/:name",
-  async (req: Request<{ name: string }>, res: Response<Res_getActor>) => {
-    const actor = await ActorModel.findOne({ name: req.params.name });
-    if (!actor) return res.json({ success: false, error: "notFound" });
-    res.json({ success: true, actor });
-  },
-);
-
-router.get(
-  "/actors/:name/posts",
-  async (req: Request<{ name: string }>, res: Response<Res_getActorPosts>) => {
-    const posts = await getPostsForActor(req.params.name);
-    res.json({ success: true, posts });
-  },
-);
-
-router.get(
-  "/actors/:name/followers",
-  async (req: Request<{ name: string }>, res: Response<Res_followers>) => {
-    const actor = await ActorModel.findOne({ name: req.params.name });
-    if (!actor) return res.json({ success: true, followers: [] });
-
-    const followers = await FollowModel.find({ targetRef: actor._id });
-    res.json({ success: true, followers });
-  },
-);
-
-router.get(
-  "/actors/:name/following",
-  async (req: Request<{ name: string }>, res: Response<Res_following>) => {
-    const following = await getActorsFollowedBy(req.params.name);
-    res.json({ success: true, following });
-  },
-);
-
-router.get(
-  "/actors/:name/aggregate",
-  async (req: Request<{ name: string }>, res: Response<Res_aggregate>) => {
-    const agg = await getSubAggregate(req.params.name);
-    res.json({ success: true, ...agg });
-  },
-);
-
-router.post(
-  "/actors/subs",
-  authenticate,
-  async (req: Request<{}, {}, Req_createSub>, res: Response<Res_createSub>) => {
-    const sub = await createSub(req.body);
-    res.json({ success: true, sub });
-  },
-);
-
-router.patch(
-  "/actors/me",
-  authenticate,
-  async (
-    req: Request<{}, {}, Req_updateActor>,
-    res: Response<Res_updateActor>,
-  ) => {
-    const updated = await ActorModel.findOneAndUpdate(
-      { name: req.user.name },
-      req.body,
-      { new: true },
-    );
-    res.json({ success: true, actor: updated! });
-  },
-);
-
-//---------- Posts ----------//
-
-router.get(
-  "/posts/:postId",
-  async (req: Request<{ postId: string }>, res: Response<Res_getPost>) => {
-    const post = await PostModel.findOne({ postId: req.params.postId });
-    if (!post) return res.json({ success: false, error: "notFound" });
-    res.json({ success: true, post });
-  },
-);
-
-router.get(
-  "/posts/:postId/votes",
-  async (
-    req: Request<{ postId: string }>,
-    res: Response<Res_postAggregate>,
-  ) => {
-    const agg = await getPostVoteAggregate(req.params.postId);
-    res.json({ success: true, ...agg });
-  },
-);
-
-router.post(
-  "/posts",
-  authenticate,
-  async (
-    req: Request<{}, {}, Req_createPost>,
-    res: Response<Res_createPost>,
-  ) => {
-    const post = await createPost({
-      actorName: req.user.name,
-      subName: req.body.subName,
-      title: req.body.title,
-      content: req.body.content,
-      attachments: req.body.attachments,
-      tags: req.body.tags,
-    });
-    res.json({ success: true, post });
-  },
-);
-
-//---------- Votes ----------//
-
-router.post(
-  "/posts/:postId/vote",
-  authenticate,
-  async (
-    req: Request<{ postId: string }, {}, Req_vote>,
-    res: Response<Res_vote>,
-  ) => {
-    const result = await voteOnPost(
-      req.params.postId,
-      req.user.name,
-      req.body.vote as VoteType,
-    );
-    res.json({ success: true, vote: result.vote });
-  },
-);
-
-//---------- Follows ----------//
-
-router.post(
-  "/actors/:targetName/follow",
-  authenticate,
-  async (req: Request<{ targetName: string }>, res: Response<Res_follow>) => {
-    const follow = await followActor(req.user.name, req.params.targetName);
-    res.json({ success: true, follow });
-  },
-);
-
-router.delete(
-  "/actors/:targetName/follow",
-  authenticate,
-  async (req: Request<{ targetName: string }>, res: Response<Res_unfollow>) => {
-    const [follower, target] = await ActorModel.find({
-      name: { $in: [req.user.name, req.params.targetName] },
-    });
-    const followerRef = follower?.name === req.user.name
-      ? follower._id
-      : target?._id;
-    const targetRef = target?.name === req.params.targetName
-      ? target._id
-      : follower?._id;
-
-    if (followerRef && targetRef) {
-      await FollowModel.deleteOne({ followerRef, targetRef });
-    }
-
-    res.json({ success: true });
-  },
-);
-
-router.get(
-  "/actors/:targetName/following-status",
-  authenticate,
-  async (
-    req: Request<{ targetName: string }>,
-    res: Response<Res_followStatus>,
-  ) => {
-    const [follower, target] = await ActorModel.find({
-      name: { $in: [req.user.name, req.params.targetName] },
-    });
-    const followerRef = follower?.name === req.user.name
-      ? follower._id
-      : target?._id;
-    const targetRef = target?.name === req.params.targetName
-      ? target._id
-      : follower?._id;
-
-    const isFollowing = followerRef && targetRef
-      ? await FollowModel.exists({ followerRef, targetRef })
-      : false;
-
-    res.json({ success: true, following: Boolean(isFollowing) });
-  },
-);
 for (const [route, handler] of Object.entries(endpoints)) {
   const [method, path] = route.split("|");
   const middleware = authenticated.has(route) ? authenticate : noop;
 
-  router[method.toLowerCase()](
+  router[method.toLowerCase() as ReqTypeLower](
     path,
     middleware,
     async (req: Request, res: Response) => {
@@ -649,8 +424,8 @@ for (const [route, handler] of Object.entries(endpoints)) {
           "\n- PARAMS:",
           req.params,
         );
-
-        const result = await handler({ ...req.body, ...req.params }, req.user);
+        console.log("here");
+        const result = await handler({ ...req.body, ...req.params });
         res.json(result);
       } catch (err) {
         console.error("\x1b[91mERROR\x1b[0m:", err);
