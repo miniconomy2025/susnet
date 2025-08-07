@@ -32,7 +32,8 @@ function AccountModal({ isOpen, onClose, actorName }: AccountModalProps) {
   if (!isOpen) return null;
 
   function handleLogout() {
-    navigate("/login");
+    navigate("/");
+    sessionStorage.removeItem('Token');
     onClose();
   }
 

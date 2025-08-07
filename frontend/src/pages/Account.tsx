@@ -10,7 +10,8 @@ import { fetchApi } from '../utils/fetchApi';
 function Account() {
 	const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
 	const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false);
-
+	const { currentUser } = useAuth();
+	
 	const limit: number = 10;
 
 	const bannerProps: BannerProps = {
@@ -23,8 +24,10 @@ function Account() {
 		const reqFeed: Req_Feed = {
 			limit,
 			cursor,
+			fromActorName: currentUser?.name,
 		}
-
+		
+		console.log(currentUser?.name, 'loading posts');
 		try { return await fetchApi('getFeed', {}, reqFeed); } catch {}
 	};
 

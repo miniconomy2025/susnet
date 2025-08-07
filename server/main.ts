@@ -30,7 +30,6 @@ mongoose.connect(DB_URL)
 const fed = createFederation<void>({ kv: new MemoryKvStore() }); // TODO: Replace with DenoKvStore
 // const handlers = getServeHandlers(fed);
 // Deno.serve(req => fed.fetch(req, handlers));
-
 //---------- Main ----------//
 const app = express();
 
