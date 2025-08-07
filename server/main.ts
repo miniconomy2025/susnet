@@ -4,7 +4,6 @@ import { migrateDb } from "./db/migrate.ts";
 import mongoose from "mongoose";
 import { env } from "./utils/env.ts";
 
-import cookieParser from "cookie-parser";
 import { integrateFederation } from "@fedify/express";
 
 import cors from "cors";
@@ -57,7 +56,6 @@ app.use(integrateFederation(fed, () => undefined))
 // Parse body
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(cookieParser());
 
 // app.use('', injectFedContext, otherRoutes);
 
@@ -66,7 +64,10 @@ app.use("/api", router);
 
 // Handle frontend
 app.use(express.static(FE_DIR));
-app.all("/{*any}", (req, res) => {
+app.all("/{*any}", (req, res, next) => {
+  if (req.baseUrl.includes('/fed') || req.baseUrl.includes('/api')) {
+    next()
+  }
   res.sendFile("index.html", { root: FE_DIR });
 });
 
