@@ -7,6 +7,7 @@ function Banner({
 	title,
 	membershipStatus = MembershipStatus.NOT_JOINED,
 	onCreatePost,
+	onCreateSub,
 	onSetMembershipClick,
 	onSettingsClick,
 }: BannerProps) {
@@ -52,6 +53,11 @@ function Banner({
 					{onCreatePost && (
 						<button className={styles.bannerButton} onClick={onCreatePost}>
 							Create Post
+						</button>
+					)}
+					{onCreateSub && (
+						<button className={styles.bannerButton} onClick={onCreateSub}>
+							Create Sub
 						</button>
 					)}
 					{onSetMembershipClick && (

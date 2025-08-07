@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import ImageCarousel from '../ImageCarousel/ImageCarousel.tsx';
 import styles from './FeedCard.module.css';
+import { fetchApi } from '../../utils/fetchApi.ts';
 
 function getTimeAgo(epochMs: number): string {
 	const now = Date.now();
@@ -48,9 +49,26 @@ function FeedCard({
 		navigate(`/subreddit/${encodeURIComponent(subName)}`);
 	};
 
-	const onFollowToggle = () => {
-		setIsFollowing((prev) => !prev);
+	const onFollowToggle = async () => {
+		const prevIsFollowing = isFollowing;
+		const endpoint = prevIsFollowing ? 'unfollowActor' : 'followActor';
+
+		setIsFollowing(!prevIsFollowing);
+
+		console.log("Sending request to", endpoint);
+
+		const res = await fetchApi(endpoint, { targetName: subName });
+
+		console.log(res);
+
+		if (res.success) {
+			console.log("Success");
+		} else {
+			console.log("Failed, reverting");
+			setIsFollowing(prevIsFollowing); 
+		}
 	};
+
 
 	const handleVoteClick = (type) => {
 		const newVote = vote === type ? null : type;
@@ -67,7 +85,7 @@ function FeedCard({
 					<img className={styles.profileImage} src={subThumbnailUrl} alt="" />
 				)}
 				<span className={styles.subreddit} onClick={onSubredditClick}>
-					{subName}
+					r/{subName}
 				</span>
 				{isFollowing ? (
 					<button onClick={onFollowToggle} className={styles.button}>

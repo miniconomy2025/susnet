@@ -27,6 +27,9 @@ mongoose.connect(DB_URL)
     process.exit(1);
   });
 
+// Fedify
+// const handlers = getServeHandlers(fed);
+// Deno.serve(req => fed.fetch(req, handlers));
 //---------- Main ----------//
 const app = express();
 
