@@ -481,7 +481,7 @@ export async function getFeed({ limit = 20, cursor, fromActorName, sort = "top" 
           upvotes: "$upCount",
           downvotes: "$downCount",
           score: "$score",
-          followed: "$followed",
+          isFollowingSub: "$followed",
       }}
     );
 
