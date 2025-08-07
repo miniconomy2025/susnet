@@ -8,7 +8,7 @@ import { PostData, Res_Feed } from '../../../../types/api.ts';
 
 function FeedContainer({
 	bannerProps,
-	availablePosts,
+	availablePosts = [],
 	onLoadPosts,
 	onRefresh,
 }: FeedContainerProps) {
@@ -43,20 +43,13 @@ function FeedContainer({
 		const res: Res_Feed | undefined = await onLoadPosts(cursor);
 		
 		if (res?.success) {
-			setCursor(() => res.nextCursor);
+			if (res.nextCursor) setCursor(() => res.nextCursor);
 			newPosts = res.posts; 
+			setPosts((prev) => [...prev, ...newPosts]);
+			setLoading(false);
 		} else {
 			console.log('Failed to fetch feed: ', res ? res.error : 'failed to connect to server');
-
-			newPosts = posts.slice(0, 4).map((post) => ({
-				...post,
-				timestamp: 1754513708642,
-				isFollowing: Math.random() > 0.5,
-			}));
 		}
-
-		setPosts((prev) => [...prev, ...newPosts]);
-		setLoading(false);
 	};
 
 	return (
