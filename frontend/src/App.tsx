@@ -14,8 +14,9 @@ import { useUserSubs } from './hooks/UseUserSubs.ts';
 
 function App() {
 	const [menuOpen, setMenuOpen] = useState(false);
-	const { currentUser } = useAuth();
+	const { currentUser, loading: authLoading } = useAuth();
 	const { userSubs, loading: subsLoading, refreshSubs } = useUserSubs(currentUser?.name || "");
+	
 
 	return (
 		<Router>
@@ -27,6 +28,7 @@ function App() {
 						setMenuOpen={setMenuOpen}
 						userSubs={userSubs}
 						subsLoading={subsLoading}
+						authLoading={authLoading}
 					/>
 					<main className="contentContainer">
 						<Routes>

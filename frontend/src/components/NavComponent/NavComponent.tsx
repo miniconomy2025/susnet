@@ -9,11 +9,11 @@ interface NavComponentProps {
   setMenuOpen: (open: boolean) => void;
   userSubs: ActorData[];
   subsLoading: boolean;
+  authLoading: boolean;
 }
 
-function NavComponent({ menuOpen, setMenuOpen, userSubs, subsLoading }: NavComponentProps) {
+function NavComponent({ menuOpen, setMenuOpen, userSubs, subsLoading, authLoading  }: NavComponentProps) {
   const location = useLocation();
-  const { loading: authLoading } = useAuth();
 
   const hideOnPaths = ["/", "/login"];
 

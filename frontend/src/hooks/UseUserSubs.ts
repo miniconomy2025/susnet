@@ -1,22 +1,21 @@
+// UseUserSubs.ts
 import { useState, useEffect, useCallback } from 'react';
 import { fetchApi } from '../utils/fetchApi';
 import { ActorData } from '../../../types/api';
-import { useAuth } from './UseAuth';
 
-export const useUserSubs = () => {
-  const { currentUser } = useAuth();
+export const useUserSubs = (userName: string) => {
   const [userSubs, setUserSubs] = useState<ActorData[]>([]);
   const [loading, setLoading] = useState(false);
 
   const loadUserSubs = useCallback(async () => {
-    if (!currentUser?.name) return;
+    if (!userName) return;
     setLoading(true);
-    const res = await fetchApi("getActorFollowing", { name: currentUser.name });
+    const res = await fetchApi("getActorFollowing", { name: userName });
     if (res.success) {
       setUserSubs(res.following);
     }
     setLoading(false);
-  }, [currentUser?.name]);
+  }, [userName]);
 
   useEffect(() => {
     loadUserSubs();
