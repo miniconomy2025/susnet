@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 import ImageCarousel from '../ImageCarousel/ImageCarousel.tsx';
 import styles from './FeedCard.module.css';
-import { PostData } from '../../../../types/api.ts';
 
 function getTimeAgo(epochMs: number): string {
 	const now = Date.now();
@@ -39,15 +39,16 @@ function FeedCard({
 	score,
 	isFollowingSub,
 	timestamp,
-}: PostData<'full'>) {
+}) {
 	const navigate = useNavigate();
+	const [isFollowing, setIsFollowing] = useState(isFollowingSub);
 
 	const onSubredditClick = () => {
 		navigate(`/subreddit/${encodeURIComponent(subName)}`);
 	};
 
-	const onFollowClick = () => {
-		// TODO: Add follow functionality
+	const onFollowToggle = () => {
+		setIsFollowing(() => !isFollowing);
 	};
 
 	return (
@@ -59,15 +60,14 @@ function FeedCard({
 				<span className={styles.subreddit} onClick={onSubredditClick}>
 					r/{subName}
 				</span>
-				{isFollowingSub ? (
-					<button className={`${styles.button}`}>Following</button>
+				{isFollowing ? (
+					<button onClick={onFollowToggle} className={`${styles.button}`}>Following</button>
 				) : (
 					<button
-						type="button"
-						onClick={onFollowClick}
+						onClick={onFollowToggle}
 						className={`${styles.button} ${styles.joinButton}`}
 					>
-						Join
+						Follow
 					</button>
 				)}
 				<span className={styles.timestamp}>{getTimeAgo(timestamp)}</span>
