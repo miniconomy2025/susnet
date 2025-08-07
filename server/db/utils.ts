@@ -457,7 +457,7 @@ export async function getFeed({ limit = 20, cursor, fromActorName, sort = "top" 
     );
 
     const docs = (await PostModel.aggregate(pipeline)) satisfies PostData<'full'>[];
-    const nextCursor = docs.length > 0 ? docs[docs.length - 1].postId : "";
+    const nextCursor = docs.length > 0 ? docs[docs.length - 1].postId : null;
 
     return { success: true, posts: docs, nextCursor };
   }
