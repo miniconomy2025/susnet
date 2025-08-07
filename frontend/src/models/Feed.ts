@@ -11,7 +11,7 @@ export interface BannerProps {
 
 export interface FeedContainerProps {
 	bannerProps: BannerProps;
-	availablePosts: PostData<'full'>[];
+	availablePosts?: PostData<'full'>[];
 	onLoadPosts: (cursor: string) => Promise<Res_Feed | undefined>;
 	onRefresh: () => Promise<void>;
 }
