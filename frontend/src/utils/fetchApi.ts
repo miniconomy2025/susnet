@@ -10,9 +10,19 @@ export async function fetchApi<const E extends keyof EndpointIO>(endpoint: E, pa
         headers.Authorization = `Bearer ${token}`;
     }
 
-    return (await fetch(`http://localhost:3000/api${endpt}`, {
+    const response = await fetch(`http://localhost:3000/api${endpt}`, {
         method: endpointSignatures[endpoint][0],
         headers, 
         body: Object.keys(data).length > 0 ? JSON.stringify(data) : undefined
-    })).json();
+    });
+
+    if (response.status === 401) {
+        sessionStorage.removeItem('Token');
+        if (window.location.pathname !== '/') {
+            window.location.href = '/';
+        }
+        throw new Error('Token expired');
+    }
+
+    return response.json();
 };
