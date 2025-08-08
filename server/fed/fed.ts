@@ -348,9 +348,20 @@ fed.setInboxListeners("/users/{identifier}/inbox", "/inbox")
         const existingPost = await PostModel.findOne({ uri: object.id.href });
         if (existingPost) return;
 
-        // Find a sub to post to (for now, just use the first sub)
-        const sub = await ActorModel.findOne({ type: ActorType.sub });
-        if (sub == null) return;
+        // Create or find external sub based on origin domain
+        const originDomain = new URL(actor.href).hostname;
+        const extSubName = `ext_${originDomain}`;
+        
+        let sub = await ActorModel.findOne({ name: extSubName, type: ActorType.sub });
+        if (!sub) {
+            sub = await ActorModel.create({
+                name: extSubName,
+                type: ActorType.sub,
+                thumbnailUrl: `https://placehold.co/100x100?font=roboto&text=${encodeURIComponent(originDomain)}`,
+                description: `External posts from ${originDomain}`,
+                origin: originDomain,
+            });
+        }
 
         try {
             await PostModel.create({
