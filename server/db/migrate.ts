@@ -3,6 +3,7 @@
 import mongoose from "mongoose";
 import { ActorModel, PostModel, VoteModel, FollowModel, Actor, ActorType, Follow, VoteType, FollowRole } from './schema.ts';
 import type { Ref } from '@typegoose/typegoose';
+import fed from "../fed/fed.ts";
 
 //---------- Setup ----------//
 const HOST = 'https://susnet.co.za';
@@ -59,7 +60,13 @@ const generateActor = (type: ActorType, existing: Set<string>): Actor => {
   return {
     name, type,
     thumbnailUrl: `https://placehold.co/100x100?font=roboto&text=${encodeURIComponent(name)}`,
-    description: `${title(type.toString())} ${type === ActorType.user ? "bio" : "description"} for ${name}`
+    description: `${title(type.toString())} ${type === ActorType.user ? "bio" : "description"} for ${name}`,
+    // TODO: Show this on the frontend
+
+    // uri:          ctx.getActorUri(name).href,
+    // inbox:        ctx.getInboxUri(name).href, // "http[s]://*"
+    // sharedInbox:  ctx.getInboxUri().href,     // "http[s]://*"
+    // url:          ctx.getActorUri(name).href, // Profile page URL
   };
 };
 
@@ -77,13 +84,13 @@ const generatePost = (actorRef: Ref<Actor>, subRef: Ref<Actor>) => {
 };
 
 export const migrateDb = async (
-  numUsers: number = 256,
-  numSubs: number = 64,
-  numPosts: number = 1024,
-  followRatio: number = 0.1,
-  modCount: number = 3,
-  subRatio: number = 0.1,
-  voteRatio: number = 0.1
+  numUsers: number = 4,
+  numSubs: number = 10,
+  numPosts: number = 50,
+  followRatio: number = 0.3,
+  modCount: number = 2,
+  subRatio: number = 0.2,
+  voteRatio: number = 0.2
 ) => {
   console.log('🌱 Populating DB...');
 

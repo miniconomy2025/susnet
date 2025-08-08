@@ -5,8 +5,8 @@ import {
     Person, PUBLIC_COLLECTION, exportJwk, generateCryptoKeyPair,
     getActorHandle, isActor, Undo, type Actor as APActor, type Recipient,
 } from "@fedify/fedify";
-import { DenoKvStore } from "@fedify/fedify/x/denokv";
 import { ActorModel, ActorType, KeyModel, Key, PostModel, FollowModel, Actor, VoteModel, VoteType } from "../db/schema.ts";
+import { DenoKvStore } from "@fedify/fedify/x/denokv";
 import { NextFunction } from "express";
 
 //---------- Setup federation instance ----------//
@@ -25,7 +25,7 @@ export interface FederatedRequest extends Request { fedCtx: any; }
 //     const domain = process.env.DOMAIN || 'localhost:8000';
 //     const protocol = domain.includes('localhost') ? 'http' : 'https';
 //     const baseUrl = `${protocol}://${domain}`;
-    
+
 //     req.fedCtx = fed.createContext(new URL(req.originalUrl, baseUrl), { request: req, response: res });
 //     next();
 
@@ -41,11 +41,9 @@ export interface FederatedRequest extends Request { fedCtx: any; }
 fed.setActorDispatcher("/users/{identifier}", async (ctx, id) => {
     console.log("LOOKING FOR ACTOR:", id);
     const actor = await ActorModel.findOne({ name: id });
-    console.log("ACTOR:", actor);
     if (actor == null) return null;
 
-    console.log("GETTING KEYS");
-    // const keys = await ctx.getActorKeyPairs(id);
+    const keys = await ctx.getActorKeyPairs(id);
     // console.log("KEYS:", keys);
 
     const actorData: any = {
@@ -56,30 +54,20 @@ fed.setActorDispatcher("/users/{identifier}", async (ctx, id) => {
         inbox: ctx.getInboxUri(id),
         endpoints: new Endpoints({ sharedInbox: ctx.getInboxUri() }),
         url: ctx.getActorUri(id),
-        // publicKey: keys[0]?.cryptographicKey,
+        publicKey: keys[0]?.cryptographicKey,
     };
 
     try {
-        if (actor.thumbnailUrl && !actor.thumbnailUrl.startsWith('<')) {
-            actorData.icon = new URL(actor.thumbnailUrl);
-        }
-    } catch {
-        // Ignore invalid thumbnail URLs
-    }
+        // if (actor.thumbnailUrl && !actor.thumbnailUrl.startsWith('<')) { actorData.icon = new URL(actor.thumbnailUrl); }
+    } catch { }
 
     return new (actor.type === ActorType.user ? Person : Group)(actorData);
 }).setKeyPairsDispatcher(async (ctx, id) => {
     const user = await ActorModel.findOne({ name: id });
-    console.log("ID:", id);
     if (user == null) return [];
-
-    console.log("USER ID:", user._id);
 
     const rows = await KeyModel.find({ actorRef: user._id })
     const keys = Object.fromEntries(rows.map((row) => [row.keyType, row])) as Record<Key["keyType"], Key>;
-
-    console.log("ROWS:", rows);
-    console.log("KEYS:", keys);
 
     const pairs: CryptoKeyPair[] = [];
 
@@ -93,8 +81,6 @@ fed.setActorDispatcher("/users/{identifier}", async (ctx, id) => {
 
             const pubKey = JSON.stringify(await exportJwk(privateKey));
             const prvKey = JSON.stringify(await exportJwk(publicKey));
-            console.log("PUB:", pubKey);
-            console.log("PRV:", prvKey);
 
             await KeyModel.findOneAndUpdate({ actorRef: user._id, keyType }, {
                 actorRef: user._id,
@@ -110,11 +96,9 @@ fed.setActorDispatcher("/users/{identifier}", async (ctx, id) => {
                 privateKey: await importJwk(JSON.parse(keys[keyType].privateKey), "private"),
                 publicKey: await importJwk(JSON.parse(keys[keyType].publicKey), "public"),
             });
-            console.log("PAIRS LAST:", pairs.at(-1));
         }
     }
 
-    console.log("KEY PAIRS:", pairs);
     return pairs;
 });
 
@@ -122,7 +106,7 @@ fed.setActorDispatcher("/users/{identifier}", async (ctx, id) => {
 fed.setObjectDispatcher(Note, "/users/{identifier}/posts/{postId}", async (ctx, { identifier: id, postId }) => {
     const post = await PostModel.findOne({ postId }).populate('actorRef');
     if (post == null) return null;
-    
+
     const actor = post.actorRef as Actor;
     if (actor?.name !== id) return null;
 
@@ -260,19 +244,19 @@ fed.setInboxListeners("/users/{identifier}/inbox", "/inbox")
     .on(Accept, async (ctx, accept) => {
         const follow = await accept.getObject();
         if (!(follow instanceof Follow)) return;
-        
+
         const following = await accept.getActor();
         if (!isActor(following)) return;
-        
+
         const follower = follow.actorId;
         if (follower == null) return;
-        
+
         const parsed = ctx.parseUri(follower);
         if (parsed == null || parsed.type !== "actor") return;
-        
+
         const followingActor = await persistActor(following);
         const followerActor = await ActorModel.findOne({ name: parsed.identifier });
-        
+
         if (followingActor && followerActor) {
             await FollowModel.findOneAndUpdate(
                 { followerRef: followerActor._id, targetRef: followingActor._id },
@@ -283,13 +267,13 @@ fed.setInboxListeners("/users/{identifier}/inbox", "/inbox")
     })
     .on(Like, async (ctx, like) => {
         if (like.objectId == null || like.actorId == null) return;
-        
+
         const parsed = ctx.parseUri(like.objectId);
         if (parsed == null || parsed.type !== "object") return;
-        
+
         const post = await PostModel.findOne({ postId: parsed.values.postId });
         const liker = await ActorModel.findOne({ uri: like.actorId.href });
-        
+
         if (post && liker) {
             await VoteModel.findOneAndUpdate(
                 { postId: post._id, actorRef: liker._id },
@@ -300,30 +284,30 @@ fed.setInboxListeners("/users/{identifier}/inbox", "/inbox")
     })
     .on(Undo, async (ctx, undo) => {
         const object = await undo.getObject();
-        
+
         if (object instanceof Follow) {
             if (undo.actorId == null || object.objectId == null) return;
-            
+
             const parsed = ctx.parseUri(object.objectId);
             if (parsed == null || parsed.type !== "actor") return;
-            
+
             const following = await ActorModel.findOne({ name: parsed.identifier });
             const follower = await ActorModel.findOne({ uri: undo.actorId.href });
-            
+
             if (following && follower) {
                 await FollowModel.deleteOne({ followerRef: follower._id, targetRef: following._id });
             }
         }
-        
+
         if (object instanceof Like) {
             if (undo.actorId == null || object.objectId == null) return;
-            
+
             const parsed = ctx.parseUri(object.objectId);
             if (parsed == null || parsed.type !== "object") return;
-            
+
             const post = await PostModel.findOne({ postId: parsed.values.postId });
             const unliker = await ActorModel.findOne({ uri: undo.actorId.href });
-            
+
             if (post && unliker) {
                 await VoteModel.deleteOne({ postId: post._id, actorRef: unliker._id });
             }
@@ -332,20 +316,20 @@ fed.setInboxListeners("/users/{identifier}/inbox", "/inbox")
     .on(Create, async (ctx, create) => {
         const object = await create.getObject();
         if (!(object instanceof Note)) return;
-        
+
         const actor = create.actorId;
         if (actor == null) return;
-        
+
         const author = await object.getAttribution();
         if (!isActor(author) || author.id?.href !== actor.href) return;
-        
+
         const actorDoc = await persistActor(author);
         if (actorDoc == null || object.id == null) return;
-        
+
         // Find a sub to post to (for now, just use the first sub)
         const sub = await ActorModel.findOne({ type: ActorType.sub });
         if (sub == null) return;
-        
+
         await PostModel.create({
             actorRef: actorDoc._id,
             subRef: sub._id,
@@ -359,21 +343,23 @@ async function persistActor(actor: APActor): Promise<Actor | null> {
         console.log('Actor is missing required fields:', actor);
         return null;
     }
-    
-    const handle = await getActorHandle(actor);
+
+    const handle = (await getActorHandle(actor)).slice(1);
     const name = handle?.split('@')[0] || actor.preferredUsername || 'unknown';
-    
+    const origin = handle?.split('@')[1] || 'unknown';
+
     return await ActorModel.findOneAndUpdate(
         { uri: actor.id.href },
         {
             name,
             type: ActorType.user,
-            thumbnailUrl: (await actor.getIcon())?.url?.href,
+            // thumbnailUrl: (await actor.getIcon())?.url?.href,
             description: actor.summary?.toString() || '',
             uri: actor.id.href,
             inbox: actor.inboxId.href,
             sharedInbox: actor.endpoints?.sharedInbox?.href || actor.inboxId.href,
             url: actor.url?.href || actor.id.href,
+            origin
         },
         { upsert: true, new: true }
     );
