@@ -306,12 +306,34 @@ const endpoints: Endpoints = {
         return { success: true };
     },
 
-    'updateActor': async (_, { actorName, ...rest }: { actorName: string } & Req_EditActor, user: AuthUser): Promise<Res_EditActor> => {
+    'updateActor': async (req: Req_EditActor, { actorName }: { actorName: string }, user: AuthUser): Promise<Res_EditActor> => {
+        // Check if user owns the actor or is a moderator of the subreddit
+        const actor = await ActorModel.findOne({ name: actorName }).lean().exec();
+        if (!actor) return { success: false, error: 'notFound' };
+        
+        // For users, only allow editing own profile
+        if (actor.type === 'user' && actor._id.toString() !== user.id.toString()) {
+            return { success: false, error: 'notFound' };
+        }
+        
+        // For subreddits, check if user is a moderator
+        if (actor.type === 'sub') {
+            const modRelation = await FollowModel.findOne({ 
+                targetRef: actor._id, 
+                followerRef: user.id, 
+                role: 'mod' 
+            }).lean().exec();
+            console.log('Mod relation check:', { actorId: actor._id, userId: user.id, modRelation });
+            if (!modRelation) return { success: false, error: 'notFound' };
+        }
+        
+        console.log('Updating actor:', { actorName, updates: req });
         const updated = await ActorModel.findOneAndUpdate(
-            { name: actorName, _id: user.id },
-            rest,
+            { name: actorName },
+            req,
             { new: true }
         ).lean().exec();
+        console.log('Update result:', updated);
         if (updated == null) return { success: false, error: 'notFound' };
         return { success: true };
     },
