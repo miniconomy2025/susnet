@@ -26,6 +26,8 @@ mongoose.connect(DB_URL)
     process.exit(1);
   });
 
+// migrateDb();
+
 //---------- Main ----------//
 const app = express();
 

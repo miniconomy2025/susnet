@@ -1,14 +1,16 @@
 ###
-GET http://localhost:3000/.well-known/webfinger?resource=acct:spooky_galaxy_16@localhost:8000
+GET http://localhost:3000/.well-known/webfinger?resource=acct:tidy_panda_912@localhost:3000
 
 ###
-GET http://localhost:3000/users/tidy_panda_912
+GET http://localhost:3000/users/tidy_panda_91
 Accept: application/activity+json
 
 ###
 GET http://localhost:3000/posts/1Tfdd7IJhZ
 Accept: application/activity+json
 
+###
+GET http://localhost:3000
 
 ###
 GET https://41c7f1827d6d26.lhr.life/users/tidy_panda_912

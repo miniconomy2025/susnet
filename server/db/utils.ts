@@ -29,6 +29,7 @@ import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { Buffer } from "node:buffer";
 import { randomUUID } from "node:crypto";
 import process from "node:process";
+import fed from "../fed/fed.ts";
 
 //---------- Setup ----------//
 const JWT_SECRET = env("JWT_SECRET");
@@ -94,13 +95,12 @@ export async function getActorData(
   const actorDoc = await ActorModel.findOne({ name }).lean().exec();
   if (!actorDoc) return null;
 
-  const [postCount, followerCount, followingCount, isFollowing] = await Promise
-    .all([
-      PostModel.countDocuments({ subRef: actorDoc._id }),
-      FollowModel.countDocuments({ targetRef: actorDoc._id }),
-      FollowModel.countDocuments({ followerRef: actorDoc._id }),
-      FollowModel.exists({ targetRef: actorDoc._id, followerRef: userId }),
-    ]);
+  const [postCount, followerCount, followingCount, isFollowing] = await Promise.all([
+    PostModel.countDocuments({ subRef: actorDoc._id }),
+    FollowModel.countDocuments({ targetRef: actorDoc._id }),
+    FollowModel.countDocuments({ followerRef: actorDoc._id }),
+    userId ? FollowModel.exists({ targetRef: actorDoc._id, followerRef: userId }).then(Boolean) : false,
+  ]);
 
   return {
     name: actorDoc.name,
@@ -111,8 +111,8 @@ export async function getActorData(
     postCount,
     followerCount,
     followingCount,
-    isFollowing,
-  };
+    isFollowing, // TODO: Fix
+  }
 }
 
 export async function getPostObjId(
@@ -255,20 +255,20 @@ export async function searchTags(query: string) {
 
 //---------- Create ----------//
 
-export async function createUserAccount(
-  user: ActorData<"simple">,
-  auth: AuthData,
-): Promise<
-  SimpleResult<
-    { actorDoc: DocumentType<Actor>; token: string },
-    "internalError"
-  >
-> {
+export async function createUserAccount(req: Request, user: ActorData<"simple">, auth: AuthData): Promise<SimpleResult<{ actorDoc: DocumentType<Actor>, token: string }, 'internalError'>  > {
+  const ctx = fed.createContext(req, undefined);
+
   const actorDoc = await ActorModel.create({
-    name: user.name,
-    type: "user",
+    name:         user.name,
+    type:         'user',
     thumbnailUrl: user.thumbnailUrl,
-    description: user.description,
+    description:  user.description,
+
+    // TODO: Show this on the frontend
+    uri:          ctx.getActorUri(user.name).href,
+    inbox:        ctx.getInboxUri(user.name).href, // "http[s]://*"
+    sharedInbox:  ctx.getInboxUri().href,          // "http[s]://*"
+    url:          ctx.getActorUri(user.name).href, // Profile page URL
   });
 
   const authDoc = await AuthModel.findOneAndUpdate(

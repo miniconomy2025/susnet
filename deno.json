@@ -1,7 +1,7 @@
 {
   "tasks": {
     "dev": "deno run --env-file --allow-env --allow-net --allow-sys --allow-read --watch server/main.ts",
-    "live": "deno run dev & fedify tunnel 8000",
+    "live": "deno run dev & fedify tunnel 3000",
 
     "fe": "deno run -A --node-modules-dir npm:vite dev",
     "build": "deno run -A --node-modules-dir npm:vite build",

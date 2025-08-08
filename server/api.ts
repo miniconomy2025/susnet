@@ -86,7 +86,7 @@ function toPostDataFull(
 const endpoints: Endpoints = {
     'health': async (): Promise<Res_health> => ({ success: true }),
 
-    'login': async (req: Req_login): Promise<void> => {
+    'login': async (req: Req_login): Promise<Res_login> => {
         // return await createUserAccount({
         //   name: req.googleId,
         //   type: ActorType.user,
@@ -103,10 +103,7 @@ const endpoints: Endpoints = {
       // TODO: Move to createUserAccount
         await verifyJWT(req.token);
         const payload = await decodeJWT(req.token);
-        const isNew = await AuthModel.findOne({
-            googleId: payload.sub,
-        }) == null;
-        let actor = null;
+        const isNew = await AuthModel.findOne({ googleId: payload.sub }) == null; let actor = null;
         if (isNew) {
             actor = await ActorModel.create(
                 {
@@ -124,6 +121,8 @@ const endpoints: Endpoints = {
             },
             { upsert: true, new: true, runValidators: true },
         ).exec();
+
+        return { success: true };
     },
 
     'me': async (_1, _2, user: AuthUser): Promise<Res_me> => {
