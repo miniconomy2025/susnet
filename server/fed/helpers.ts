@@ -1,9 +1,9 @@
-import { Context } from "@fedify/fedify";
+import { Context, Create, Follow, Like, Note, PUBLIC_COLLECTION, Undo } from "@fedify/fedify";
 import { ActorModel, PostModel, VoteModel, VoteType, ExternalPostModel } from "../db/schema.ts";
 
 // Helper functions for ActivityPub operations
 
-export async function sendFollowActivity(ctx: Context, followerName: string, targetUri: string) {
+export async function sendFollowActivity(ctx: Context<any>, followerName: string, targetUri: string) {
     const follower = await ActorModel.findOne({ name: followerName });
     if (!follower) throw new Error("Follower not found");
     
@@ -16,7 +16,7 @@ export async function sendFollowActivity(ctx: Context, followerName: string, tar
     await ctx.sendActivity({ identifier: followerName }, targetUri, follow);
 }
 
-export async function sendUnfollowActivity(ctx: Context, followerName: string, targetUri: string) {
+export async function sendUnfollowActivity(ctx: Context<any>, followerName: string, targetUri: string) {
     const follower = await ActorModel.findOne({ name: followerName });
     if (!follower) throw new Error("Follower not found");
     
@@ -33,7 +33,7 @@ export async function sendUnfollowActivity(ctx: Context, followerName: string, t
     await ctx.sendActivity({ identifier: followerName }, targetUri, undo);
 }
 
-export async function sendLikeActivity(ctx: Context, likerName: string, postUri: string) {
+export async function sendLikeActivity(ctx: Context<any>, likerName: string, postUri: string) {
     const like = new Like({
         actor: ctx.getActorUri(likerName),
         object: new URL(postUri),
@@ -42,7 +42,7 @@ export async function sendLikeActivity(ctx: Context, likerName: string, postUri:
     await ctx.sendActivity({ identifier: likerName }, postUri, like);
 }
 
-export async function sendUnlikeActivity(ctx: Context, likerName: string, postUri: string) {
+export async function sendUnlikeActivity(ctx: Context<any>, likerName: string, postUri: string) {
     const originalLike = new Like({
         actor: ctx.getActorUri(likerName),
         object: new URL(postUri),
@@ -56,7 +56,7 @@ export async function sendUnlikeActivity(ctx: Context, likerName: string, postUr
     await ctx.sendActivity({ identifier: likerName }, postUri, undo);
 }
 
-export async function sendCreatePostActivity(ctx: Context, authorName: string, postId: string) {
+export async function sendCreatePostActivity(ctx: Context<any>, authorName: string, postId: string) {
     const post = await PostModel.findOne({ postId }).populate('actorRef');
     if (!post) throw new Error("Post not found");
     
