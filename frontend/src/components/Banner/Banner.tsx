@@ -1,45 +1,46 @@
-import React, { useEffect, useState } from 'react';
-import { BannerProps, MembershipStatus } from '../../models/Feed';
+import { useEffect, useState } from 'react';
+import { BannerProps } from '../../models/Feed';
 import styles from './Banner.module.css';
+import { fetchApi } from '../../utils/fetchApi';
 
 function Banner({
 	displayImage,
 	title,
-	membershipStatus = MembershipStatus.NOT_JOINED,
+	initialIsFollowing,
 	onCreatePost,
-	onSetMembershipClick,
+	onCreateSub,
 	onSettingsClick,
+	refreshSubs,
+	isModerator,
 }: BannerProps) {
-	const [localStatus, setLocalStatus] = useState<MembershipStatus>(membershipStatus);
-	const [pending, setPending] = useState(false);
+	const [isFollowing, setIsFollowing] = useState(initialIsFollowing);
 
 	useEffect(() => {
-		setLocalStatus(membershipStatus ?? MembershipStatus.NOT_JOINED);
-	}, [membershipStatus]);
+		const fetchFollowingStatus = async () => {
+			const res = await fetchApi('getFollowingStatus', { targetName: title });
+			if (res?.success) {
+				setIsFollowing(res.following)
+			}
+		};
+		if (initialIsFollowing !== undefined) fetchFollowingStatus();
+	}, []);
 
-	const buttonText = localStatus === MembershipStatus.JOINED ? 'Leave' : 'Join';
+	const onFollowToggle = async () => {
+		const prevIsFollowing = isFollowing ? true : false;
+		setIsFollowing(!prevIsFollowing);
 
-	const handleMembershipClick = async () => {
-		if (!onSetMembershipClick || pending) return;
-		const newStatus =
-			localStatus === MembershipStatus.JOINED
-				? MembershipStatus.NOT_JOINED
-				: MembershipStatus.JOINED;
-		setLocalStatus(newStatus);
-		setPending(true);
-		try {
-			await onSetMembershipClick(newStatus);
-		} catch (err) {
-			setLocalStatus(localStatus);
-			console.error('Failed to update membership:', err);
-		} finally {
-			setPending(false);
+		const res = await fetchApi(prevIsFollowing ? 'unfollowActor' : 'followActor', { targetName: title });
+
+		if (!res.success) {
+			setIsFollowing(prevIsFollowing); 
+		} else {
+			refreshSubs?.();
 		}
 	};
 
 	return (
 		<div className={styles.bannerWrapper}>
-			<div className={styles.banner}>
+			<div className={`${styles.banner} ${isModerator ? styles.moderatorBanner : ''}`}>
 				<h1 className={styles.bannerTitle}>{title}</h1>
 			</div>
 			<div className={styles.bannerOverlay}>
@@ -54,14 +55,21 @@ function Banner({
 							Create Post
 						</button>
 					)}
-					{onSetMembershipClick && (
-						<button
-							className={`${styles.bannerButton} ${styles.joinButton}`}
-							onClick={handleMembershipClick}
-							disabled={pending}
-						>
-							{pending ? 'Saving...' : buttonText}
+					{onCreateSub && (
+						<button className={styles.bannerButton} onClick={onCreateSub}>
+							Create Sub
 						</button>
+					)}
+					{initialIsFollowing !== undefined && (
+						isFollowing ? (
+							<button onClick={onFollowToggle} className={`${styles.bannerButton} ${styles.followingButton}`}>
+							Following
+							</button>
+						) : (
+							<button onClick={onFollowToggle} className={`${styles.bannerButton} ${styles.followButton}`}>
+							Follow
+							</button>
+						)
 					)}
 					{onSettingsClick && (
 						<button

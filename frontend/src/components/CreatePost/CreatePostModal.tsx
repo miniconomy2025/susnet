@@ -1,16 +1,17 @@
 import { useEffect, useState } from 'react';
 import styles from './CreatePostModal.module.css';
+import { createBase64 } from "../../utils/createBase64.ts";
 
 function CreatePostModal({ isOpen, onClose, onSubmit }) {
   const [title, setTitle] = useState('');
   const [textBody, setTextBody] = useState('');
   const [attachments, setAttachments] = useState([]);
 
-  const handleImageUpload = (event) => {
-    const files = Array.from(event.target.files);
-    const urls = files.map((file) => URL.createObjectURL(file));
-    setAttachments((prev) => [...prev, ...urls]);
-  };
+const handleImageUpload = async (event) => {
+  const files = Array.from(event.target.files);
+  const urls = await Promise.all(files.map((file) => createBase64(file)));
+  setAttachments((prev) => [...prev, ...urls]);
+};
 
   const handleSubmit = () => {
     onSubmit?.({ title, textBody, attachments });

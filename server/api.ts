@@ -224,7 +224,7 @@ const endpoints: Endpoints = {
             .populate('targetRef')
             .lean()
             .exec();
-        return { success: true, following: docs.map(f => toActorDataSimple(f.targetRef)) }; // TODO: Fix
+        return { success: true, following: docs.map(f => ({ ...toActorDataSimple(f.targetRef), role: f.role })) };
     },
 
   'createSub': async (req: Req_createSub, _, user: AuthUser): Promise<Res_createSub> => {
@@ -276,14 +276,29 @@ const endpoints: Endpoints = {
     return await createPost(user.id, user.name, req);
   },
 
-    'voteOnPost': async ({ vote }: Req_vote, { postId }: { postId: string; }, user: AuthUser): Promise<Res_vote> => {
+  'voteOnPost': async ({ vote }: Req_vote, { postId }: { postId: string; }, user: AuthUser): Promise<Res_vote> => {
+    const post = await PostModel.findOne({ postId }).lean().exec();
+    if (!post) return { success: false, error: 'notFound' } as any;
+    
+    console.log('Vote request:', { vote, postId, userId: user.id, postObjectId: post._id });
+    
+    if (vote === null) {
+        // Delete the vote record
+        const deleteResult = await VoteModel.deleteOne({ postId: post._id, actorRef: user.id }).exec();
+        console.log('Delete result:', deleteResult);
+        return { success: true, vote: null as any };
+    } else {
+        // Create or update vote
         const record = await VoteModel.findOneAndUpdate(
-            { postId, actorId: user.id },
-            { vote, actorId: user.id, postId },
+            { postId: post._id, actorRef: user.id },
+            { vote, actorRef: user.id, postId: post._id },
             { upsert: true, new: true }
         ).lean().exec();
+        console.log('Upsert result:', record);
         return { success: true, vote: record.vote };
-    },
+    }
+},
+
 
   'followActor': async (_, { targetName }: { targetName: string }, user: AuthUser): Promise<Res_follow> => {
     if (targetName === user.name) return { success: false, error: 'invalidRequest' };
@@ -363,13 +378,14 @@ const endpoints: Endpoints = {
     return { success: true };
   },
 
-    'getFollowingStatus': async (_, { targetName }: { targetName: string }, user: AuthUser): Promise<Res_followStatus> => {
-        const exists = await FollowModel.exists({ targetName, followerName: user.name });
-        return { success: true, following: Boolean(exists) };
-    },
+  'getFollowingStatus': async (_, { targetName }: { targetName: string }, user: AuthUser): Promise<Res_followStatus> => {
+      const targetRef = await getActorObjId(targetName)
+      const exists = await FollowModel.findOne({ followerRef: user.id, targetRef: targetRef });
+      return { success: true, following: (exists !== null) };
+  },
 
   'getFeed': async (req: Req_Feed, _, user: AuthUser): Promise<Res_Feed> => {
-    return await getFeed(req);
+    return await getFeed(req, user.id);
   },
 
   // 'getFedi': async (req: Req_getFedi): Promise<Res_getFedi> => {
@@ -401,12 +417,34 @@ const endpoints: Endpoints = {
         return { success: true };
     },
 
-    'updateActor': async (_, { actorName, ...rest }: { actorName: string } & Req_EditActor, user: AuthUser): Promise<Res_EditActor> => {
+    'updateActor': async (req: Req_EditActor, { actorName }: { actorName: string }, user: AuthUser): Promise<Res_EditActor> => {
+        // Check if user owns the actor or is a moderator of the subreddit
+        const actor = await ActorModel.findOne({ name: actorName }).lean().exec();
+        if (!actor) return { success: false, error: 'notFound' };
+        
+        // For users, only allow editing own profile
+        if (actor.type === 'user' && actor._id.toString() !== user.id.toString()) {
+            return { success: false, error: 'notFound' };
+        }
+        
+        // For subreddits, check if user is a moderator
+        if (actor.type === 'sub') {
+            const modRelation = await FollowModel.findOne({ 
+                targetRef: actor._id, 
+                followerRef: user.id, 
+                role: 'mod' 
+            }).lean().exec();
+            console.log('Mod relation check:', { actorId: actor._id, userId: user.id, modRelation });
+            if (!modRelation) return { success: false, error: 'notFound' };
+        }
+        
+        console.log('Updating actor:', { actorName, updates: req });
         const updated = await ActorModel.findOneAndUpdate(
-            { name: actorName, _id: user.id },
-            rest,
+            { name: actorName },
+            req,
             { new: true }
         ).lean().exec();
+        console.log('Update result:', updated);
         if (updated == null) return { success: false, error: 'notFound' };
         return { success: true };
     },
@@ -420,7 +458,12 @@ const authenticated: Set<keyof Endpoints> = new Set([
     'updateMe',
     'updateActor',
     'followActor',
-    'unfollowActor'
+    'unfollowActor',
+    'getFeed',
+    'getFollowingStatus',
+    'createSub',
+    'createPost',
+    'voteOnPost',
 ]);
 
 const router = express.Router();

@@ -1,11 +1,20 @@
-import React, { useState } from "react";
+import React from "react";
 import styles from "./NavComponent.module.css";
 import { NavLink, useLocation } from "react-router-dom";
-import { useUserSubs } from "../../hooks/UseUserSubs";
+import { useAuth } from "../../hooks/UseAuth";
+import { ActorData } from "../../../../types/api";
 
-function NavComponent({ menuOpen, setMenuOpen }) {
+interface NavComponentProps {
+  menuOpen: boolean;
+  setMenuOpen: (open: boolean) => void;
+  userSubs: ActorData[];
+  subsLoading: boolean;
+  authLoading: boolean;
+}
+
+function NavComponent({ menuOpen, setMenuOpen, userSubs, subsLoading, authLoading  }: NavComponentProps) {
   const location = useLocation();
-  const { userSubs, loading } = useUserSubs("shiny_symbol_316");
+
   const hideOnPaths = ["/", "/login"];
 
   if (hideOnPaths.includes(location.pathname)) {
@@ -27,15 +36,6 @@ function NavComponent({ menuOpen, setMenuOpen }) {
         >
           Home
         </NavLink>
-        {/* <NavLink
-          to="/explore"
-          className={({ isActive }) =>
-            isActive ? styles.activeLink : styles.link
-          }
-          onClick={() => setMenuOpen(false)}
-        >
-          Explore
-        </NavLink> */}
         <NavLink
           to="/account"
           className={({ isActive }) =>
@@ -52,13 +52,14 @@ function NavComponent({ menuOpen, setMenuOpen }) {
             <span className="material-icons dropdownIcon">chevron_right</span>
           </label>
           <div className={styles.subLinks}>
-            {loading ? (
+            {authLoading || subsLoading ? (
               <div className={styles.link}>Loading...</div>
             ) : (
               userSubs.map(sub => (
                 <NavLink
                   key={sub.name}
-                  to={`/r/${sub.name}`}
+                  to={sub.type === 'user' ? `/user/${encodeURIComponent(sub.name)}` : `/subreddit/${encodeURIComponent(sub.name)}`}
+                  caseSensitive={true}
                   className={({ isActive }) => isActive ? styles.activeLink : styles.link}
                   onClick={() => setMenuOpen(false)}
                 >

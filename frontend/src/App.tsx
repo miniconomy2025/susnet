@@ -9,23 +9,37 @@ import HeaderComponent from './components/HeaderComponent/HeaderComponent.tsx';
 import NavComponent from './components/NavComponent/NavComponent.tsx';
 import Explore from './pages/Explore.tsx';
 import Subreddit from './pages/Subreddit.tsx';
+import UserProfile from './pages/UserProfile.tsx';
+import { useAuth } from './hooks/UseAuth.ts';
+import { useUserSubs } from './hooks/UseUserSubs.ts';
 
 function App() {
 	const [menuOpen, setMenuOpen] = useState(false);
+	const { currentUser, loading: authLoading } = useAuth();
+	const { userSubs, loading: subsLoading, refreshSubs } = useUserSubs(currentUser?.name || "");
+	
+	console.log('App state:', { currentUser: currentUser?.name, userSubs: userSubs.length, subsLoading, authLoading });
+	
 
 	return (
 		<Router>
 			<div className="appContainer">
 				<HeaderComponent menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
 				<div className="mainContainer">
-					<NavComponent menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
+					<NavComponent 
+						menuOpen={menuOpen} 
+						setMenuOpen={setMenuOpen}
+						userSubs={userSubs}
+						subsLoading={subsLoading}
+						authLoading={authLoading}
+					/>
 					<main className="contentContainer">
 						<Routes>
 							<Route path="/" element={<Login />} />
-							<Route path="/home" element={<Home />} />
+							<Route path="/home" element={<Home refreshSubs={refreshSubs} />} />
 							<Route path="/account" element={<Account />} />
-							{/* <Route path="/explore" element={<Explore />} /> */}
-							<Route path="/subreddit/:id" element={<Subreddit />} />
+							<Route path="/subreddit/:id" element={<Subreddit refreshSubs={refreshSubs} />} />
+							<Route path="/user/:username" element={<UserProfile refreshSubs={refreshSubs} />} />
 						</Routes>
 					</main>
 				</div>

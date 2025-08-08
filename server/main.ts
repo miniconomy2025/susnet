@@ -4,7 +4,6 @@ import { migrateDb } from "./db/migrate.ts";
 import mongoose from "mongoose";
 import { env } from "./utils/env.ts";
 
-import cookieParser from "cookie-parser";
 import { integrateFederation } from "@fedify/express";
 
 import cors from "cors";
@@ -16,7 +15,7 @@ import fed from "./fed/fed.ts";
 // DB
 const DB_URL = env("DB_URL");
 const PORT = env("PORT", 3000);
-const FE_DIR = "./frontend/dist";
+const FE_DIR = "./frontend/dist"
 
 mongoose.connect(DB_URL)
   .then(() => {
@@ -34,8 +33,8 @@ const app = express();
 
 app.set("trust proxy", true);
 app.use(cors({
-  // origin: ["http://localhost:8000", "https://susnet.co.za"],
-  // credentials: true,
+  origin: ["http://localhost:8000", "https://susnet.co.za"],
+  credentials: true,
 }));
 
 // Handle fedify
@@ -54,9 +53,8 @@ app.use(integrateFederation(fed, () => undefined))
 // });
 
 // Parse body
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-app.use(cookieParser());
+app.use(express.urlencoded({ extended: true , limit: '1gb'}));
+app.use(express.json({limit: '1gb'}));
 
 // app.use('', injectFedContext, otherRoutes);
 
@@ -65,7 +63,10 @@ app.use("/api", router);
 
 // Handle frontend
 app.use(express.static(FE_DIR));
-app.all("/{*any}", (req, res) => {
+app.all("/{*any}", (req, res, next) => {
+  if (req.baseUrl.includes('/fed') || req.baseUrl.includes('/api')) {
+    next()
+  }
   res.sendFile("index.html", { root: FE_DIR });
 });
 
