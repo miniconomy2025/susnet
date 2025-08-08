@@ -138,7 +138,7 @@ const endpoints: Endpoints = {
     // Check if it's a federated actor handle (@name@origin)
     if (name.startsWith('@') && name.includes('@', 1)) {
       try {
-        const domain = env('DOMAIN', 'localhost:3000');
+        const domain = env('DOMAIN', 'susnet.co.za');
         const protocol = domain.includes('localhost') ? 'http' : 'https';
         const baseUrl = `${protocol}://${domain}`;
         const ctx = fed.createContext(new URL(baseUrl), undefined);
@@ -306,7 +306,7 @@ const endpoints: Endpoints = {
     // Check if it's a federated actor handle (@name@origin)
     if (targetName.startsWith('@') && targetName.includes('@', 1)) {
       try {
-        const domain = env('DOMAIN', 'localhost:3000');
+        const domain = env('DOMAIN', 'susnet.co.za');
         const protocol = domain.includes('localhost') ? 'http' : 'https';
         const baseUrl = `${protocol}://${domain}`;
         const ctx = fed.createContext(new URL(baseUrl), undefined);
@@ -374,7 +374,7 @@ const endpoints: Endpoints = {
     // Check if it's a federated actor handle (@name@origin)
     if (targetName.startsWith('@') && targetName.includes('@', 1)) {
       try {
-        const domain = env('DOMAIN', 'localhost:3000');
+        const domain = env('DOMAIN', 'susnet.co.za');
         const protocol = domain.includes('localhost') ? 'http' : 'https';
         const baseUrl = `${protocol}://${domain}`;
         const ctx = fed.createContext(new URL(baseUrl), undefined);
@@ -421,7 +421,7 @@ const endpoints: Endpoints = {
       // Check if it's a federated actor handle (@name@origin)
       if (targetName.startsWith('@') && targetName.includes('@', 1)) {
           try {
-              const domain = env('DOMAIN', 'localhost:3000');
+              const domain = env('DOMAIN', 'susnet.co.za');
               const protocol = domain.includes('localhost') ? 'http' : 'https';
               const baseUrl = `${protocol}://${domain}`;
               const ctx = fed.createContext(new URL(baseUrl), undefined);
