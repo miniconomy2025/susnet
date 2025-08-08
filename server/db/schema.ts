@@ -19,10 +19,10 @@ export class Actor {
   @prop({ default: LOCAL_ORIGIN })                                origin?:        string;     // Empty string => local
 
   // See: [https://fedify.dev/tutorial/microblog#table-creation]
-  @prop({ required: true })                                       uri!:          string;
-  @prop({ required: true })                                       inbox!:        string;      // "http[s]://*"
-  @prop({ required: true })                                       sharedInbox!:  string;      // "http[s]://*"
-  @prop({ required: true })                                       url?:          string;      // Profile page URL
+  @prop({})                                                       uri?:          string;
+  @prop({})                                                       inbox?:        string;      // "http[s]://*"
+  @prop({})                                                       sharedInbox?:  string;      // "http[s]://*"
+  @prop({})                                                       url?:          string;      // Profile page URL
   // @prop({ required: true, unique: true })                      handle?:       string;      // Derived: "@<name>@<origin>"
 
   _id?: Types.ObjectId;
@@ -34,7 +34,7 @@ export const ActorModel = getModelForClass(Actor);
 
 
 //---------- Key pair -----------//
-@index({ actorRef: 1, keyType: 1 }, { unique:true })
+@index({ actorRef: 1, keyType: 1 }, { unique: true })
 @modelOptions({ schemaOptions: { timestamps: true , strict: "throw"} })
 export class Key {
   @prop({ ref: () => Actor, required: true })                     actorRef!:     Ref<Actor>;
