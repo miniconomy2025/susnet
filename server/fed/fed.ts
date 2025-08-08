@@ -2,7 +2,7 @@ import {
     Accept, Context, Create, createFederation, Endpoints,
     Federation, Follow, Group, importJwk,
     InProcessMessageQueue, MemoryKvStore, Note, Like,
-    Person, PUBLIC_COLLECTION, exportJwk, generateCryptoKeyPair,
+    Person, PUBLIC_COLLECTION, exportJwk, generateCryptoKeyPair, Image,
     getActorHandle, isActor, Undo, type Actor as APActor, type Recipient,
 } from "@fedify/fedify";
 import { ActorModel, ActorType, KeyModel, Key, PostModel, FollowModel, Actor, VoteModel, VoteType } from "../db/schema.ts";
@@ -58,11 +58,11 @@ fed.setActorDispatcher("/users/{identifier}", async (ctx, id) => {
     };
     try {
         if (actor.thumbnailUrl && !actor.thumbnailUrl.startsWith('<')) { 
-            actorData.icon = {
+            actorData.icon = new Image({
                 type: "Image",
                 mediaType: "image/jpeg",
                 url: new URL(actor.thumbnailUrl)
-            };
+            });
         }
     } catch { }
 
