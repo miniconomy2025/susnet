@@ -70,6 +70,7 @@ function SearchBar() {
     <div className={styles.searchContainer} ref={searchRef}>
       <input
         type="text"
+        maxLength={100}
         placeholder="Search users and subs..."
         value={query}
         onChange={(e) => setQuery(e.target.value)}

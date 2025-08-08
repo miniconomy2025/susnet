@@ -71,6 +71,7 @@ function CreateSubModal({ isOpen, onClose, onSubCreated  }: CreateSubModalProps)
           <div className={styles.profileInfo}>
             <input
               type="text"
+              maxLength={50}
               name="name"
               value={formData.name}
               onChange={handleChange}

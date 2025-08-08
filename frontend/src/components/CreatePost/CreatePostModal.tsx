@@ -38,6 +38,7 @@ const handleImageUpload = async (event) => {
 
             <input
               type="text"
+              maxLength={500}
               placeholder="Title"
               className={styles.input}
               value={title}
