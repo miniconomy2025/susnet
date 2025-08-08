@@ -17,6 +17,7 @@ import { ActorData, AuthData, PostData, Req_createPost, Req_Feed, Req_getFedi, R
 import { SimpleResult } from "../../types/types.ts";
 import fed from "../fed/fed.ts";
 import { times } from "effect/Duration";
+import { Context, Create, Actor as FedActor, isActor, getActorHandle } from '@fedify/fedify';
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { Buffer } from "node:buffer";
 import { randomUUID } from "node:crypto";
@@ -140,6 +141,55 @@ export async function getPostsForActor(actorName: string) {
   if (!actor) return [];
 
   return await PostModel.find({ actorRef: actor._id }).sort({ createdAt: -1 });
+}
+
+
+export async function fetchExternalPosts(
+  ctx: Context<unknown>,
+  actorHandle: string
+): Promise<PostData[]> {
+  // Lookup the remote actor (e.g. "@user@example.com")
+  const actor = await ctx.lookupObject(actorHandle) as FedActor;
+  const outboxUrl = actor.outboxId?.href;
+  if (!outboxUrl) throw new Error("Actor has no outbox URL");
+
+  // Traverse the outbox collection, retrieving all activities
+  const box = await actor.getOutbox();
+  const outboxColl = await ctx.lookupObject(outboxUrl) as any;
+  const items = outboxColl.items ?? [];
+  // Optional: follow pagination via outboxColl.next if needed
+
+  const posts: PostData[] = [];
+
+  for (const item of items) {
+
+    // Ensure activity is a 'Create' type with embedded content
+    if (item instanceof Create) {
+      const obj = await item.getObject();
+
+      const tags: string[] = [];
+      for await (const tag of obj?.getTags() ?? []) {
+        const n = tag.name?.toString();
+        if (n) { tags.push(); }
+      }
+
+      posts.push({
+        postId: item.id?.toString() ?? "",
+        actorName: actor.name?.toString() ?? actor.id?.toString() ?? "",
+        subName: "", // extract or parse if you wish
+        title: (obj?.summary as string) ?? "",
+        content: (obj?.content as string) ?? "",
+        attachments: [], // (await obj?.getAttachments() ?? [])
+        // (obj?.attach ?? []).map(att => ({
+        //   name: (att.name as string) ?? "",
+        //   url: (att.url as string) ?? ""
+        // })),
+        tags
+      });
+    }
+  }
+
+  return posts;
 }
 
 export async function getUserVote(postId: string, actorName: string) {
@@ -462,8 +512,18 @@ function buildCursorMatch(
 
 export async function getFeed(
   { limit = 20, cursor, fromActorName, sort = "top" }: Req_Feed,
-  userId: Types.ObjectId,
+  userId: Types.ObjectId, req: Request
 ): Promise<Res_Feed> {
+
+  if (fromActorName != null && fromActorName.startsWith('@') && fromActorName.includes('@', 1)) {
+    const ctx = fed.createContext(req, undefined);
+    return {
+      success: true,
+      posts: await fetchExternalPosts(ctx, fromActorName) as PostData<"full">[],
+      nextCursor: null
+    };
+  }
+
   try {
     //----- Pull cursor details for paging -----//
     let cursorMatch: object | null = null;
