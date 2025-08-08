@@ -126,7 +126,7 @@ fed.setObjectDispatcher(Note, "/users/{identifier}/posts/{postId}", async (ctx, 
         content: post.content,
         name: post.title,
         mediaType: "text/html",
-        published: post.createdAt,
+        published: Temporal.Instant.fromEpochMilliseconds(post.createdAt?.getTime() ?? Date.now()),
         url: ctx.getObjectUri(Note, { identifier: id, postId }),
         attachments: post.attachments?.map(a => new URL(a.url)) ?? []
     });
@@ -142,14 +142,19 @@ fed.setFollowersDispatcher("/users/{identifier}/followers", async (ctx, id) => {
     if (actor == null) return { items: [] };
 
     const follows = await FollowModel.find({ targetRef: actor._id }).populate('followerRef');
-    const items: Recipient[] = follows.map(follow => {
-        const follower = follow.followerRef as Actor;
-        return {
-            id: new URL(follower.uri ?? ""),
-            inboxId: new URL(follower.inbox ?? ""),
-            endpoints: follower.sharedInbox ? { sharedInbox: new URL(follower.sharedInbox) } : null,
-        };
-    });
+    const items: Recipient[] = follows
+        .filter(follow => {
+            const follower = follow.followerRef as Actor;
+            return follower.uri && follower.inbox;
+        })
+        .map(follow => {
+            const follower = follow.followerRef as Actor;
+            return {
+                id: new URL(follower.uri!),
+                inboxId: new URL(follower.inbox!),
+                endpoints: follower.sharedInbox ? { sharedInbox: new URL(follower.sharedInbox) } : null,
+            };
+        });
     return { items };
 }).setCounter(async (ctx, identifier) => {
     const actor = await ActorModel.findOne({ name: identifier });
@@ -163,14 +168,19 @@ fed.setFollowingDispatcher("/users/{identifier}/following", async (ctx, id) => {
     if (actor == null) return { items: [] };
 
     const follows = await FollowModel.find({ followerRef: actor._id }).populate('targetRef');
-    const items: Recipient[] = follows.map(follow => {
-        const target = follow.targetRef as Actor;
-        return {
-            id: new URL(target.uri ?? ""),
-            inboxId: new URL(target.inbox ?? ""),
-            endpoints: target.sharedInbox ? { sharedInbox: new URL(target.sharedInbox) } : null,
-        };
-    });
+    const items: Recipient[] = follows
+        .filter(follow => {
+            const target = follow.targetRef as Actor;
+            return target.uri && target.inbox;
+        })
+        .map(follow => {
+            const target = follow.targetRef as Actor;
+            return {
+                id: new URL(target.uri!),
+                inboxId: new URL(target.inbox!),
+                endpoints: target.sharedInbox ? { sharedInbox: new URL(target.sharedInbox) } : null,
+            };
+        });
     return { items };
 }).setCounter(async (ctx, identifier) => {
     const actor = await ActorModel.findOne({ name: identifier });
