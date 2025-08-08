@@ -507,7 +507,7 @@ async function getCursorMetrics(
   if (sort === "new") return { createdAt };
 
   // Get aggregate voting scores
-  const [{ upCount = 0, downCount = 0 }] = await VoteModel.aggregate([
+  const voteResults = await VoteModel.aggregate([
     { $match: { postId: base._id } },
     {
       $group: {
@@ -517,6 +517,7 @@ async function getCursorMetrics(
       },
     },
   ]);
+  const { upCount = 0, downCount = 0 } = voteResults[0] || {};
   const score = upCount - downCount;
   if (sort === "top") return { createdAt, score };
 
