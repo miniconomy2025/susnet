@@ -34,9 +34,10 @@ export const ActorModel = getModelForClass(Actor);
 
 
 //---------- Key pair -----------//
+@index({ actorRef: 1, keyType: 1 }, { unique:true })
 @modelOptions({ schemaOptions: { timestamps: true , strict: "throw"} })
 export class Key {
-  @prop({ ref: () => Actor, required: true, unique: true })       actorRef!:     Ref<Actor>;
+  @prop({ ref: () => Actor, required: true })                     actorRef!:     Ref<Actor>;
   @prop({ required: true, default: "Ed25519" })                   keyType!:      string; // "RSASSA-PKCS1-v1_5" | "Ed25519"
   @prop({ required: true, default: "" })                          publicKey!:    string;
   @prop({ required: true, default: "" })                          privateKey!:   string;
@@ -143,7 +144,6 @@ export const FollowModel = getModelForClass(Follow);
 @modelOptions({ schemaOptions: { timestamps: true } })
 export class ExternalPost {
   @prop({ required: true, unique: true, index: true })            uri!:         string;     // ActivityPub object URI
-  @prop({ required: true, unique: true })                         uri!:         string;     // ActivityPub object URI
   @prop({ ref: () => Actor, required: true })                     authorRef!:   Ref<Actor>; // External author
   @prop({ required: true })                                       title!:       string;
   @prop({ required: true })                                       content!:     string;
