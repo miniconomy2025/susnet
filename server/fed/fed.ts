@@ -58,7 +58,11 @@ fed.setActorDispatcher("/users/{identifier}", async (ctx, id) => {
     };
     try {
         if (actor.thumbnailUrl && !actor.thumbnailUrl.startsWith('<')) { 
-            actorData.icon = new URL(actor.thumbnailUrl); 
+            actorData.icon = {
+                type: "Image",
+                mediaType: "image/jpeg",
+                url: new URL(actor.thumbnailUrl)
+            };
         }
     } catch { }
 
