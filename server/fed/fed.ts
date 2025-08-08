@@ -55,9 +55,8 @@ fed.setActorDispatcher("/users/{identifier}", async (ctx, id) => {
         endpoints: new Endpoints({ sharedInbox: ctx.getInboxUri() }),
         url: ctx.getActorUri(id),
         publicKey: keys[0]?.cryptographicKey,
-        icon: 'https://files.mastodon.social/accounts/avatars/110/227/411/956/499/425/original/44b3bf82b8079572.png,'
+        icon: new URL('https://files.mastodon.social/accounts/avatars/110/227/411/956/499/425/original/44b3bf82b8079572.png'),
     };
-
     try {
         // if (actor.thumbnailUrl && !actor.thumbnailUrl.startsWith('<')) { actorData.icon = new URL(actor.thumbnailUrl); }
     } catch { }
