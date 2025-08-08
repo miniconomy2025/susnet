@@ -137,8 +137,8 @@ fed.setFollowersDispatcher("/users/{identifier}/followers", async (ctx, id) => {
     const items: Recipient[] = follows.map(follow => {
         const follower = follow.followerRef as Actor;
         return {
-            id: new URL(follower.uri),
-            inboxId: new URL(follower.inbox),
+            id: new URL(follower.uri ?? ""),
+            inboxId: new URL(follower.inbox ?? ""),
             endpoints: follower.sharedInbox ? { sharedInbox: new URL(follower.sharedInbox) } : null,
         };
     });
@@ -158,8 +158,8 @@ fed.setFollowingDispatcher("/users/{identifier}/following", async (ctx, id) => {
     const items: Recipient[] = follows.map(follow => {
         const target = follow.targetRef as Actor;
         return {
-            id: new URL(target.uri),
-            inboxId: new URL(target.inbox),
+            id: new URL(target.uri ?? ""),
+            inboxId: new URL(target.inbox ?? ""),
             endpoints: target.sharedInbox ? { sharedInbox: new URL(target.sharedInbox) } : null,
         };
     });
