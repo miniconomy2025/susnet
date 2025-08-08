@@ -6,7 +6,7 @@ import jwt from 'jsonwebtoken';
 import { env } from "../utils/env.ts";
 import { Types } from "mongoose";
 
-import { ActorData, AuthData, PostData, Req_createPost, Req_Feed, Res_createPost, Res_Feed, Res_login } from "../../types/api.ts";
+import { ActorData, AuthData, PostData, Req_createPost, Req_Feed, Req_getFedi, Res_createPost, Res_Feed, Res_getFedi, Res_login } from "../../types/api.ts";
 import { SimpleResult } from "../../types/types.ts";
 import { times } from "effect/Duration";
 import fed from "../fed/fed.ts";

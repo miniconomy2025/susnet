@@ -5,7 +5,7 @@ import {
 import {
     Req_createSub, Req_updateActor, Req_SearchActors, Req_SearchTags,
     Req_EditPost, Req_EditActor, Req_vote, Req_login,
-    Req_createPost, Req_Feed,
+    Req_createPost, Req_Feed, Req_getFedi,
     ActorData,
     PostData,
     Endpoints,
@@ -16,10 +16,11 @@ import {
   Res_health, Res_login, Res_me, Res_getActor,
   Res_followers, Res_following, Res_createSub,
   Res_updateActor, Res_getPost, Res_createPost, Res_vote,
-  Res_follow, Res_unfollow, Res_followStatus, Res_Feed,
+  Res_follow, Res_unfollow, Res_followStatus, Res_Feed, Res_getFedi,
   Res_SearchActors, Res_SearchTags, Res_EditPost, Res_EditActor,
 } from '../types/api.ts';
 import { authenticate, noop, AuthenticatedRequest } from './auth.ts';
+import { Follow as APFollow, isActor, getActorHandle } from '@fedify/fedify';
 
 import express, { Request, Response } from 'express';
 import { Types } from "mongoose";
@@ -27,6 +28,8 @@ import { HTTPMethodLower } from "../types/types.ts";
 import { MongoServerError } from "mongodb";
 import { decodeJWT, verifyJWT } from "./utils/authUtils.ts";
 import { createPost, createUserAccount, getActorObjId, getFeed } from "./db/utils.ts";
+import fed from './fed/fed.ts';
+import { env } from './utils/env.ts';
 
 const ORIGIN = "susnet.co.za";
 const JWT_SECRET = "";
@@ -131,15 +134,64 @@ const endpoints: Endpoints = {
         return { success: true, actor: toActorDataSimple(doc) };
     },
 
-  'getActor': async (_, { name }: { name: string }): Promise<Res_getActor> => {
+  'getActor': async (_, { name }: { name: string }, user?: AuthUser): Promise<Res_getActor> => {
+    // Check if it's a federated actor handle (@name@origin)
+    if (name.startsWith('@') && name.includes('@', 1)) {
+      try {
+        const domain = env('DOMAIN', 'localhost:3000');
+        const protocol = domain.includes('localhost') ? 'http' : 'https';
+        const baseUrl = `${protocol}://${domain}`;
+        const ctx = fed.createContext(new URL(baseUrl), undefined);
+        
+        const actor = await ctx.lookupObject(name);
+        if (!isActor(actor)) return { success: false, error: 'notFound' };
+        
+        const handle = await getActorHandle(actor);
+        const actorName = handle.slice(1).split('@')[0];
+        const origin = handle.slice(1).split('@')[1];
+        
+        // Check if we already have this actor cached
+        let doc = await ActorModel.findOne({ uri: actor.id?.href }).lean().exec();
+        
+        if (!doc) {
+          // Cache the remote actor
+          doc = await ActorModel.create({
+            name: actorName,
+            type: ActorType.user,
+            thumbnailUrl: (await actor.getIcon())?.url?.href || '',
+            description: actor.summary?.toString() || '',
+            origin,
+            uri: actor.id?.href,
+            inbox: actor.inboxId?.href,
+            sharedInbox: actor.endpoints?.sharedInbox?.href || actor.inboxId?.href,
+            url: actor.url?.href || actor.id?.href,
+          });
+        }
+        
+        const [postCount, followerCount, followingCount, isFollowing] = await Promise.all([
+          PostModel.countDocuments({ actorRef: doc._id }),
+          FollowModel.countDocuments({ targetRef: doc._id }),
+          FollowModel.countDocuments({ followerRef: doc._id }),
+          user ? FollowModel.exists({ targetRef: doc._id, followerRef: user.id }).then(Boolean) : false,
+        ]);
+        
+        return { success: true, actor: toActorDataFull(doc, postCount, followerCount, followingCount, isFollowing) };
+      } catch (error) {
+        console.error('Failed to fetch federated actor:', error);
+        return { success: false, error: 'notFound' };
+      }
+    }
+    
+    // Local actor lookup
     const doc = await ActorModel.findOne({ name }).lean().exec();
     if (doc == null) return { success: false, error: 'notFound' };
-    const [postCount, followerCount, followingCount] = await Promise.all([
+    const [postCount, followerCount, followingCount, isFollowing] = await Promise.all([
       PostModel.countDocuments({ actorRef: doc._id }),
       FollowModel.countDocuments({ targetRef: doc._id }),
-      FollowModel.countDocuments({ followerRef: doc._id })
+      FollowModel.countDocuments({ followerRef: doc._id }),
+      user ? FollowModel.exists({ targetRef: doc._id, followerRef: user.id }).then(Boolean) : false,
     ]);
-    return { success: true, actor: toActorDataFull({ ...doc, postCount, followerCount, followingCount }) };
+    return { success: true, actor: toActorDataFull(doc, postCount, followerCount, followingCount, isFollowing) };
   },
 
   // Get all posts for an actor
@@ -235,12 +287,68 @@ const endpoints: Endpoints = {
 
   'followActor': async (_, { targetName }: { targetName: string }, user: AuthUser): Promise<Res_follow> => {
     if (targetName === user.name) return { success: false, error: 'invalidRequest' };
+    
+    // Check if it's a federated actor handle (@name@origin)
+    if (targetName.startsWith('@') && targetName.includes('@', 1)) {
+      try {
+        const domain = env('DOMAIN', 'localhost:3000');
+        const protocol = domain.includes('localhost') ? 'http' : 'https';
+        const baseUrl = `${protocol}://${domain}`;
+        const ctx = fed.createContext(new URL(baseUrl), undefined);
+        
+        const actor = await ctx.lookupObject(targetName);
+        if (!isActor(actor)) return { success: false, error: 'notFound' };
+        
+        const handle = await getActorHandle(actor);
+        const actorName = handle.slice(1).split('@')[0];
+        const origin = handle.slice(1).split('@')[1];
+        
+        // Cache the remote actor if not already cached
+        let targetDoc = await ActorModel.findOne({ uri: actor.id?.href }).exec();
+        if (!targetDoc) {
+          targetDoc = await ActorModel.create({
+            name: actorName,
+            type: ActorType.user,
+            thumbnailUrl: (await actor.getIcon())?.url?.href || '',
+            description: actor.summary?.toString() || '',
+            origin,
+            uri: actor.id?.href,
+            inbox: actor.inboxId?.href,
+            sharedInbox: actor.endpoints?.sharedInbox?.href || actor.inboxId?.href,
+            url: actor.url?.href || actor.id?.href,
+          });
+        }
+        
+        // Create local follow relationship
+        await FollowModel.updateOne(
+          { targetRef: targetDoc._id, followerRef: user.id },
+          { targetRef: targetDoc._id, followerRef: user.id, role: 'pleb' },
+          { upsert: true }
+        ).exec();
+        
+        // Send ActivityPub Follow activity
+        const follow = new APFollow({
+          actor: ctx.getActorUri(user.name),
+          object: actor.id,
+          to: actor.id,
+        });
+        
+        await ctx.sendActivity({ identifier: user.name }, actor, follow);
+        
+        return { success: true };
+      } catch (error) {
+        console.error('Failed to follow federated actor:', error);
+        return { success: false, error: 'notFound' };
+      }
+    }
+    
+    // Local actor follow
     const targetRef = await getActorObjId(targetName);
     if (targetRef == null) return { success: false, error: 'notFound' };
 
     await FollowModel.updateOne(
       { targetRef, followerRef: user.id },
-      { targetRef, followerRef: user.id },
+      { targetRef, followerRef: user.id, role: 'pleb' },
       { upsert: true }
     ).exec();
 
@@ -263,6 +371,10 @@ const endpoints: Endpoints = {
   'getFeed': async (req: Req_Feed, _, user: AuthUser): Promise<Res_Feed> => {
     return await getFeed(req);
   },
+
+  // 'getFedi': async (req: Req_getFedi): Promise<Res_getFedi> => {
+  //   return await getFedi(req);
+  // },
 
     'searchActors': async (req: Req_SearchActors): Promise<Res_SearchActors> => {
         const docs = await ActorModel.find({ name: new RegExp(req.query, 'i') }).lean().exec();
@@ -306,7 +418,9 @@ const endpoints: Endpoints = {
 const authenticated: Set<keyof Endpoints> = new Set([
     'me',
     'updateMe',
-    'updateActor'
+    'updateActor',
+    'followActor',
+    'unfollowActor'
 ]);
 
 const router = express.Router();

@@ -21,8 +21,8 @@ export class Actor {
   // See: [https://fedify.dev/tutorial/microblog#table-creation]
   @prop({})                                                       uri?:          string;
   @prop({})                                                       inbox?:        string;      // "http[s]://*"
-  @prop({})                                                       sharedInbox?:  string;      // "http[s]://*"
-  @prop({})                                                       url?:          string;      // Profile page URL
+  @prop({})                                                       sharedinbox?:  string;      // "http[s]://*"
+  @prop({})                                                       url?:          string;      // profile page url
   // @prop({ required: true, unique: true })                      handle?:       string;      // Derived: "@<name>@<origin>"
 
   _id?: Types.ObjectId;
@@ -95,6 +95,10 @@ export class Post {
   @prop({ type: () => [Attachment], default: [] })                attachments?: Attachment[];
   @prop({ type: () => [String], default: [] })                    tags?:        string[];
 
+  // See: [https://fedify.dev/tutorial/microblog#table-creation-3]
+  @prop({})                                                       uri?:          string;
+  @prop({})                                                       url?:          string;      // profile page url
+
   _id?: Types.ObjectId;
   createdAt?: Date;
   updatedAt?: Date;
@@ -141,22 +145,22 @@ export const FollowModel = getModelForClass(Follow);
 
 
 //---------- External Post Cache ----------//
-@modelOptions({ schemaOptions: { timestamps: true } })
-export class ExternalPost {
-  @prop({ required: true, unique: true, index: true })            uri!:         string;     // ActivityPub object URI
-  @prop({ ref: () => Actor, required: true })                     authorRef!:   Ref<Actor>; // External author
-  @prop({ required: true })                                       title!:       string;
-  @prop({ required: true })                                       content!:     string;
-  @prop({ type: () => [String], default: [] })                    attachments?: string[];   // URLs
-  @prop({ required: true })                                       published!:   Date;
-  @prop({ default: "" })                                          inReplyTo?:   string;     // URI of parent post
+// @modelOptions({ schemaOptions: { timestamps: true } })
+// export class ExternalPost {
+//   @prop({ required: true, unique: true, index: true })            uri!:         string;     // ActivityPub object URI
+//   @prop({ ref: () => Actor, required: true })                     authorRef!:   Ref<Actor>; // External author
+//   @prop({ required: true })                                       title!:       string;
+//   @prop({ required: true })                                       content!:     string;
+//   @prop({ type: () => [String], default: [] })                    attachments?: string[];   // URLs
+//   @prop({ required: true })                                       published!:   Date;
+//   @prop({ default: "" })                                          inReplyTo?:   string;     // URI of parent post
 
-  _id?: Types.ObjectId;
-  createdAt?: Date;
-  updatedAt?: Date;
-}
+//   _id?: Types.ObjectId;
+//   createdAt?: Date;
+//   updatedAt?: Date;
+// }
 
-export const ExternalPostModel = getModelForClass(ExternalPost);
+// export const ExternalPostModel = getModelForClass(ExternalPost);
 
 
 // @modelOptions({ schemaOptions: { timestamps: true } })

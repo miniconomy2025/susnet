@@ -86,6 +86,11 @@ export type Req_Feed = {
   fromActorName?: string; // If provided, fetch posts posted by this actor only
   sort?:          'top' | 'new' | 'hot';
 };
+export type Req_getFedi = {
+  limit?:         number;
+  cursor:         string;
+  sort?:          'top' | 'new' | 'hot';
+};
 
 //--- Result types ---//
 export type Res_health        = Result<Unit>;
@@ -104,6 +109,7 @@ export type Res_follow        = SimpleResult<Unit, 'notFound' | 'invalidRequest'
 export type Res_unfollow      = SimpleResult<{ success: true }, 'notFound'>;
 export type Res_followStatus  = Result<{ following: boolean }>;
 export type Res_Feed          = SimpleResult<{ posts: PostData<'full'>[], nextCursor: string | null }, 'internalError' | 'invalidRequest'>;
+export type Res_getFedi       = SimpleResult<{ posts: PostData<'full'>[], nextCursor: string | null }, 'internalError' | 'invalidRequest'>;
 export type Res_SearchActors  = Result<{ actors: ActorData[] }>;
 export type Res_SearchTags    = Result<{ tags: { tag: string; count: number; }[]}>;
 export type Res_EditPost      = SimpleResult<Unit, 'notFound' | 'forbidden'>;
@@ -133,6 +139,7 @@ export type EndpointIO = {
   "unfollowActor":      [Unit,             "targetName", Res_unfollow     ],
   "getFollowingStatus": [Unit,             "targetName", Res_followStatus ],
   "getFeed":            [Req_Feed,         null,         Res_Feed         ],
+  // "getFedi":            [Req_getFedi,      null,         Res_getFedi      ],
   "searchActors":       [Req_SearchActors, null,         Res_SearchActors ],
   "searchTags":         [Req_SearchTags,   null,         Res_SearchTags   ],
   "updatePost":         [Req_EditPost,     "postId",     Res_EditPost     ],
@@ -162,6 +169,7 @@ export const endpointSignatures: { [K in keyof EndpointIO]: [HTTPMethod, `/${str
   "unfollowActor":      ['DELETE', '/actors/:targetName/follow'          ],
   "getFollowingStatus": ['GET',    '/actors/:targetName/following-status'],
   "getFeed":            ['POST',   '/posts/feed'                         ],
+  // "getFedi":            ['POST',   '/posts/fedi'                         ],
   "searchActors":       ['POST',   '/actors/search'                      ],
   "searchTags":         ['POST',   '/tags/search'                        ],
   "updatePost":         ['PATCH',  '/posts/:postId'                      ],

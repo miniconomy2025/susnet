@@ -20,3 +20,11 @@ export async function get(endpoint: string) {
     credentials: "include",
   });
 }
+
+export async function getFedi(limit?: number, cursor?: string, sort?: 'top' | 'new' | 'hot') {
+  return await post('/posts/fedi', {
+    limit: limit || 20,
+    cursor: cursor || '',
+    sort: sort || 'new'
+  });
+}
