@@ -324,17 +324,17 @@ export async function createPost(
   const urls = await Promise.all(
     post.attachments.map((file) => uploadImageFromBase64(file.url)),
   );
-  for (let i in urls) {
+  for (const i in urls) {
     post.attachments[i].url = urls[i];
   }
   // Create post
   const postDoc = await PostModel.create({
     actorRef: userId,
     subRef: subId,
-    title: post.title,
-    content: post.content,
-    attachments: post.attachments,
-    tags: post.tags,
+    title: post.title ?? "",
+    content: post.content ?? "",
+    attachments: post.attachments ?? [],
+    tags: post.tags ?? [],
   });
 
   return {
