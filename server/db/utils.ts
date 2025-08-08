@@ -143,7 +143,6 @@ export async function getPostsForActor(actorName: string) {
   return await PostModel.find({ actorRef: actor._id }).sort({ createdAt: -1 });
 }
 
-
 export async function fetchExternalPosts(
   ctx: Context<unknown>,
   actorHandle: string
@@ -512,14 +511,14 @@ function buildCursorMatch(
 
 export async function getFeed(
   { limit = 20, cursor, fromActorName, sort = "top" }: Req_Feed,
-  userId: Types.ObjectId, req: Request
+  userId: Types.ObjectId
 ): Promise<Res_Feed> {
 
   if (fromActorName != null && fromActorName.startsWith('@') && fromActorName.includes('@', 1)) {
-    const ctx = fed.createContext(req, undefined);
+    const posts = await getRemoteUserPosts(fromActorName as `@${string}@${string}`, limit);
     return {
       success: true,
-      posts: await fetchExternalPosts(ctx, fromActorName) as PostData<"full">[],
+      posts: posts.map(p => ({ ...p, upvotes: 0, downvotes: 0, score: 0, isFollowingSub: false, timestamp: Date.now(), subThumbnailUrl: '' })) as PostData<"full">[],
       nextCursor: null
     };
   }
