@@ -391,7 +391,10 @@ export async function createPost(
   // Create and send federated post if request context is available
   if (req && postDoc.postId) {
     try {
-      const ctx = fed.createContext(req, undefined);
+      const domain = env('DOMAIN', 'susnet.co.za');
+      const protocol = domain.includes('localhost') ? 'http' : 'https';
+      const baseUrl = `${protocol}://${domain}`;
+      const ctx = fed.createContext(new URL(baseUrl), undefined);
       
       // Set the post URI using fedify context
       const postUri = ctx.getObjectUri(Note, { identifier: userName, postId: postDoc.postId }).href;
