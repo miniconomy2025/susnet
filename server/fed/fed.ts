@@ -326,16 +326,27 @@ fed.setInboxListeners("/users/{identifier}/inbox", "/inbox")
         const actorDoc = await persistActor(author);
         if (actorDoc == null || object.id == null) return;
 
+        // Check if post already exists
+        const existingPost = await PostModel.findOne({ uri: object.id.href });
+        if (existingPost) return;
+
         // Find a sub to post to (for now, just use the first sub)
         const sub = await ActorModel.findOne({ type: ActorType.sub });
         if (sub == null) return;
 
-        await PostModel.create({
-            actorRef: actorDoc._id,
-            subRef: sub._id,
-            title: object.name?.toString() || 'Untitled',
-            content: object.content?.toString() || '',
-        });
+        try {
+            await PostModel.create({
+                actorRef: actorDoc._id,
+                subRef: sub._id,
+                title: object.name?.toString() || 'Untitled',
+                content: object.content?.toString() || '',
+                uri: object.id.href,
+                url: object.url?.href || object.id.href,
+            });
+            console.log('Created external post from:', author.id?.href);
+        } catch (error) {
+            console.error('Failed to create external post:', error);
+        }
     });
 
 async function persistActor(actor: APActor): Promise<Actor | null> {

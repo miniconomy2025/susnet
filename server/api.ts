@@ -20,7 +20,7 @@ import {
   Res_SearchActors, Res_SearchTags, Res_EditPost, Res_EditActor,
 } from '../types/api.ts';
 import { authenticate, noop, AuthenticatedRequest } from './auth.ts';
-import { Follow as APFollow, isActor, getActorHandle } from '@fedify/fedify';
+import { Follow as APFollow, isActor, getActorHandle, Undo } from '@fedify/fedify';
 
 import express, { Request, Response } from 'express';
 import { Types } from "mongoose";
@@ -371,6 +371,45 @@ const endpoints: Endpoints = {
   },
 
   'unfollowActor': async (_, { targetName }: { targetName: string }, user: AuthUser): Promise<Res_unfollow> => {
+    // Check if it's a federated actor handle (@name@origin)
+    if (targetName.startsWith('@') && targetName.includes('@', 1)) {
+      try {
+        const domain = env('DOMAIN', 'localhost:3000');
+        const protocol = domain.includes('localhost') ? 'http' : 'https';
+        const baseUrl = `${protocol}://${domain}`;
+        const ctx = fed.createContext(new URL(baseUrl), undefined);
+        
+        const actor = await ctx.lookupObject(targetName);
+        if (!isActor(actor)) return { success: false, error: 'notFound' };
+        
+        // Find cached actor
+        const targetDoc = await ActorModel.findOne({ uri: actor.id?.href }).exec();
+        if (!targetDoc) return { success: false, error: 'notFound' };
+        
+        // Remove local follow relationship
+        await FollowModel.deleteOne({ targetRef: targetDoc._id, followerRef: user.id }).exec();
+        
+        // Send ActivityPub Undo Follow activity
+        const originalFollow = new APFollow({
+          actor: ctx.getActorUri(user.name),
+          object: actor.id,
+        });
+        
+        const undo = new Undo({
+          actor: ctx.getActorUri(user.name),
+          object: originalFollow,
+        });
+        
+        await ctx.sendActivity({ identifier: user.name }, actor, undo);
+        
+        return { success: true };
+      } catch (error) {
+        console.error('Failed to unfollow federated actor:', error);
+        return { success: false, error: 'notFound' };
+      }
+    }
+    
+    // Local actor unfollow
     const targetRef = await getActorObjId(targetName)
     if (targetRef == null) return { success: false, error: 'notFound' };
 
@@ -379,7 +418,33 @@ const endpoints: Endpoints = {
   },
 
   'getFollowingStatus': async (_, { targetName }: { targetName: string }, user: AuthUser): Promise<Res_followStatus> => {
-      const targetRef = await getActorObjId(targetName)
+      // Check if it's a federated actor handle (@name@origin)
+      if (targetName.startsWith('@') && targetName.includes('@', 1)) {
+          try {
+              const domain = env('DOMAIN', 'localhost:3000');
+              const protocol = domain.includes('localhost') ? 'http' : 'https';
+              const baseUrl = `${protocol}://${domain}`;
+              const ctx = fed.createContext(new URL(baseUrl), undefined);
+              
+              const actor = await ctx.lookupObject(targetName);
+              if (!isActor(actor)) return { success: true, following: false };
+              
+              // Check if we have this actor cached and if we're following them
+              const targetDoc = await ActorModel.findOne({ uri: actor.id?.href }).exec();
+              if (!targetDoc) return { success: true, following: false };
+              
+              const exists = await FollowModel.exists({ targetRef: targetDoc._id, followerRef: user.id });
+              return { success: true, following: Boolean(exists) };
+          } catch (error) {
+              console.error('Failed to check federated actor follow status:', error);
+              return { success: true, following: false };
+          }
+      }
+      
+      // Local actor follow status
+      const targetRef = await getActorObjId(targetName);
+      if (!targetRef) return { success: true, following: false };
+      
       const exists = await FollowModel.findOne({ followerRef: user.id, targetRef: targetRef });
       return { success: true, following: (exists !== null) };
   },

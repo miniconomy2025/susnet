@@ -85,6 +85,7 @@ export class Attachment {
 @index({ subRef: 1, createdAt: -1 })
 @index({ actorRef: 1, createdAt: -1 })
 @index({ tags: 1 })
+@index({ uri: 1 }, { unique: true, sparse: true })
 @modelOptions({ schemaOptions: { timestamps: true } })
 export class Post {
   @prop({ unique: true, default: () => generateRandomPostId() })  postId?:       string;
