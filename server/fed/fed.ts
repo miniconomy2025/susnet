@@ -355,7 +355,7 @@ async function persistActor(actor: APActor): Promise<Actor | null> {
         {
             name,
             type: ActorType.user,
-            // thumbnailUrl: (await actor.getIcon())?.url?.href,
+            thumbnailUrl: (await actor.getIcon())?.url?.href,
             description: actor.summary?.toString() || '',
             uri: actor.id.href,
             inbox: actor.inboxId.href,
