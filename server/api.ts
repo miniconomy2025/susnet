@@ -154,11 +154,18 @@ const endpoints: Endpoints = {
         let doc = await ActorModel.findOne({ uri: actor.id?.href }).lean().exec();
         
         if (!doc) {
+          let thumbnailUrl = '';
+          try {
+            thumbnailUrl = (await actor.getIcon())?.url?.href || '';
+          } catch (error) {
+            console.warn('Failed to fetch actor icon:', error.message);
+          }
+          
           // Cache the remote actor
           doc = await ActorModel.create({
             name: actorName,
             type: ActorType.user,
-            thumbnailUrl: (await actor.getIcon())?.url?.href || '',
+            thumbnailUrl,
             description: actor.summary?.toString() || '',
             origin,
             uri: actor.id?.href,
@@ -321,10 +328,17 @@ const endpoints: Endpoints = {
         // Cache the remote actor if not already cached
         let targetDoc = await ActorModel.findOne({ uri: actor.id?.href }).exec();
         if (!targetDoc) {
+          let thumbnailUrl = '';
+          try {
+            thumbnailUrl = (await actor.getIcon())?.url?.href || '';
+          } catch (error) {
+            console.warn('Failed to fetch actor icon:', error.message);
+          }
+          
           targetDoc = await ActorModel.create({
             name: actorName,
             type: ActorType.user,
-            thumbnailUrl: (await actor.getIcon())?.url?.href || '',
+            thumbnailUrl,
             description: actor.summary?.toString() || '',
             origin,
             uri: actor.id?.href,

@@ -563,7 +563,7 @@ export async function getFeed(
   req?: Request
 ): Promise<Res_Feed> {
 
-  if (fromActorName != null && fromActorName.startsWith('@') && fromActorName.includes('@', 1)) {
+  if (req != null && fromActorName != null && fromActorName.startsWith('@') && fromActorName.includes('@', 1)) {
     const ctx = fed.createContext(req, undefined);
     return {
       success: true,
