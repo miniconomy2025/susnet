@@ -564,7 +564,10 @@ export async function getFeed(
 ): Promise<Res_Feed> {
 
   if (req != null && fromActorName != null && fromActorName.startsWith('@') && fromActorName.includes('@', 1)) {
-    const ctx = fed.createContext(req, undefined);
+    const domain = env('DOMAIN', 'susnet.co.za');
+    const protocol = domain.includes('localhost') ? 'http' : 'https';
+    const baseUrl = `${protocol}://${domain}`;
+    const ctx = fed.createContext(new URL(baseUrl), undefined);
     return {
       success: true,
       posts: await fetchExternalPosts(ctx, fromActorName) as PostData<"full">[],
