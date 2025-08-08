@@ -6,6 +6,7 @@ import { fetchApi } from '../../utils/fetchApi';
 function Banner({
 	displayImage,
 	title,
+	subtitle,
 	initialIsFollowing,
 	onCreatePost,
 	onCreateSub,
@@ -50,6 +51,7 @@ function Banner({
 		<div className={styles.bannerWrapper}>
 			<div className={`${styles.banner} ${isModerator ? styles.moderatorBanner : ''}`}>
 				<h1 className={styles.bannerTitle}>{title}</h1>
+				{subtitle && <p className={styles.bannerSubtitle}>{subtitle}</p>}
 			</div>
 			<div className={styles.bannerOverlay}>
 				<div className={styles.bannerLeft}>

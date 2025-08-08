@@ -35,6 +35,7 @@ function UserProfile({ refreshSubs }) {
 	const bannerProps: BannerProps = {
 		displayImage: userInfo?.thumbnailUrl || '/images/profile.jpg',
 		title: username!,
+		subtitle: userInfo?.origin,
 		initialIsFollowing: userInfo?.isFollowing || false,
 		onSettingsClick: currentUser?.name === username ? () => {} : undefined,
 	};

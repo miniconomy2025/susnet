@@ -2,6 +2,7 @@ import { PostData, Res_Feed, Res_getActor } from '../../../types/api';
 
 export interface BannerProps {
 	title: string;
+	subtitle?: string;
 	displayImage?: string;
 	initialIsFollowing?: boolean;
 	sortOptions?: string[];
