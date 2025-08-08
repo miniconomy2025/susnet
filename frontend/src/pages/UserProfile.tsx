@@ -11,6 +11,7 @@ function UserProfile({ refreshSubs }) {
 	const { currentUser } = useAuth();
 	const [userInfo, setUserInfo] = useState<ActorData<'full'> | null>(null);
 	const [loading, setLoading] = useState(true);
+	const [userExists, setUserExists] = useState(true);
 
 	const limit: number = 10;
 
@@ -22,9 +23,13 @@ function UserProfile({ refreshSubs }) {
 				const res = await fetchApi('getActor', { name: username });
 				if (res.success) {
 					setUserInfo(res.actor);
+					setUserExists(true);
+				} else {
+					setUserExists(false);
 				}
 			} catch (error) {
 				console.error('Failed to load user info:', error);
+				setUserExists(false);
 			}
 			setLoading(false);
 		};
@@ -62,6 +67,10 @@ function UserProfile({ refreshSubs }) {
 
 	if (loading) {
 		return <div>Loading...</div>;
+	}
+
+	if (!userExists) {
+		return <div>User does not exist</div>;
 	}
 
 	return (

@@ -54,12 +54,14 @@ function Subreddit({ refreshSubs }) {
 			return;
 		}
 		
+		const tags = textBody.split(/\s+/).filter(word => word.startsWith('#')).map(tag => tag.slice(1));
+		
 		const postData = {
 			subName: id,
 			title,
 			content: textBody,
 			attachments: attachments.map(url => ({ url, mimeType: 'image/jpeg' })),
-			tags: []
+			tags
 		};
 
 		const result = await createPost(postData);
