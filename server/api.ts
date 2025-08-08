@@ -154,9 +154,9 @@ const endpoints: Endpoints = {
         let doc = await ActorModel.findOne({ uri: actor.id?.href }).lean().exec();
         
         if (!doc) {
-          let thumbnailUrl = '';
+          let thumbnailUrl = 'https://www.gravatar.com/avatar/default?d=mp&s=256';
           try {
-            thumbnailUrl = (await actor.getIcon())?.url?.href || '';
+            thumbnailUrl = (await actor.getIcon())?.url?.href || thumbnailUrl;
           } catch (error) {
             console.warn('Failed to fetch actor icon:', error.message);
           }
@@ -328,9 +328,9 @@ const endpoints: Endpoints = {
         // Cache the remote actor if not already cached
         let targetDoc = await ActorModel.findOne({ uri: actor.id?.href }).exec();
         if (!targetDoc) {
-          let thumbnailUrl = '';
+          let thumbnailUrl = 'https://www.gravatar.com/avatar/default?d=mp&s=256';
           try {
-            thumbnailUrl = (await actor.getIcon())?.url?.href || '';
+            thumbnailUrl = (await actor.getIcon())?.url?.href || thumbnailUrl;
           } catch (error) {
             console.warn('Failed to fetch actor icon:', error.message);
           }
