@@ -33,7 +33,7 @@ const app = express();
 
 app.set("trust proxy", true);
 app.use(cors({
-  origin: ["http://localhost:8000", "https://susnet.co.za"],
+  origin: ["http://localhost:3000", "http://localhost:8000", "https://susnet.co.za"],
   credentials: true,
 }));
 
