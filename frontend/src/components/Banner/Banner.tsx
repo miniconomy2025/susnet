@@ -10,6 +10,8 @@ function Banner({
 	onCreatePost,
 	onCreateSub,
 	onSettingsClick,
+	refreshSubs,
+	isModerator,
 }: BannerProps) {
 	const [isFollowing, setIsFollowing] = useState(initialIsFollowing);
 
@@ -31,12 +33,14 @@ function Banner({
 
 		if (!res.success) {
 			setIsFollowing(prevIsFollowing); 
+		} else {
+			refreshSubs?.();
 		}
 	};
 
 	return (
 		<div className={styles.bannerWrapper}>
-			<div className={styles.banner}>
+			<div className={`${styles.banner} ${isModerator ? styles.moderatorBanner : ''}`}>
 				<h1 className={styles.bannerTitle}>{title}</h1>
 			</div>
 			<div className={styles.bannerOverlay}>

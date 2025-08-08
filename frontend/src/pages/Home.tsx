@@ -28,6 +28,7 @@ function Home({ refreshSubs }) {
 		onLoadPosts,
 		showCardFollowButton: true,
 		onRefresh: async () => {},
+		refreshSubs,
 	};
 
   return (

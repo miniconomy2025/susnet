@@ -2,21 +2,51 @@ import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import FeedContainer from '../components/FeedContainer/FeedContainer';
 import { BannerProps, FeedContainerProps } from '../models/Feed';
-import { Req_Feed, Res_Feed } from '../../../types/api';
+import { Req_Feed, Res_Feed, ActorData } from '../../../types/api';
 import { fetchApi } from '../utils/fetchApi';
 import LoadingSpinner from '../components/LoadingSpinner/LoadingSpinner';
 import CreatePostModal from '../components/CreatePost/CreatePostModal';
+import AccountModal from '../components/AccountCard/AccountModal';
 import { useAuth } from '../hooks/UseAuth';
 import { useCreatePost } from '../hooks/UseCreatePost';
 
-function Subreddit() {
+function Subreddit({ refreshSubs }) {
 	const { id } = useParams();
 	const { currentUser } = useAuth();
 	const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false);
+	const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
 	const [refreshKey, setRefreshKey] = useState(0);
+	const [subInfo, setSubInfo] = useState<ActorData<'full'> | null>(null);
+	const [isModerator, setIsModerator] = useState(false);
 	const { createPost } = useCreatePost();
 
 	const limit: number = 10;
+
+	useEffect(() => {
+		const loadSubInfo = async () => {
+			if (!id || !currentUser) return;
+			
+			try {
+				const [actorRes, followingRes] = await Promise.all([
+					fetchApi('getActor', { name: id }),
+					fetchApi('getActorFollowing', { name: currentUser.name })
+				]);
+				
+				if (actorRes.success) {
+					setSubInfo(actorRes.actor);
+				}
+				
+				if (followingRes.success) {
+					const modRelation = followingRes.following.find(f => f.name === id && f.role === 'mod');
+					setIsModerator(!!modRelation);
+				}
+			} catch (error) {
+				console.error('Failed to load sub info:', error);
+			}
+		};
+
+		loadSubInfo();
+	}, [id, currentUser]);
 
 	const handleCreatePost = async ({ title, textBody, attachments }) => {
 		if (!id || !currentUser) {
@@ -42,11 +72,12 @@ function Subreddit() {
 	};
 
 	const bannerProps: BannerProps = {
-		displayImage: '/images/profile.jpg',
+		displayImage: subInfo?.thumbnailUrl || '/images/profile.jpg',
 		title: id!,
-		initialIsFollowing: false,
+		initialIsFollowing: isModerator ? undefined : (subInfo?.isFollowing || false),
 		onCreatePost: () => setIsCreatePostModalOpen(true),
-		onSettingsClick: () => {},
+		onSettingsClick: isModerator ? () => setIsAccountModalOpen(true) : undefined,
+		isModerator,
 	};
 
 	async function onLoadPosts(cursor: string): Promise<Res_Feed | undefined> {
@@ -66,6 +97,7 @@ function Subreddit() {
 		onLoadPosts,
 		showCardFollowButton: false,
 		onRefresh: async () => {},
+		refreshSubs,
 	};
 
 	return (
@@ -76,6 +108,13 @@ function Subreddit() {
 				onClose={() => setIsCreatePostModalOpen(false)} 
 				onSubmit={handleCreatePost}
 			/>
+			{isAccountModalOpen && (
+				<AccountModal 
+					isOpen={isAccountModalOpen} 
+					onClose={() => setIsAccountModalOpen(false)}
+					actorName={id}
+				/>
+			)}
 		</>
 	);
 }
