@@ -92,3 +92,17 @@
 .joinButton:hover {
 	background-color: #a63030;
 }
+
+.sortDropdown {
+	padding: 6px 12px;
+	height: 36px;
+	border-radius: 10px;
+	border: none;
+	cursor: pointer;
+	font-weight: 600;
+	background-color: var(--background-colour-light);
+	color: var(--text-colour);
+}
+.sortDropdown:focus {
+	outline: none;
+}

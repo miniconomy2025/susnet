@@ -4,9 +4,12 @@ export interface BannerProps {
 	title: string;
 	displayImage?: string;
 	initialIsFollowing?: boolean;
+	sortOptions?: string[];
+	selectedSort?: string;
 	onCreatePost?: () => void;
 	onCreateSub?: () => void;
 	onSettingsClick?: () => void;
+	onChangeSort?: (sortOption: string) => void;
 	refreshSubs?: () => void;
 	isModerator?: boolean;
 }
