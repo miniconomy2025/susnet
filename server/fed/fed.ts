@@ -91,16 +91,16 @@ fed.setActorDispatcher("/users/{identifier}", async (ctx, id) => {
             console.log(`${id} does not have an ${keyType} key, creating one...`);
             const { privateKey, publicKey } = await generateCryptoKeyPair(keyType);
 
-            const pubKey = JSON.stringify(await exportJwk(privateKey));
-            const prvKey = JSON.stringify(await exportJwk(publicKey));
+            const pubKey = JSON.stringify(await exportJwk(publicKey));
+            const prvKey = JSON.stringify(await exportJwk(privateKey));
             console.log("PUB:", pubKey);
             console.log("PRV:", prvKey);
 
             await KeyModel.findOneAndUpdate({ actorRef: user._id, keyType }, {
                 actorRef: user._id,
                 keyType,
-                privateKey: pubKey,
-                publicKey: prvKey,
+                privateKey: prvKey,
+                publicKey: pubKey,
             }, { upsert: true, new: true });
 
             pairs.push({ privateKey, publicKey });
