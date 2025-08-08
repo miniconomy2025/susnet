@@ -1,17 +1,19 @@
+/// <reference lib="deno.unstable" />
+
 import {
-    Accept, Context, Create, createFederation, Endpoints,
-    Federation, Follow, Group, importJwk,
+    Accept, Create, createFederation, Endpoints,
+    Follow, Group, importJwk,
     InProcessMessageQueue, MemoryKvStore, Note, Like,
     Person, PUBLIC_COLLECTION, exportJwk, generateCryptoKeyPair, Image,
     getActorHandle, isActor, Undo, type Actor as APActor, type Recipient,
 } from "@fedify/fedify";
 import { ActorModel, ActorType, KeyModel, Key, PostModel, FollowModel, Actor, VoteModel, VoteType } from "../db/schema.ts";
 import { DenoKvStore } from "@fedify/fedify/x/denokv";
-import { NextFunction } from "express";
 
 //---------- Setup federation instance ----------//
+const kv = await Deno.openKv();
 const fed = createFederation({
-    kv: new MemoryKvStore(), // TODO: Replace with DenoKvStore
+    kv: new DenoKvStore(kv),
     queue: new InProcessMessageQueue()
 });
 

@@ -272,8 +272,8 @@ const endpoints: Endpoints = {
         return { success: true, post: toPostDataFull(doc) };
     },
 
-  'createPost': async (req: Req_createPost, _, user: AuthUser): Promise<Res_createPost> => {
-    return await createPost(user.id, user.name, req);
+  'createPost': async (req: Req_createPost, _, user: AuthUser, request?: any): Promise<Res_createPost> => {
+    return await createPost(user.id, user.name, req, request?.raw || request);
   },
 
   'voteOnPost': async ({ vote }: Req_vote, { postId }: { postId: string; }, user: AuthUser): Promise<Res_vote> => {
@@ -449,8 +449,8 @@ const endpoints: Endpoints = {
       return { success: true, following: (exists !== null) };
   },
 
-  'getFeed': async (req: Req_Feed, _, user: AuthUser): Promise<Res_Feed> => {
-    return await getFeed(req, user.id);
+  'getFeed': async (req: Req_Feed, _, user: AuthUser, request?: any): Promise<Res_Feed> => {
+    return await getFeed(req, user.id, request?.raw || request);
   },
 
   // 'getFedi': async (req: Req_getFedi): Promise<Res_getFedi> => {
@@ -540,7 +540,7 @@ for (const [route, handler] of Object.entries(endpoints)) {
     router[method.toLowerCase() as HTTPMethodLower](path, middleware, async (req: Request, res: Response) => {
         try {
             console.log("\x1b[93mREQUEST\x1b[0m:", req.method, req.path, "\n- BODY:", req.body, "\n- PARAMS:", req.params);
-            const result = await handler(req.body, req.params, req.user);
+            const result = await handler(req.body, req.params, req.user, req);
             res.json(result);
         }
         catch (err) {

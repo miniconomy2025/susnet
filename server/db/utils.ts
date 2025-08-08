@@ -17,7 +17,7 @@ import { ActorData, AuthData, PostData, Req_createPost, Req_Feed, Req_getFedi, R
 import { SimpleResult } from "../../types/types.ts";
 import fed from "../fed/fed.ts";
 import { times } from "effect/Duration";
-import { Context, Create, Actor as FedActor, isActor, getActorHandle } from '@fedify/fedify';
+import { Context, Create, Actor as FedActor, isActor, getActorHandle, Note, PUBLIC_COLLECTION } from '@fedify/fedify';
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { Buffer } from "node:buffer";
 import { randomUUID } from "node:crypto";
@@ -363,6 +363,7 @@ export async function createPost(
   userId: Types.ObjectId,
   userName: string,
   post: Req_createPost,
+  req?: Request,
 ): Promise<Res_createPost> {
   // Find sub
   const subId = await getActorObjId(post.subName);
@@ -376,6 +377,7 @@ export async function createPost(
   for (const i in urls) {
     post.attachments[i].url = urls[i];
   }
+  
   // Create post
   const postDoc = await PostModel.create({
     actorRef: userId,
@@ -385,6 +387,48 @@ export async function createPost(
     attachments: post.attachments ?? [],
     tags: post.tags ?? [],
   });
+
+  // Create and send federated post if request context is available
+  if (req && postDoc.postId) {
+    try {
+      const ctx = fed.createContext(req, undefined);
+      
+      // Set the post URI using fedify context
+      const postUri = ctx.getObjectUri(Note, { identifier: userName, postId: postDoc.postId }).href;
+      await PostModel.findByIdAndUpdate(postDoc._id, { 
+        uri: postUri,
+        url: postUri 
+      });
+      
+      // Create the Note object
+      const note = new Note({
+        id: new URL(postUri),
+        attribution: ctx.getActorUri(userName),
+        to: PUBLIC_COLLECTION,
+        cc: ctx.getFollowersUri(userName),
+        content: postDoc.content,
+        name: postDoc.title,
+        mediaType: "text/html",
+        published: postDoc.createdAt,
+        url: new URL(postUri),
+      });
+      
+      // Create the Create activity
+      const create = new Create({
+        id: new URL(`#activity`, postUri),
+        actor: ctx.getActorUri(userName),
+        object: note,
+        to: PUBLIC_COLLECTION,
+        cc: ctx.getFollowersUri(userName),
+      });
+      
+      // Send to followers
+      await ctx.sendActivity({ identifier: userName }, "followers", create);
+    } catch (error) {
+      console.error('Failed to send federated post:', error);
+      // Don't fail the entire operation if federation fails
+    }
+  }
 
   return {
     success: true,
@@ -511,7 +555,8 @@ function buildCursorMatch(
 
 export async function getFeed(
   { limit = 20, cursor, fromActorName, sort = "top" }: Req_Feed,
-  userId: Types.ObjectId, req: Request
+  userId: Types.ObjectId,
+  req?: Request
 ): Promise<Res_Feed> {
 
   if (fromActorName != null && fromActorName.startsWith('@') && fromActorName.includes('@', 1)) {

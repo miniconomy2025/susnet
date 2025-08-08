@@ -150,7 +150,7 @@ export type EndpointRequest<E extends keyof EndpointIO> = EndpointIO[E][0];
 export type EndpointParams<E extends keyof EndpointIO> = EndpointIO[E][1] extends string ? { [K in EndpointIO[E][1]]: string } : Unit;
 export type EndpointResponse<E extends keyof EndpointIO> = EndpointIO[E][2];
 
-export type Endpoints = { [E in keyof EndpointIO]: (req: EndpointRequest<E>, params: EndpointParams<E>, user: AuthUser) => Promise<EndpointResponse<E>> };
+export type Endpoints = { [E in keyof EndpointIO]: (req: EndpointRequest<E>, params: EndpointParams<E>, user: AuthUser, request?: any) => Promise<EndpointResponse<E>> };
 
 export const endpointSignatures: { [K in keyof EndpointIO]: [HTTPMethod, `/${string}`] } = {
   "health":             ['GET',    '/health'                             ],
