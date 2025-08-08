@@ -66,6 +66,14 @@ function SearchBar() {
     setIsOpen(false);
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && query.trim()) {
+      navigate(`/user/${encodeURIComponent(query.trim())}`);
+      setQuery('');
+      setIsOpen(false);
+    }
+  };
+
   return (
     <div className={styles.searchContainer} ref={searchRef}>
       <input
@@ -74,6 +82,7 @@ function SearchBar() {
         placeholder="Search users and subs..."
         value={query}
         onChange={(e) => setQuery(e.target.value)}
+        onKeyDown={handleKeyDown}
         className={styles.searchInput}
       />
       {isOpen && (
