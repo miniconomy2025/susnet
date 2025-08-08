@@ -412,7 +412,7 @@ export async function createPost(
         content: postDoc.content,
         name: postDoc.title,
         mediaType: "text/html",
-        published: postDoc.createdAt,
+        published: Temporal.Instant.fromEpochMilliseconds(postDoc.createdAt?.getTime() ?? Date.now()),
         url: new URL(postUri),
       });
       
