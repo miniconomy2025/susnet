@@ -173,7 +173,7 @@ const endpoints: Endpoints = {
             .populate('targetRef')
             .lean()
             .exec();
-        return { success: true, following: docs.map(f => toActorDataSimple(f.targetRef)) }; // TODO: Fix
+        return { success: true, following: docs.map(f => ({ ...toActorDataSimple(f.targetRef), role: f.role })) };
     },
 
   'createSub': async (req: Req_createSub, _, user: AuthUser): Promise<Res_createSub> => {

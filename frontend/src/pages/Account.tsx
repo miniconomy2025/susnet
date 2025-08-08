@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import AccountModal from '../components/AccountCard/AccountModal';
-import CreatePostModal from '../components/CreatePost/CreatePostModal';
 import FeedContainer from '../components/FeedContainer/FeedContainer';
 import { BannerProps, FeedContainerProps, MembershipStatus } from '../models/Feed';
 import { useAuth } from '../hooks/UseAuth';
@@ -9,14 +8,12 @@ import { fetchApi } from '../utils/fetchApi';
 
 function Account() {
 	const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
-	const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false);
 	const { currentUser, loading } = useAuth();
 	
 	const limit: number = 10;
 
 	const bannerProps: BannerProps = {
 		title: 'Your Feed',
-		onCreatePost: () => setIsCreatePostModalOpen(true),
 		onSettingsClick: () => setIsAccountModalOpen(true),
 	};
 
@@ -46,7 +43,6 @@ function Account() {
 					onClose={() => setIsAccountModalOpen(false)}
 				/>
 			)}
-			<CreatePostModal isOpen={isCreatePostModalOpen} onClose={() => setIsCreatePostModalOpen(false)} onSubmit={undefined}/>
 		</>
 	);
 }

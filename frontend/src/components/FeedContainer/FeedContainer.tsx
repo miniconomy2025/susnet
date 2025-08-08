@@ -12,6 +12,7 @@ function FeedContainer({
 	showCardFollowButton,
 	onLoadPosts,
 	onRefresh,
+	refreshSubs,
 }: FeedContainerProps) {
 	const [posts, setPosts] = useState(availablePosts);
 	const [loading, setLoading] = useState(false);
@@ -58,10 +59,10 @@ function FeedContainer({
 
 	return (
 		<div className={styles.feedContainer}>
-			<Banner {...bannerProps} />
+			<Banner {...bannerProps} refreshSubs={refreshSubs} />
 			{posts.map((post, idx) => (
 				<div key={idx} className={styles.cardWrap}>
-					<FeedCard {...post} showFollowingButton={showCardFollowButton} />
+					<FeedCard {...post} showFollowingButton={showCardFollowButton} refreshSubs={refreshSubs} />
 				</div>
 			))}
 			<div

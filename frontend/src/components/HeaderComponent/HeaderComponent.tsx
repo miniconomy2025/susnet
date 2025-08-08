@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import styles from './HeaderComponent.module.css'
 import CreateSubModal from '../CreateSub/CreateSubModal';
+import SearchBar from '../SearchBar/SearchBar';
 
 function HeaderComponent({ menuOpen, setMenuOpen }) {
   
@@ -8,6 +9,7 @@ function HeaderComponent({ menuOpen, setMenuOpen }) {
   return (
     <header className={styles.headerContainer}>
       <div className={styles.logo}>SusNet</div>
+      <SearchBar />
       <button
         className={styles.hamburgerButton}
         onClick={() => setMenuOpen(prev => !prev)}

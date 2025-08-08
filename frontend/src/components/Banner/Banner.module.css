@@ -15,6 +15,17 @@
 	justify-content: center;
 }
 
+.moderatorBanner {
+	background: linear-gradient(to top, var(--primary-colour), var(--background-colour));
+	padding: var(--gap-s);
+	border-radius: 0 0 var(--border-radius) var(--border-radius);
+	text-align: center;
+	height: 120px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
 .bannerTitle {
 	font-size: 3rem;
 	font-weight: 200;

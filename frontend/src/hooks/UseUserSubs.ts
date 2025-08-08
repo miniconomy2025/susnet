@@ -12,6 +12,7 @@ export const useUserSubs = (userName: string) => {
     setLoading(true);
     const res = await fetchApi("getActorFollowing", { name: userName });
     if (res.success) {
+      console.log('Following actors:', res.following);
       setUserSubs(res.following);
     }
     setLoading(false);

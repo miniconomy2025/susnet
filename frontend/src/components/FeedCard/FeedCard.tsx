@@ -46,6 +46,7 @@ function FeedCard({
   timestamp,
   showFollowingButton,
   userVote,
+  refreshSubs,
 }) {
   const navigate = useNavigate();
   const [isFollowing, setIsFollowing] = useState(isFollowingSub);
@@ -59,7 +60,7 @@ function FeedCard({
   };
 
   const onUserClick = () => {
-    // navigate(`/subreddit/${encodeURIComponent(actorName)}`);
+    navigate(`/user/${encodeURIComponent(actorName)}`);
   };
 
   const onFollowToggle = async () => {
@@ -73,6 +74,8 @@ function FeedCard({
 
     if (!res.success) {
       setIsFollowing(prevIsFollowing);
+    } else {
+      refreshSubs?.();
     }
   };
 

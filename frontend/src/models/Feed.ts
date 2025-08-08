@@ -7,6 +7,8 @@ export interface BannerProps {
 	onCreatePost?: () => void;
 	onCreateSub?: () => void;
 	onSettingsClick?: () => void;
+	refreshSubs?: () => void;
+	isModerator?: boolean;
 }
 
 export interface FeedContainerProps {
@@ -15,6 +17,7 @@ export interface FeedContainerProps {
 	showCardFollowButton: boolean;
 	onLoadPosts: (cursor: string) => Promise<Res_Feed | undefined>;
 	onRefresh: () => Promise<void>;
+	refreshSubs?: () => void;
 }
 
 export enum MembershipStatus {
