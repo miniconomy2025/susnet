@@ -56,7 +56,7 @@ export async function getActorData(name: string, userId?: Types.ObjectId): Promi
     PostModel.countDocuments({ subRef: actorDoc._id }),
     FollowModel.countDocuments({ targetRef: actorDoc._id }),
     FollowModel.countDocuments({ followerRef: actorDoc._id }),
-    FollowModel.exists({ targetRef: actorDoc._id, followerRef: userId }),
+    userId ? FollowModel.exists({ targetRef: actorDoc._id, followerRef: userId }).then(Boolean) : false,
   ]);
 
   return {

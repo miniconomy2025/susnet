@@ -9,6 +9,7 @@ const LOCAL_ORIGIN = "https://susnet.co.za";
 export enum ActorType { user = "user", sub = "sub" };
 
 @index({ type: 1, name: 1 }, { unique: true })
+@index({ uri: 1 }, { unique: true })
 @modelOptions({ schemaOptions: { timestamps: true } })
 export class Actor {
   @prop({ required: true, unique: true })                         name!:          string;     // Unique amongst users & subs
@@ -18,10 +19,10 @@ export class Actor {
   @prop({ default: LOCAL_ORIGIN })                                origin?:        string;     // Empty string => local
 
   // See: [https://fedify.dev/tutorial/microblog#table-creation]
-  @prop({ required: true, unique: true })                         uri!:          string;
-  @prop({ required: true, unique: true })                         inbox!:        string;      // "http[s]://*"
-  @prop({ required: true, unique: true })                         sharedInbox!:  string;      // "http[s]://*"
-  @prop({ required: true, unique: true })                         url?:          string;      // Profile page URL
+  @prop({ required: true })                                       uri!:          string;
+  @prop({ required: true })                                       inbox!:        string;      // "http[s]://*"
+  @prop({ required: true })                                       sharedInbox!:  string;      // "http[s]://*"
+  @prop({ required: true })                                       url?:          string;      // Profile page URL
   // @prop({ required: true, unique: true })                      handle?:       string;      // Derived: "@<name>@<origin>"
 
   _id?: Types.ObjectId;
@@ -136,6 +137,26 @@ export class Follow {
 }
 
 export const FollowModel = getModelForClass(Follow);
+
+
+//---------- External Post Cache ----------//
+@modelOptions({ schemaOptions: { timestamps: true } })
+export class ExternalPost {
+  @prop({ required: true, unique: true, index: true })            uri!:         string;     // ActivityPub object URI
+  @prop({ required: true, unique: true })                         uri!:         string;     // ActivityPub object URI
+  @prop({ ref: () => Actor, required: true })                     authorRef!:   Ref<Actor>; // External author
+  @prop({ required: true })                                       title!:       string;
+  @prop({ required: true })                                       content!:     string;
+  @prop({ type: () => [String], default: [] })                    attachments?: string[];   // URLs
+  @prop({ required: true })                                       published!:   Date;
+  @prop({ default: "" })                                          inReplyTo?:   string;     // URI of parent post
+
+  _id?: Types.ObjectId;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+export const ExternalPostModel = getModelForClass(ExternalPost);
 
 
 // @modelOptions({ schemaOptions: { timestamps: true } })
