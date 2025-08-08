@@ -295,20 +295,20 @@ export async function searchTags(query: string) {
 
 //---------- Create ----------//
 
-export async function createUserAccount(req: Request, user: ActorData<"simple">, auth: AuthData): Promise<SimpleResult<{ actorDoc: DocumentType<Actor>, token: string }, 'internalError'>  > {
+export async function createUserAccount(req: Request, user: ActorData<"simple">, auth: AuthData): Promise<SimpleResult<{ actorDoc: DocumentType<Actor>, token: string }, 'internalError'>> {
   const ctx = fed.createContext(req, undefined);
 
   const actorDoc = await ActorModel.create({
-    name:         user.name,
-    type:         'user',
+    name: user.name,
+    type: 'user',
     thumbnailUrl: user.thumbnailUrl,
-    description:  user.description,
+    description: user.description,
 
     // TODO: Show this on the frontend
-    uri:          ctx.getActorUri(user.name).href,
-    inbox:        ctx.getInboxUri(user.name).href, // "http[s]://*"
-    sharedInbox:  ctx.getInboxUri().href,          // "http[s]://*"
-    url:          ctx.getActorUri(user.name).href, // Profile page URL
+    uri: ctx.getActorUri(user.name).href,
+    inbox: ctx.getInboxUri(user.name).href, // "http[s]://*"
+    sharedInbox: ctx.getInboxUri().href,          // "http[s]://*"
+    url: ctx.getActorUri(user.name).href, // Profile page URL
   });
 
   const authDoc = await AuthModel.findOneAndUpdate(
@@ -511,14 +511,14 @@ function buildCursorMatch(
 
 export async function getFeed(
   { limit = 20, cursor, fromActorName, sort = "top" }: Req_Feed,
-  userId: Types.ObjectId
+  userId: Types.ObjectId, req: Request
 ): Promise<Res_Feed> {
 
   if (fromActorName != null && fromActorName.startsWith('@') && fromActorName.includes('@', 1)) {
-    const posts = await getRemoteUserPosts(fromActorName as `@${string}@${string}`, limit);
+    const ctx = fed.createContext(req, undefined);
     return {
       success: true,
-      posts: posts.map(p => ({ ...p, upvotes: 0, downvotes: 0, score: 0, isFollowingSub: false, timestamp: Date.now(), subThumbnailUrl: '' })) as PostData<"full">[],
+      posts: await fetchExternalPosts(ctx, fromActorName) as PostData<"full">[],
       nextCursor: null
     };
   }
@@ -694,8 +694,8 @@ export async function getFeed(
     const sortStage: Record<string, -1> = sort === "new"
       ? { createdAt: -1 }
       : sort === "top"
-      ? { score: -1, createdAt: -1 }
-      : { hotScore: -1, createdAt: -1 };
+        ? { score: -1, createdAt: -1 }
+        : { hotScore: -1, createdAt: -1 };
     pipeline.push({ $sort: sortStage });
 
     // Limit & project to PostData
@@ -718,7 +718,8 @@ export async function getFeed(
           score: "$score",
           isFollowingSub: "$followed",
           userVote: "$userVote",
-      }}
+        }
+      }
     );
 
     const docs = (await PostModel.aggregate(pipeline)) satisfies PostData<
