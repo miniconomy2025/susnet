@@ -59,7 +59,7 @@ fed.setActorDispatcher("/users/{identifier}", async (ctx, id) => {
         publicKey: keys[0]?.cryptographicKey,
     };
     try {
-        if (actor.thumbnailUrl && !actor.thumbnailUrl.startsWith('<')) { 
+        if (actor.thumbnailUrl && !actor.thumbnailUrl.startsWith('<')) {
             actorData.icon = new Image({
                 mediaType: "image/jpeg",
                 url: new URL(actor.thumbnailUrl)
@@ -351,7 +351,7 @@ fed.setInboxListeners("/users/{identifier}/inbox", "/inbox")
         // Create or find external sub based on origin domain
         const originDomain = new URL(actor.href).hostname;
         const extSubName = `ext_${originDomain}`;
-        
+
         let sub = await ActorModel.findOne({ name: extSubName, type: ActorType.sub });
         if (!sub) {
             sub = await ActorModel.create({
