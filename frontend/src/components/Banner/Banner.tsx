@@ -12,6 +12,9 @@ function Banner({
 	onSettingsClick,
 	refreshSubs,
 	isModerator,
+	sortOptions,
+	onChangeSort,
+	selectedSort,
 }: BannerProps) {
 	const [isFollowing, setIsFollowing] = useState(initialIsFollowing);
 
@@ -38,6 +41,11 @@ function Banner({
 		}
 	};
 
+	const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+		const value = e.target.value;
+		onChangeSort?.(value);
+	};
+
 	return (
 		<div className={styles.bannerWrapper}>
 			<div className={`${styles.banner} ${isModerator ? styles.moderatorBanner : ''}`}>
@@ -50,6 +58,20 @@ function Banner({
 					)}
 				</div>
 				<div className={styles.bannerActions}>
+					{sortOptions && sortOptions.length > 0 && (
+						<select
+							value={selectedSort}
+							onChange={handleSortChange}
+							className={`${styles.bannerButton} ${styles.sortDropdown}`}
+						>
+							{sortOptions.map((option) => (
+								<option key={option} value={option}>
+									{option}
+								</option>
+							))}
+						</select>
+					)}
+
 					{onCreatePost && (
 						<button className={styles.bannerButton} onClick={onCreatePost}>
 							Create Post

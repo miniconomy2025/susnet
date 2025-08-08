@@ -1,15 +1,12 @@
-import React, { useState } from 'react'
+import React from 'react'
 import styles from './HeaderComponent.module.css'
-import CreateSubModal from '../CreateSub/CreateSubModal';
-import SearchBar from '../SearchBar/SearchBar';
+import SearchBar from '../SearchBar/SearchBar'
 
-function HeaderComponent({ menuOpen, setMenuOpen }) {
-  
-
+function HeaderComponent({ menuOpen, setMenuOpen, showSearch }: { menuOpen: boolean; setMenuOpen: React.Dispatch<React.SetStateAction<boolean>>; showSearch: boolean }) {
   return (
     <header className={styles.headerContainer}>
       <div className={styles.logo}>SusNet</div>
-      <SearchBar />
+      {showSearch && <SearchBar />}
       <button
         className={styles.hamburgerButton}
         onClick={() => setMenuOpen(prev => !prev)}
