@@ -21,7 +21,7 @@ export class Actor {
   // See: [https://fedify.dev/tutorial/microblog#table-creation]
   @prop({})                                                       uri?:          string;
   @prop({})                                                       inbox?:        string;      // "http[s]://*"
-  @prop({})                                                       sharedinbox?:  string;      // "http[s]://*"
+  @prop({})                                                       sharedInbox?:  string;      // "http[s]://*"
   @prop({})                                                       url?:          string;      // profile page url
   // @prop({ required: true, unique: true })                      handle?:       string;      // Derived: "@<name>@<origin>"
 

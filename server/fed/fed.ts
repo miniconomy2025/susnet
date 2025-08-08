@@ -2,7 +2,7 @@ import {
     Accept, Context, Create, createFederation, Endpoints,
     Federation, Follow, Group, importJwk,
     InProcessMessageQueue, MemoryKvStore, Note, Like,
-    Person, PUBLIC_COLLECTION, exportJwk, generateCryptoKeyPair,
+    Person, PUBLIC_COLLECTION, exportJwk, generateCryptoKeyPair, Image,
     getActorHandle, isActor, Undo, type Actor as APActor, type Recipient,
 } from "@fedify/fedify";
 import { ActorModel, ActorType, KeyModel, Key, PostModel, FollowModel, Actor, VoteModel, VoteType } from "../db/schema.ts";
@@ -56,9 +56,13 @@ fed.setActorDispatcher("/users/{identifier}", async (ctx, id) => {
         url: ctx.getActorUri(id),
         publicKey: keys[0]?.cryptographicKey,
     };
-
     try {
-        // if (actor.thumbnailUrl && !actor.thumbnailUrl.startsWith('<')) { actorData.icon = new URL(actor.thumbnailUrl); }
+        if (actor.thumbnailUrl && !actor.thumbnailUrl.startsWith('<')) { 
+            actorData.icon = new Image({
+                mediaType: "image/jpeg",
+                url: new URL(actor.thumbnailUrl)
+            });
+        }
     } catch { }
 
     return new (actor.type === ActorType.user ? Person : Group)(actorData);
@@ -79,14 +83,16 @@ fed.setActorDispatcher("/users/{identifier}", async (ctx, id) => {
             console.log(`${id} does not have an ${keyType} key, creating one...`);
             const { privateKey, publicKey } = await generateCryptoKeyPair(keyType);
 
-            const pubKey = JSON.stringify(await exportJwk(privateKey));
-            const prvKey = JSON.stringify(await exportJwk(publicKey));
+            const pubKey = JSON.stringify(await exportJwk(publicKey));
+            const prvKey = JSON.stringify(await exportJwk(privateKey));
+            console.log("PUB:", pubKey);
+            console.log("PRV:", prvKey);
 
             await KeyModel.findOneAndUpdate({ actorRef: user._id, keyType }, {
                 actorRef: user._id,
                 keyType,
-                privateKey: pubKey,
-                publicKey: prvKey,
+                privateKey: prvKey,
+                publicKey: pubKey,
             }, { upsert: true, new: true });
 
             pairs.push({ privateKey, publicKey });
@@ -364,7 +370,7 @@ async function persistActor(actor: APActor): Promise<Actor | null> {
         {
             name,
             type: ActorType.user,
-            // thumbnailUrl: (await actor.getIcon())?.url?.href,
+            thumbnailUrl: (await actor.getIcon())?.url?.href,
             description: actor.summary?.toString() || '',
             uri: actor.id.href,
             inbox: actor.inboxId.href,
