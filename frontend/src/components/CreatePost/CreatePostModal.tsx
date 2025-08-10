@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import styles from './CreatePostModal.module.css';
 import { createBase64 } from "../../utils/createBase64.ts";
+import { useAlert } from '../../contexts/AlertContext';
 
 function CreatePostModal({ isOpen, onClose, onSubmit }) {
   const [title, setTitle] = useState('');
@@ -13,9 +14,16 @@ const handleImageUpload = async (event) => {
   setAttachments((prev) => [...prev, ...urls]);
 };
 
-  const handleSubmit = () => {
-    onSubmit?.({ title, textBody, attachments });
-    onClose(); // Closes modal after submission
+  const { showAlert } = useAlert();
+
+  const handleSubmit = async () => {
+    try {
+      await onSubmit?.({ title, textBody, attachments });
+      showAlert('Post created successfully!', 'success');
+      onClose();
+    } catch (error) {
+      showAlert('An error occurred while creating post', 'error');
+    }
   };
 
   useEffect(() => {
@@ -38,19 +46,26 @@ const handleImageUpload = async (event) => {
 
             <input
               type="text"
-              maxLength={500}
+              maxLength={50}
               placeholder="Title"
               className={styles.input}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
             />
+            <div className={styles.charCounter}>
+              {title.length}/50
+            </div>
 
             <textarea
               placeholder="Text Body"
               className={styles.textarea}
+              maxLength={500}
               value={textBody}
               onChange={(e) => setTextBody(e.target.value)}
             />
+            <div className={styles.charCounter}>
+              {textBody.length}/500
+            </div>
 
             <label htmlFor="image-upload" className={styles.uploadButton}>
               + Add Images

@@ -3,6 +3,8 @@ import styles from "./CreateSubModal.module.css";
 import React, { useState } from "react";
 import { fetchApi } from "../../utils/fetchApi";
 import { useCreateSub } from "../../hooks/UseCreateSub.ts";
+import { useAlert } from "../../contexts/AlertContext.tsx";
+import { on } from "node:events";
 
 interface CreateSubModalProps {
   isOpen: boolean;
@@ -20,14 +22,24 @@ function CreateSubModal({ isOpen, onClose, onSubCreated  }: CreateSubModalProps)
 
   if (!isOpen) return null;
 
+  const { showAlert } = useAlert();
+
   const handleCreate = async () => {
     if (!formData.name.trim()) return;
     
-    const res = await createSub(formData);
-    if (res.success) {
+    try {
+      const res = await createSub(formData);
+      if (res.success) {
+        showAlert('Sub created successfully!', 'success');
+        onClose();
+        setFormData({ name: '', description: '', thumbnailUrl: '/images/cat.jpg' });
+        if (onSubCreated) onSubCreated();
+      } else {
+        showAlert('Failed to create sub', 'error');
+      }
+    } catch (error) {
+      showAlert('An error occurred while creating subreddit', 'error');
       onClose();
-      setFormData({ name: '', description: '', thumbnailUrl: '/images/cat.jpg' });
-      if (onSubCreated) onSubCreated(); // Call the refresh function
     }
   };
 
@@ -78,6 +90,9 @@ function CreateSubModal({ isOpen, onClose, onSubCreated  }: CreateSubModalProps)
               className={styles.input}
               placeholder="Enter sub name"
             />
+            <div className={styles.charCounter}>
+              {formData.name.length}/50
+            </div>
           </div>
         </div>
 
@@ -94,6 +109,9 @@ function CreateSubModal({ isOpen, onClose, onSubCreated  }: CreateSubModalProps)
               rows={3}
               placeholder="Enter description"
             />
+            <div className={styles.charCounter}>
+              {formData.description.length}/500
+            </div>
           </div>
         </div>
 

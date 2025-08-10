@@ -52,7 +52,6 @@
 /* 2. Collapsible container styling (optional if not already styled) */
 .collapsibleSection {
   width: 100%;
-  flex: 1;
   display: flex;
   flex-direction: column;
 }
@@ -72,8 +71,10 @@
   opacity: 60%;
   font-size: 1rem;
   padding-left: 2.5rem;
-    word-wrap: break-word;
+  text-wrap-mode: wrap;
+  word-wrap: break-word;
   overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .subLinks .link:hover {

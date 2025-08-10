@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { fetchApi } from '../utils/fetchApi';
 import { ActorData } from '../../../types/api';
 
+// In UseAuth.ts
 export const useAuth = () => {
   const [currentUser, setCurrentUser] = useState<ActorData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -11,6 +12,8 @@ export const useAuth = () => {
     const res = await fetchApi("me", {});
     if (res.success) {
       setCurrentUser(res.actor);
+    } else {
+      setCurrentUser(null);
     }
     setLoading(false);
   }, []);

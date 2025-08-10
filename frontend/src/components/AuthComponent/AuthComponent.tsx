@@ -2,22 +2,28 @@ import { useEffect, useRef } from "react";
 import { post } from "../../utils/requests.ts";
 import { useNavigate } from "react-router-dom";
 import styles from "./AuthComponent.module.css";
+import { useAuthContext } from "../../contexts/AuthContext.tsx";
 
 const GoogleLoginButton: React.FC = () => {
+  const { getCurrentUser } = useAuthContext(); // Use context instead
   const navigate = useNavigate();
   const buttonRef = useRef<HTMLDivElement>(null);
   const CLIENT_ID =
     "144675851144-dqjsn3ff0urka9mogbss98irppd81sns.apps.googleusercontent.com";
 
   const handleLogin = async (credential: string) => {
-    sessionStorage.setItem('Token', credential)
+  try {
+    sessionStorage.setItem('Token', credential);
     const res = await post("/auth/login", { token: credential });
     if (res.ok) {
-      navigate("/home");
-    } else {
-      //TODO BAD ACCOUNT
+      await getCurrentUser();
+      navigate("/account");
     }
-  };
+  } catch (error) {
+    console.error('Login error:', error);
+  }
+};
+
 
   useEffect(() => {
     if (globalThis.google && buttonRef.current) {

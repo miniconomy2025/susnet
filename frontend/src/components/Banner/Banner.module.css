@@ -32,6 +32,10 @@
 	font-size: 3rem;
 	font-weight: 200;
 	color: var(--text-colour);
+	text-wrap-mode: wrap;
+	word-wrap: break-word;
+	overflow-wrap: break-word;
+	word-break: break-word;
 }
 
 .bannerOverlay {

@@ -1,6 +1,6 @@
 import './App.css';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Home from './pages/Home.tsx';
 import Account from './pages/Account.tsx';
 import Login from './pages/Login.tsx';
@@ -8,18 +8,24 @@ import HeaderComponent from './components/HeaderComponent/HeaderComponent.tsx';
 import NavComponent from './components/NavComponent/NavComponent.tsx';
 import Subreddit from './pages/Subreddit.tsx';
 import UserProfile from './pages/UserProfile.tsx';
-import { useAuth } from './hooks/UseAuth.ts';
+import { AuthProvider, useAuthContext } from './contexts/AuthContext.tsx';
+import { AlertProvider } from './contexts/AlertContext.tsx';
 import { useUserSubs } from './hooks/UseUserSubs.ts';
 
 function AppWrapper() {
   const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
-  const { currentUser, loading: authLoading } = useAuth();
+  const { currentUser, loading: authLoading } = useAuthContext(); // Change this line
+    
   const { userSubs, loading: subsLoading, refreshSubs } = useUserSubs(currentUser?.name || "");
 
-  const showSearch = location.pathname !== "/";
+  useEffect(() => {
+    if (currentUser && !authLoading) {
+      refreshSubs();
+    }
+  }, [currentUser, authLoading]);
 
-  console.log('App state:', { currentUser: currentUser?.name, userSubs: userSubs.length, subsLoading, authLoading });
+  const showSearch = location.pathname !== "/";
 
   return (
     <div className="appContainer">
@@ -49,7 +55,11 @@ function AppWrapper() {
 function App() {
   return (
     <Router>
-      <AppWrapper />
+      <AuthProvider>
+        <AlertProvider>
+          <AppWrapper />
+        </AlertProvider>
+      </AuthProvider>
     </Router>
   );
 }
