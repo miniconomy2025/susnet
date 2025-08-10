@@ -77,6 +77,7 @@
 .textBody {
   font-weight: 400;
   line-height: 1.4;
+  text-wrap-mode: wrap;
 }
 
 .imageCarousel {

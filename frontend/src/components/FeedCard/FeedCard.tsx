@@ -41,7 +41,6 @@ function FeedCard({
   tags,
   upvotes,
   downvotes,
-  score,
   isFollowingSub,
   timestamp,
   showFollowingButton,
@@ -52,7 +51,7 @@ function FeedCard({
   const [isFollowing, setIsFollowing] = useState(isFollowingSub);
   const [currentUpvotes, setCurrentUpvotes] = useState(upvotes);
   const [currentDownvotes, setCurrentDownvotes] = useState(downvotes);
-  const [vote, setVote] = useState<VoteType | null>(userVote); // userVote should be passed as prop
+  const [vote, setVote] = useState<VoteType | null>(userVote); 
 
 
   const onSubredditClick = () => {
@@ -88,7 +87,6 @@ function FeedCard({
 	const res = await fetchApi("voteOnPost", { postId }, { vote: newVote });
 
 	if (res.success) {
-		// Handle vote transitions
 		if (prevVote === VoteType.up) {
 		setCurrentUpvotes(prev => prev - 1);
 		}
