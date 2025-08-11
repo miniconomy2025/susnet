@@ -43,6 +43,8 @@ export interface FederatedRequest extends Request { fedCtx: any; }
 fed.setActorDispatcher("/users/{identifier}", async (ctx, id) => {
     console.log("LOOKING FOR ACTOR:", id);
     const actor = await ActorModel.findOne({ name: id });
+    console.log("-> FOUND:", actor);
+
     if (actor == null) return null;
 
     const keys = await ctx.getActorKeyPairs(id);
