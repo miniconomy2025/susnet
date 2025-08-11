@@ -42,15 +42,21 @@ const GoogleLoginButton: React.FC = () => {
         });
       }
     };
+
     if (globalThis.google) {
       initializeGoogleButton();
     } else {
       const script = document.querySelector('script[src="https://accounts.google.com/gsi/client"]');
       if (script) {
         script.addEventListener("load", initializeGoogleButton);
+        return () => {
+          script.removeEventListener("load", initializeGoogleButton);
+          if (buttonRef.current) buttonRef.current.innerHTML = "";
+        };
       }
     }
   }, []);
+
 
   return (
     <div className={styles.authContainer}>
@@ -69,7 +75,7 @@ const GoogleLoginButton: React.FC = () => {
         </div>
       </div>
     </div>
-  );
+  ) => { };
 
 
 
