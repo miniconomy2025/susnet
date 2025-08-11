@@ -104,7 +104,7 @@ const handleImageUpload = async (event) => {
             </div>
 
             <button className={styles.submitButton} disabled={submitLoading} onClick={handleSubmit}>
-              Post
+              PostTest
             </button>
           </div>
         </div>
