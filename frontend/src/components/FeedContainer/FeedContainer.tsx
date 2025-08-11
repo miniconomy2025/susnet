@@ -17,7 +17,7 @@ function FeedContainer({
 	const [posts, setPosts] = useState(availablePosts);
 	const [loading, setLoading] = useState(false);
 	const sentinelRef = useRef(null);
-	const triggerLoadThreshload = 2000;
+	const triggerLoadThreshload = 100;
 	const loadingRef = useRef(loading);
 	const isPostsFetchedRef = useRef(false);
 	const cursorRef = useRef('');
