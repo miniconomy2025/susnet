@@ -12,7 +12,13 @@ interface NavComponentProps {
   authLoading: boolean;
 }
 
-function NavComponent({ menuOpen, setMenuOpen, userSubs, subsLoading, authLoading }: NavComponentProps) {
+function NavComponent({
+  menuOpen,
+  setMenuOpen,
+  userSubs,
+  subsLoading,
+  authLoading,
+}: NavComponentProps) {
   const location = useLocation();
 
   const hideOnPaths = ["/", "/login"];
@@ -22,8 +28,8 @@ function NavComponent({ menuOpen, setMenuOpen, userSubs, subsLoading, authLoadin
   }
 
   // Separate users and subreddits
-  const users = userSubs.filter(sub => sub.type === 'user');
-  const subreddits = userSubs.filter(sub => sub.type === 'sub');
+  const users = userSubs.filter((sub) => sub.type === "user");
+  const subreddits = userSubs.filter((sub) => sub.type === "sub");
 
   return (
     <div className={`${styles.sideBar} ${menuOpen ? styles.open : ""}`}>
@@ -49,10 +55,14 @@ function NavComponent({ menuOpen, setMenuOpen, userSubs, subsLoading, authLoadin
         >
           User
         </NavLink>
-        
+
         {/* Subreddits Section */}
         <div className={styles.collapsibleSection}>
-          <input type="checkbox" className={styles.listCheckbox} id="subs-toggle" />
+          <input
+            type="checkbox"
+            className={styles.listCheckbox}
+            id="subs-toggle"
+          />
           <label htmlFor="subs-toggle" className={styles.link}>
             Subreddits
             <span className="material-icons dropdownIcon">chevron_right</span>
@@ -60,12 +70,16 @@ function NavComponent({ menuOpen, setMenuOpen, userSubs, subsLoading, authLoadin
           <div className={styles.subLinks}>
             {authLoading || subsLoading ? (
               <div className={styles.link}>Loading...</div>
+            ) : subreddits.length === 0 ? (
+              <div className={styles.link}>You have no subreddits</div>
             ) : (
-              subreddits.map(sub => (
+              subreddits.map((sub) => (
                 <NavLink
                   key={sub.name}
                   to={`/subreddit/${encodeURIComponent(sub.name)}`}
-                  className={({ isActive }) => isActive ? styles.activeLink : styles.link}
+                  className={({ isActive }) =>
+                    isActive ? styles.activeLink : styles.link
+                  }
                   onClick={() => setMenuOpen(false)}
                 >
                   r/{sub.name}
@@ -77,7 +91,11 @@ function NavComponent({ menuOpen, setMenuOpen, userSubs, subsLoading, authLoadin
 
         {/* Users Section */}
         <div className={styles.collapsibleSection}>
-          <input type="checkbox" className={styles.listCheckbox} id="users-toggle" />
+          <input
+            type="checkbox"
+            className={styles.listCheckbox}
+            id="users-toggle"
+          />
           <label htmlFor="users-toggle" className={styles.link}>
             Following
             <span className="material-icons dropdownIcon">chevron_right</span>
@@ -85,12 +103,16 @@ function NavComponent({ menuOpen, setMenuOpen, userSubs, subsLoading, authLoadin
           <div className={styles.subLinks}>
             {authLoading || subsLoading ? (
               <div className={styles.link}>Loading...</div>
+            ) : users.length === 0 ? (
+              <div className={styles.link}>You aren't following anyone</div>
             ) : (
-              users.map(user => (
+              users.map((user) => (
                 <NavLink
                   key={user.name}
                   to={`/user/${encodeURIComponent(user.name)}`}
-                  className={({ isActive }) => isActive ? styles.activeLink : styles.link}
+                  className={({ isActive }) =>
+                    isActive ? styles.activeLink : styles.link
+                  }
                   onClick={() => setMenuOpen(false)}
                 >
                   u/{user.name}
@@ -103,6 +125,5 @@ function NavComponent({ menuOpen, setMenuOpen, userSubs, subsLoading, authLoadin
     </div>
   );
 }
-
 
 export default NavComponent;
