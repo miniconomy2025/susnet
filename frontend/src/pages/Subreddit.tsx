@@ -1,14 +1,15 @@
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import FeedContainer from '../components/FeedContainer/FeedContainer';
-import { BannerProps, FeedContainerProps } from '../models/Feed';
-import { Req_Feed, Res_Feed, ActorData } from '../../../types/api';
-import { fetchApi } from '../utils/fetchApi';
-import LoadingSpinner from '../components/LoadingSpinner/LoadingSpinner';
-import CreatePostModal from '../components/CreatePost/CreatePostModal';
-import AccountModal from '../components/AccountCard/AccountModal';
-import { useAuth } from '../hooks/UseAuth';
-import { useCreatePost } from '../hooks/UseCreatePost';
+import FeedContainer from '../components/FeedContainer/FeedContainer.tsx';
+import { BannerProps, FeedContainerProps } from "../models/Feed.ts";
+import { Req_Feed, Res_Feed, ActorData } from '../../../types/api.ts';
+import { fetchApi } from "../utils/fetchApi.ts";
+import LoadingSpinner from "../components/LoadingSpinner/LoadingSpinner.tsx";
+import CreatePostModal from "../components/CreatePost/CreatePostModal.tsx";
+import AccountModal from "../components/AccountCard/AccountModal.tsx";
+import { useAuth } from "../hooks/UseAuth.ts";
+import { useCreatePost } from "../hooks/UseCreatePost.ts";
+import { sortBy } from "effect/Array";
 
 function Subreddit({ refreshSubs }) {
 	const { id } = useParams();
@@ -87,6 +88,7 @@ function Subreddit({ refreshSubs }) {
 			limit,
 			cursor,
 			fromActorName: id,
+			sort: "new"
 		};
 
 		try {
