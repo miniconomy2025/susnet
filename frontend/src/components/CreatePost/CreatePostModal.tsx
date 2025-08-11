@@ -9,13 +9,13 @@ function CreatePostModal({ isOpen, onClose, onSubmit }) {
   const [attachments, setAttachments] = useState([]);
   const [submitLoading, setSubmitLoading] = useState(false);
 
-const handleImageUpload = async (event) => {
-  const files = Array.from(event.target.files);
-  const urls = await Promise.all(files.map((file) => createBase64(file)));
-  setAttachments((prev) => [...prev, ...urls]);
-};
-
   const { showAlert } = useAlert();
+
+  const handleImageUpload = async (event) => {
+    const files = Array.from(event.target.files);
+    const urls = await Promise.all(files.map((file) => createBase64(file)));
+    setAttachments((prev) => [...prev, ...urls]);
+  };
 
   const handleSubmit = async () => {
     setSubmitLoading(true);
@@ -30,10 +30,6 @@ const handleImageUpload = async (event) => {
   };
 
   useEffect(() => {
-    //
-  }, [submitLoading]);
-
-  useEffect(() => {
     if (!isOpen) {
       setTitle('');
       setTextBody('');
@@ -41,81 +37,84 @@ const handleImageUpload = async (event) => {
     }
   }, [isOpen]);
 
+  const canSubmit = title.trim().length > 0 && textBody.trim().length > 0;
+
   return (
     isOpen && (
-        <div className={styles.modalBackdrop}>
-          <div className={styles.modalContainer}>
-            <button className={styles.closeButton} onClick={onClose}>
-              ×
-            </button>
+      <div className={styles.modalBackdrop}>
+        <div className={styles.modalContainer}>
+          <button className={styles.closeButton} onClick={onClose}>
+            ×
+          </button>
 
-            <h2 className={styles.modalTitle}>Create a Post</h2>
+          <h2 className={styles.modalTitle}>Create a Post</h2>
 
-            <input
-              type="text"
-              maxLength={50}
-              placeholder="Title"
-              className={styles.input}
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
-            <div className={styles.charCounter}>
-              {title.length}/50
-            </div>
-
-            <textarea
-              placeholder="Text Body"
-              className={styles.textarea}
-              maxLength={500}
-              value={textBody}
-              onChange={(e) => setTextBody(e.target.value)}
-            />
-            <div className={styles.charCounter}>
-              {textBody.length}/500
-            </div>
-
-            <label htmlFor="image-upload" className={styles.uploadButton}>
-              + Add Images
-            </label>
-            <input
-              id="image-upload"
-              type="file"
-              multiple
-              accept="image/*"
-              onChange={handleImageUpload}
-              className={styles.fileInput}
-            />
-
-            <div className={styles.previewGrid}>
-              {attachments.map((url, idx) => (
-                <div key={idx} className={styles.previewWrapper}>
-                  <button
-                    type="button"
-                    className={styles.removeButton}
-                    onClick={() =>
-                      setAttachments((prev) => prev.filter((_, i) => i !== idx))
-                    }
-                  >
-                    ×
-                  </button>
-                  <img
-                    src={url}
-                    alt={`upload-${idx}`}
-                    className={styles.previewImage}
-                  />
-                </div>
-              ))}
-            </div>
-
-            <button 
-            className={`${styles.submitButton} ${submitLoading ? styles.submitButtonBlocked : ''}`}
-            disabled={submitLoading}
-            onClick={handleSubmit}>
-              Post
-            </button>
+          <input
+            type="text"
+            maxLength={50}
+            placeholder="Title"
+            className={styles.input}
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+          />
+          <div className={styles.charCounter}>
+            {title.length}/50
           </div>
+
+          <textarea
+            placeholder="Text Body"
+            className={styles.textarea}
+            maxLength={500}
+            value={textBody}
+            onChange={(e) => setTextBody(e.target.value)}
+          />
+          <div className={styles.charCounter}>
+            {textBody.length}/500
+          </div>
+
+          <label htmlFor="image-upload" className={styles.uploadButton}>
+            + Add Images
+          </label>
+          <input
+            id="image-upload"
+            type="file"
+            multiple
+            accept="image/*"
+            onChange={handleImageUpload}
+            className={styles.fileInput}
+          />
+
+          <div className={styles.previewGrid}>
+            {attachments.map((url, idx) => (
+              <div key={idx} className={styles.previewWrapper}>
+                <button
+                  type="button"
+                  className={styles.removeButton}
+                  onClick={() =>
+                    setAttachments((prev) => prev.filter((_, i) => i !== idx))
+                  }
+                >
+                  ×
+                </button>
+                <img
+                  src={url}
+                  alt={`upload-${idx}`}
+                  className={styles.previewImage}
+                />
+              </div>
+            ))}
+          </div>
+
+          <button
+            className={`${styles.submitButton} ${(!canSubmit || submitLoading) ? styles.submitButtonBlocked : ''}`}
+            disabled={!canSubmit || submitLoading}
+            onClick={handleSubmit}
+          >
+            Post
+          </button>
         </div>
-      )
+      </div>
+    )
   );
 }
 

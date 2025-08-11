@@ -54,6 +54,8 @@
   width: 100%;
   display: flex;
   flex-direction: column;
+  max-height: 15rem;
+  padding-right: 0.2rem;
 }
 
 /* 3. Sub-links container - initially hidden */
