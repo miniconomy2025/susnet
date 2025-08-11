@@ -69,6 +69,7 @@ app.use("/api", router);
 // Handle frontend
 // app.use(express.static(FE_DIR));
 app.all("/{*any}", (req, res, next) => {
+  req.headers.host = "susnet.co.za"
   console.log(req)
   // res.sendFile("index.html", { root: FE_DIR });
 });
