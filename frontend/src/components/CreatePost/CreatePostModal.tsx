@@ -30,6 +30,10 @@ const handleImageUpload = async (event) => {
   };
 
   useEffect(() => {
+    //Rerender when submit is loading
+  }, [submitLoading]);
+
+  useEffect(() => {
     if (!isOpen) {
       setTitle('');
       setTextBody('');
@@ -104,7 +108,7 @@ const handleImageUpload = async (event) => {
             </div>
 
             <button className={styles.submitButton} disabled={submitLoading} onClick={handleSubmit}>
-              PostTest
+              Post
             </button>
           </div>
         </div>
