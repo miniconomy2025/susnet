@@ -34,7 +34,7 @@ const GoogleLoginButton: React.FC = () => {
             handleLogin(response.credential);
           },
         });
-
+        globalThis.google.accounts.id.disableAutoSelect();
         globalThis.google.accounts.id.renderButton(buttonRef.current, {
           type: "standard",
           theme: "outline",
