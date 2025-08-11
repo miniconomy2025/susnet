@@ -12,44 +12,45 @@ const GoogleLoginButton: React.FC = () => {
     "144675851144-dqjsn3ff0urka9mogbss98irppd81sns.apps.googleusercontent.com";
 
   const handleLogin = async (credential: string) => {
-  try {
-    sessionStorage.setItem('Token', credential);
-    const res = await post("/auth/login", { token: credential });
-    if (res.ok) {
-      await getCurrentUser();
-      navigate("/account");
-    }
-  } catch (error) {
-    console.error('Login error:', error);
-  }
-};
-
-
-useEffect(() => {
-  const initializeGoogleButton = () => {
-    if (globalThis.google && buttonRef.current) {
-      globalThis.google.accounts.id.initialize({
-        client_id: CLIENT_ID,
-        callback: (response: google.accounts.id.CredentialResponse) => {
-          handleLogin(response.credential);
-        },
-      });
-
-      globalThis.google.accounts.id.renderButton(buttonRef.current, {
-        type: "standard",
-        theme: "outline",
-        size: "large",
-      });
+    try {
+      sessionStorage.setItem('Token', credential);
+      const res = await post("/auth/login", { token: credential });
+      if (res.ok) {
+        await getCurrentUser();
+        navigate("/account");
+      }
+    } catch (error) {
+      console.error('Login error:', error);
     }
   };
 
-  if (globalThis.google) {
-    initializeGoogleButton();
-  } else {
-    // Wait for script load
-    window.addEventListener("google-loaded", initializeGoogleButton);
-  }
-}, []);
+
+  useEffect(() => {
+    const initializeGoogleButton = () => {
+      if (globalThis.google && buttonRef.current) {
+        globalThis.google.accounts.id.initialize({
+          client_id: CLIENT_ID,
+          callback: (response: google.accounts.id.CredentialResponse) => {
+            handleLogin(response.credential);
+          },
+        });
+
+        globalThis.google.accounts.id.renderButton(buttonRef.current, {
+          type: "standard",
+          theme: "outline",
+          size: "large",
+        });
+      }
+    };
+    if (globalThis.google) {
+      initializeGoogleButton();
+    } else {
+      const script = document.querySelector('script[src="https://accounts.google.com/gsi/client"]');
+      if (script) {
+        script.addEventListener("load", initializeGoogleButton);
+      }
+    }
+  }, []);
 
   return (
     <div className={styles.authContainer}>
@@ -58,7 +59,7 @@ useEffect(() => {
           Welcome to SusNet!
         </h1>
         <p className={styles.authSubtitle}>
-            Sign in to continue to your account
+          Sign in to continue to your account
         </p>
 
         <div ref={buttonRef}></div>
@@ -69,9 +70,9 @@ useEffect(() => {
       </div>
     </div>
   );
-  
-  
-  
+
+
+
 };
 
 export default GoogleLoginButton;
