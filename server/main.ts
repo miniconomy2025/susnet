@@ -69,9 +69,6 @@ app.use("/api", router);
 // Handle frontend
 app.use(express.static(FE_DIR));
 app.all("/{*any}", (req, res, next) => {
-  if (req.path.startsWith('/users/') || req.path.startsWith('/fed/') || req.path.startsWith('/api/') || req.path.startsWith('/.well-known/')) {
-    return next();
-  }
   res.sendFile("index.html", { root: FE_DIR });
 });
 
