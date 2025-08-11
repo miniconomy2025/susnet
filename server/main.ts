@@ -68,10 +68,10 @@ app.use("/api", router);
 
 // Handle frontend
 // app.use(express.static(FE_DIR));
-// app.all("/{*any}", (req, res, next) => {
-//   console.log(req)
-//   res.sendFile("index.html", { root: FE_DIR });
-// });
+app.all("/{*any}", (req, res, next) => {
+  console.log(req)
+  // res.sendFile("index.html", { root: FE_DIR });
+});
 
 app.listen(PORT, () => {
   console.log(`🚀 Server is running at http://localhost:${PORT}`);
