@@ -7,6 +7,7 @@ function CreatePostModal({ isOpen, onClose, onSubmit }) {
   const [title, setTitle] = useState('');
   const [textBody, setTextBody] = useState('');
   const [attachments, setAttachments] = useState([]);
+  const [submitLoading, setSubmitLoading] = useState(false);
 
 const handleImageUpload = async (event) => {
   const files = Array.from(event.target.files);
@@ -17,6 +18,7 @@ const handleImageUpload = async (event) => {
   const { showAlert } = useAlert();
 
   const handleSubmit = async () => {
+    setSubmitLoading(true);
     try {
       await onSubmit?.({ title, textBody, attachments });
       showAlert('Post created successfully!', 'success');
@@ -24,6 +26,7 @@ const handleImageUpload = async (event) => {
     } catch (error) {
       showAlert('An error occurred while creating post', 'error');
     }
+    setSubmitLoading(false);
   };
 
   useEffect(() => {
@@ -100,7 +103,7 @@ const handleImageUpload = async (event) => {
               ))}
             </div>
 
-            <button className={styles.submitButton} onClick={handleSubmit}>
+            <button className={styles.submitButton} disabled={submitLoading} onClick={handleSubmit}>
               Post
             </button>
           </div>
