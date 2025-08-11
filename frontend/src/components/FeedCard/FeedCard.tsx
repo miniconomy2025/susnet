@@ -4,7 +4,7 @@ import ImageCarousel from "../ImageCarousel/ImageCarousel.tsx";
 import styles from "./FeedCard.module.css";
 import { fetchApi } from "../../utils/fetchApi.ts";
 import { VoteType } from "../../models/Feed.ts";
-import DOMPurify from 'npm:dompurify';
+import DOMPurify from 'dompurify';
 
 function getTimeAgo(epochMs: number): string {
   const now = Date.now();
