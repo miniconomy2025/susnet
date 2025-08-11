@@ -26,6 +26,7 @@
     "npm:byte-encodings@^1.0.11": "1.0.11",
     "npm:cookie-parser@^1.4.7": "1.4.7",
     "npm:cors@^2.8.5": "2.8.5",
+    "npm:dompurify@^3.2.6": "3.2.6",
     "npm:effect-mongodb@~0.3.1": "0.3.1_effect@3.17.6_mongodb@6.18.0",
     "npm:effect@^3.17.3": "3.17.6",
     "npm:express@4": "4.21.2",
@@ -1725,6 +1726,9 @@
         "@types/send"
       ]
     },
+    "@types/trusted-types@2.0.7": {
+      "integrity": "sha512-ScaPdn1dQczgbl0QFTeTOmVHFULt394XJgOQNoyVhZ6r2vLnMLJfBPd53SB52T/3G36VI1/g2MZaX0cwDuXsfw=="
+    },
     "@types/uuid@9.0.8": {
       "integrity": "sha512-jg+97EGIcY9AGHJJRaaPVgetKDsrTgbRjQ5Msgjh/DQKEFl0DtyRr/VCOyD1T2R1MNeWPK/u7JoGhlDZnKBAfA=="
     },
@@ -2093,6 +2097,12 @@
     },
     "detect-libc@2.0.4": {
       "integrity": "sha512-3UDv+G9CsCKO1WKMGw9fwq/SWJYbI0c5Y7LU1AXYoDdbhE2AHQ6N6Nb34sG8Fj7T5APy8qXDCKuuIHd1BR0tVA=="
+    },
+    "dompurify@3.2.6": {
+      "integrity": "sha512-/2GogDQlohXPZe6D6NOgQvXLPSYBqIWMnZ8zzOhn09REE4eyAzb+Hed3jhoM9OkuaJ8P6ZGTTVWQKAi8ieIzfQ==",
+      "optionalDependencies": [
+        "@types/trusted-types"
+      ]
     },
     "dunder-proto@1.0.1": {
       "integrity": "sha512-KIN/nDJBQRcXw0MLVhZE9iQHmG68qAVIBg9CqmUYjmQIhgij9U5MFvrqkUL5FbtyyzZuOeOt0zdeRe4UY7ct+A==",
@@ -3598,6 +3608,7 @@
       "npm:@vitejs/plugin-react@^4.6.0",
       "npm:cookie-parser@^1.4.7",
       "npm:cors@^2.8.5",
+      "npm:dompurify@^3.2.6",
       "npm:effect-mongodb@~0.3.1",
       "npm:effect@^3.17.3",
       "npm:express@^5.1.0",
