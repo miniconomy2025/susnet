@@ -66,20 +66,6 @@ export class CdkSusnetStack extends cdk.Stack {
       "let it in",
     );
 
-    const server = new ec2.Instance(this, "susnetServer", {
-      vpc,
-      securityGroup: securityGroup,
-      instanceType: ec2.InstanceType.of(
-        ec2.InstanceClass.T3,
-        ec2.InstanceSize.MICRO,
-      ),
-      machineImage: ec2.MachineImage.latestAmazonLinux2023(),
-      keyPair: ec2.KeyPair.fromKeyPairName(this, "KeyPair", "the-key"),
-      vpcSubnets: {
-        subnetType: ec2.SubnetType.PUBLIC,
-      },
-    });
-
     const imageStore = new Bucket(this, 'imageStoreS3Bucket', {
       bucketName: 'susnet-s3-bucket-images', // Make this globally unique!
       blockPublicAccess: {
@@ -102,11 +88,29 @@ export class CdkSusnetStack extends cdk.Stack {
       }),
     );
 
+      const server = new ec2.Instance(this, "susnetServer", {
+        vpc,
+        securityGroup: securityGroup,
+        instanceType: ec2.InstanceType.of(
+          ec2.InstanceClass.T3,
+          ec2.InstanceSize.MICRO,
+        ),
+        machineImage: ec2.MachineImage.latestAmazonLinux2023(),
+        keyPair: ec2.KeyPair.fromKeyPairName(this, "KeyPair", "the-key"),
+        vpcSubnets: {
+          subnetType: ec2.SubnetType.PUBLIC,
+        },
+      });
+
+      const eip = new ec2.CfnEIP(this, 'EIP', {
+        instanceId: server.instanceId
+      })
+
     imageStore.grantPut(server.role);
 
     // A RECORD FOR SERVER
     const serverRecord = new ARecord(this, "ARecordServer", {
-      target: RecordTarget.fromIpAddresses(server.instancePublicIp),
+      target: RecordTarget.fromIpAddresses(eip.attrPublicIp),
       zone: hostedZone,
     });
   }
