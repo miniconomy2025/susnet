@@ -38,14 +38,14 @@ const GoogleLoginButton: React.FC = () => {
           context: "signin"
         });
 
-        // globalThis.google.accounts.id.disableAutoSelect();
-        // buttonRef.current.innerHTML = '';
+        globalThis.google.accounts.id.disableAutoSelect();
+        buttonRef.current.innerHTML = '';
 
-        // globalThis.google.accounts.id.renderButton(buttonRef.current, {
-        //   type: "standard",
-        //   theme: "outline",
-        //   size: "large",
-        // });
+        globalThis.google.accounts.id.renderButton(buttonRef.current, {
+          type: "standard",
+          theme: "outline",
+          size: "large",
+        });
       }
     };
 
