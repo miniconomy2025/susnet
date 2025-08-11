@@ -40,6 +40,7 @@ app.use(cors({
 // Handle fedify
 // app.use(integrateFederation(fed, () => undefined))
 app.use(integrateFederation(fed, (req) => {
+  console.log(req)
   const domain = env("DOMAIN", "localhost:3000");
   const protocol = domain.includes('localhost') ? 'http' : 'https';
   return new URL(req.originalUrl, `${protocol}://${domain}`);
