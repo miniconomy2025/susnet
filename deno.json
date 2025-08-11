@@ -8,7 +8,8 @@
     "preview": "deno run -A --node-modules-dir npm:vite preview",
     "serve": "deno run --allow-net --allow-read jsr:@std/http@1/file-server frontend/dist/",
 
-    "full": "deno run build && deno run dev"
+    "full": "deno run build && deno run dev",
+    "prod": "git pull && deno run full"
   },
   "nodeModulesDir": "auto",
   "imports": {
