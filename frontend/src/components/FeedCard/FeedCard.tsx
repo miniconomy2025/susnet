@@ -4,6 +4,7 @@ import ImageCarousel from "../ImageCarousel/ImageCarousel.tsx";
 import styles from "./FeedCard.module.css";
 import { fetchApi } from "../../utils/fetchApi.ts";
 import { VoteType } from "../../models/Feed.ts";
+import DOMPurify from 'npm:dompurify';
 
 function getTimeAgo(epochMs: number): string {
   const now = Date.now();
@@ -135,7 +136,7 @@ function FeedCard({
       </div>
 
       <h1 className={styles.title}>{title}</h1>
-      <p className={styles.textBody} dangerouslySetInnerHTML={{__html: content}}></p>
+      <p className={styles.textBody} dangerouslySetInnerHTML={{__html: DOMPurify(content)}}></p>
 
       {attachments?.length > 0 && <ImageCarousel attachments={attachments} />}
 

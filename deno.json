@@ -20,6 +20,7 @@
     "@types/express": "npm:@types/express@^5.0.3",
     "cookie-parser": "npm:cookie-parser@^1.4.7",
     "cors": "npm:cors@^2.8.5",
+    "dompurify": "npm:dompurify@^3.2.6",
 
     "effect": "npm:effect@^3.17.3",
     "effect-mongodb": "npm:effect-mongodb@^0.3.1",
