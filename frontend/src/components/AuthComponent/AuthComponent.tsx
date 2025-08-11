@@ -28,13 +28,19 @@ const GoogleLoginButton: React.FC = () => {
   useEffect(() => {
     const initializeGoogleButton = () => {
       if (globalThis.google && buttonRef.current) {
+        globalThis.google.accounts.id.cancel();
         globalThis.google.accounts.id.initialize({
           client_id: CLIENT_ID,
           callback: (response: google.accounts.id.CredentialResponse) => {
             handleLogin(response.credential);
           },
           auto_select: false,
+          cancel_on_tap_outside: true
         });
+        
+        globalThis.google.accounts.id.disableAutoSelect();
+        buttonRef.current.innerHTML = '';
+
         globalThis.google.accounts.id.renderButton(buttonRef.current, {
           type: "standard",
           theme: "outline",
