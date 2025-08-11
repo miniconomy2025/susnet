@@ -87,7 +87,7 @@
   border-radius: 8px;
 }
 
-.submitButton .submitButtonBlocked{
+.submitButton {
   background-color: var(--primary-colour);
   color: var(--text-colour);
   border: none;
