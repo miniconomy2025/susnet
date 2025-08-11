@@ -9,7 +9,7 @@ const LOCAL_ORIGIN = "https://susnet.co.za";
 export enum ActorType { user = "user", sub = "sub" };
 
 @index({ type: 1, name: 1 }, { unique: true })
-@index({ uri: 1 }, { unique: true })
+@index({ uri: 1 }, { unique: false })
 @modelOptions({ schemaOptions: { timestamps: true } })
 export class Actor {
   @prop({ required: true, unique: true })                         name!:          string;     // Unique amongst users & subs

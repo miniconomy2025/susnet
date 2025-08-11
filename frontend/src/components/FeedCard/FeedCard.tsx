@@ -135,7 +135,7 @@ function FeedCard({
       </div>
 
       <h1 className={styles.title}>{title}</h1>
-      <p className={styles.textBody}>{content}</p>
+      <p className={styles.textBody} dangerouslySetInnerHTML={{__html: content}}></p>
 
       {attachments?.length > 0 && <ImageCarousel attachments={attachments} />}
 
