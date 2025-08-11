@@ -75,10 +75,7 @@ const GoogleLoginButton: React.FC = () => {
         </div>
       </div>
     </div>
-  ) => { };
-
-
-
+  );
 };
 
 export default GoogleLoginButton;
