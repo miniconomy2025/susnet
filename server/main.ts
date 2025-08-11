@@ -38,12 +38,12 @@ app.use(cors({
 }));
 
 // Handle fedify
-// app.use(integrateFederation(fed, () => undefined))
-app.use(integrateFederation(fed, (req) => {
-  const domain = env("DOMAIN", "localhost:3000");
-  const protocol = domain.includes('localhost') ? 'http' : 'https';
-  return new URL(req.originalUrl, `${protocol}://${domain}`);
-}))
+app.use(integrateFederation(fed, () => undefined))
+// app.use(integrateFederation(fed, (req) => {
+//   const domain = env("DOMAIN", "localhost:3000");
+//   const protocol = domain.includes('localhost') ? 'http' : 'https';
+//   return new URL(req.originalUrl, `${protocol}://${domain}`);
+// }))
 
 // app.use((req, res, next) => {
 //   console.log("FEDIFY REQUEST");
@@ -69,8 +69,8 @@ app.use("/api", router);
 // Handle frontend
 app.use(express.static(FE_DIR));
 app.all("/{*any}", (req, res, next) => {
-  if (req.baseUrl.includes('/fed') || req.baseUrl.includes('/api')) {
-    next()
+  if (req.path.startsWith('/users/') || req.path.startsWith('/fed/') || req.path.startsWith('/api/') || req.path.startsWith('/.well-known/')) {
+    return next();
   }
   res.sendFile("index.html", { root: FE_DIR });
 });
