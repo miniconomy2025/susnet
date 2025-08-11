@@ -35,9 +35,10 @@ const GoogleLoginButton: React.FC = () => {
             handleLogin(response.credential);
           },
           auto_select: false,
-          cancel_on_tap_outside: true
+          cancel_on_tap_outside: true,
+          context: "use"
         });
-        
+
         globalThis.google.accounts.id.disableAutoSelect();
         buttonRef.current.innerHTML = '';
 
