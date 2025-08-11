@@ -48,6 +48,8 @@ function FeedCard({
   userVote,
   refreshSubs,
 }) {
+  const safeContent = DOMPurify.sanitize(content)
+
   const navigate = useNavigate();
   const [isFollowing, setIsFollowing] = useState(isFollowingSub);
   const [currentUpvotes, setCurrentUpvotes] = useState(upvotes);
@@ -136,7 +138,7 @@ function FeedCard({
       </div>
 
       <h1 className={styles.title}>{title}</h1>
-      <p className={styles.textBody} dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(content)}}></p>
+      <p className={styles.textBody} dangerouslySetInnerHTML={{__html: safeContent}}></p>
 
       {attachments?.length > 0 && <ImageCarousel attachments={attachments} />}
 
