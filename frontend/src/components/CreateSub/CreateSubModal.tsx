@@ -12,12 +12,16 @@ interface CreateSubModalProps {
   onSubCreated?: () => void;
 }
 
-function CreateSubModal({ isOpen, onClose, onSubCreated  }: CreateSubModalProps) {
+function CreateSubModal({
+  isOpen,
+  onClose,
+  onSubCreated,
+}: CreateSubModalProps) {
   const { createSub, creating } = useCreateSub();
   const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    thumbnailUrl: '/images/cat.jpg',
+    name: "",
+    description: "",
+    thumbnailUrl: "/images/cat.jpg",
   });
 
   if (!isOpen) return null;
@@ -26,19 +30,23 @@ function CreateSubModal({ isOpen, onClose, onSubCreated  }: CreateSubModalProps)
 
   const handleCreate = async () => {
     if (!formData.name.trim()) return;
-    
+
     try {
       const res = await createSub(formData);
       if (res.success) {
-        showAlert('Sub created successfully!', 'success');
+        showAlert("Sub created successfully!", "success");
         onClose();
-        setFormData({ name: '', description: '', thumbnailUrl: '/images/cat.jpg' });
+        setFormData({
+          name: "",
+          description: "",
+          thumbnailUrl: "/images/cat.jpg",
+        });
         if (onSubCreated) onSubCreated();
       } else {
-        showAlert('Failed to create sub', 'error');
+        showAlert("Failed to create sub", "error");
       }
     } catch (error) {
-      showAlert('An error occurred while creating subreddit', 'error');
+      showAlert("An error occurred while creating subreddit", "error");
       onClose();
     }
   };
@@ -48,11 +56,16 @@ function CreateSubModal({ isOpen, onClose, onSubCreated  }: CreateSubModalProps)
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const canSubmit =
+    formData.name.trim().length > 0 && formData.description.trim().length > 0;
+
   return (
     <div className={styles.modalOverlay} onClick={onClose}>
       <div className={styles.SubCard} onClick={(e) => e.stopPropagation()}>
-        <button className={styles.closeButton} onClick={onClose}>×</button>
-        
+        <button className={styles.closeButton} onClick={onClose}>
+          ×
+        </button>
+
         <div className={styles.profileSection}>
           <div className={styles.profilePicWrapper}>
             <img
@@ -68,7 +81,10 @@ function CreateSubModal({ isOpen, onClose, onSubCreated  }: CreateSubModalProps)
                 if (file) {
                   const reader = new FileReader();
                   reader.onload = (e) => {
-                    setFormData(prev => ({ ...prev, thumbnailUrl: e.target?.result as string }));
+                    setFormData((prev) => ({
+                      ...prev,
+                      thumbnailUrl: e.target?.result as string,
+                    }));
                   };
                   reader.readAsDataURL(file);
                 }
@@ -90,15 +106,11 @@ function CreateSubModal({ isOpen, onClose, onSubCreated  }: CreateSubModalProps)
               className={styles.input}
               placeholder="Enter sub name"
             />
-            <div className={styles.charCounter}>
-              {formData.name.length}/50
-            </div>
+            <div className={styles.charCounter}>{formData.name.length}/50</div>
           </div>
         </div>
 
         <div className={styles.detailsSection}>
-          
-          
           <div className={styles.info}>
             <span className={styles.label}>Description:</span>
             <textarea
@@ -116,10 +128,18 @@ function CreateSubModal({ isOpen, onClose, onSubCreated  }: CreateSubModalProps)
         </div>
 
         <div className={styles.actionsSection}>
-          <button className={styles.primaryButton} onClick={handleCreate} disabled={creating}>
-            {creating ? 'Creating...' : 'Create Sub'}
+          <button
+            className={`${styles.primaryButton} ${
+              !canSubmit || creating ? styles.submitButtonBlocked : ""
+            }`}
+            onClick={handleCreate}
+            disabled={!canSubmit || creating}
+          >
+            {creating ? "Creating..." : "Create Sub"}
           </button>
-          <button className={styles.secondaryButton} onClick={onClose}>Cancel</button>
+          <button className={styles.secondaryButton} onClick={onClose}>
+            Cancel
+          </button>
         </div>
       </div>
     </div>
