@@ -25,7 +25,8 @@ const GoogleLoginButton: React.FC = () => {
 };
 
 
-  useEffect(() => {
+useEffect(() => {
+  const initializeGoogleButton = () => {
     if (globalThis.google && buttonRef.current) {
       globalThis.google.accounts.id.initialize({
         client_id: CLIENT_ID,
@@ -40,7 +41,15 @@ const GoogleLoginButton: React.FC = () => {
         size: "large",
       });
     }
-  }, []);
+  };
+
+  if (globalThis.google) {
+    initializeGoogleButton();
+  } else {
+    // Wait for script load
+    window.addEventListener("google-loaded", initializeGoogleButton);
+  }
+}, []);
 
   return (
     <div className={styles.authContainer}>
