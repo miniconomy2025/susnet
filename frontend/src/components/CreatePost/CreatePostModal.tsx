@@ -30,7 +30,7 @@ const handleImageUpload = async (event) => {
   };
 
   useEffect(() => {
-    //Rerender when submit is loading
+    //
   }, [submitLoading]);
 
   useEffect(() => {

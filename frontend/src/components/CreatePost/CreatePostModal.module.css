@@ -87,7 +87,7 @@
   border-radius: 8px;
 }
 
-.submitButton {
+.submitButton .submitButtonBlocked{
   background-color: var(--primary-colour);
   color: var(--text-colour);
   border: none;
@@ -96,6 +96,10 @@
   font-weight: 600;
   cursor: pointer;
   margin-top: 1rem;
+}
+
+.submitButtonBlocked {
+  background-color: var(--secondary-colour);
 }
 
 
